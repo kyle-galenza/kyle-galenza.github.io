@@ -41,7 +41,7 @@
   <h1>GATE STORM</h1>
   <h2>HOLD THE LINE</h2>
   <p>The xeno tide is pouring down the trench. You fly the last gunship on the line.</p>
-  <p>Drag to steer. You fire automatically. Fly through <span style="color:#3dff8a">gates</span> to power up &mdash; and try not to pick the <span style="color:#ff5a6a">wrong one</span>.</p>
+  <p>Drag to steer. You fire automatically. <span style="color:#3dff8a">Shoot a gate</span> to break it and claim its power-up. Only one gate from each pair will unlock, so commit your fire.</p>
   <button class="btn" id="startBtn">ENGAGE</button>
   <div class="keys">Touch &amp; drag to steer &middot; Desktop: arrows / A D or mouse drag &middot; P pause &middot; M mute</div>
   <div class="keys" id="best"></div>
@@ -91,7 +91,7 @@ const randi = (a,b) => Math.floor(rand(a, b+1));
 const clamp = (v,a,b) => v<a?a:v>b?b:v;
 const pick = a => a[randi(0, a.length-1)];
 const TAU = Math.PI*2;
-const BEST_KEY = 'kylearcade_gatestorm_best';
+const BEST_KEY = 'kylearcade_gatestorm_best_v2';
 function getBest(){ try{ return +localStorage.getItem(BEST_KEY)||0; }catch(e){ return 0; } }
 function setBest(v){ try{ localStorage.setItem(BEST_KEY, String(v)); }catch(e){} }
 function fmt(n){ return Math.floor(n).toLocaleString('en-US'); }
@@ -179,40 +179,36 @@ window.addEventListener('pointercancel', endTouch);
 // ---------- definitions ----------
 const MAX_SQUAD = 8, MAX_SHOTS = 5, MAX_RATE = 13, MAX_PIERCE = 5, MAX_SHIELD = 6;
 const GATE = {
-  shooters2:{ label:'+2 SHOOTERS', good:true, apply:p=>{ p.squad=Math.min(MAX_SQUAD, p.squad+2); } },
-  shooters1:{ label:'+1 SHOOTER', good:true, apply:p=>{ p.squad=Math.min(MAX_SQUAD, p.squad+1); } },
-  fireX2:  { label:'x2 FIRE RATE', good:true, apply:p=>{ p.fireRate=Math.min(MAX_RATE, p.fireRate*2); } },
-  fire50:  { label:'FIRE RATE +50%', good:true, apply:p=>{ p.fireRate=Math.min(MAX_RATE, p.fireRate*1.5); } },
-  dmg50:   { label:'DMG +50%', good:true, apply:p=>{ p.dmg*=1.5; } },
-  dmgX2:   { label:'x2 DAMAGE', good:true, apply:p=>{ p.dmg*=2; } },
-  shots2:  { label:'+2 SHOTS', good:true, apply:p=>{ p.shots=Math.min(MAX_SHOTS, p.shots+2); } },
-  shots1:  { label:'+1 SHOT', good:true, apply:p=>{ p.shots=Math.min(MAX_SHOTS, p.shots+1); } },
-  shield:  { label:'SHIELD +2', good:true, apply:p=>{ p.shield=Math.min(MAX_SHIELD, p.shield+2); } },
-  heal:    { label:'REPAIR +40', good:true, apply:p=>{ p.hp=Math.min(p.maxHp, p.hp+40); } },
-  maxhp:   { label:'MAX HP +25', good:true, apply:p=>{ p.maxHp+=25; p.hp=Math.min(p.maxHp, p.hp+25); } },
-  pierce:  { label:'PIERCE +1', good:true, apply:p=>{ p.pierce=Math.min(MAX_PIERCE, p.pierce+1); } },
-  fireHalf:{ label:'x0.5 FIRE RATE', good:false, apply:p=>{ p.fireRate=Math.max(2.6, p.fireRate*0.5); } },
-  dmgHalf: { label:'x0.5 DAMAGE', good:false, apply:p=>{ p.dmg=Math.max(6, p.dmg*0.5); } },
-  shotsMinus:{ label:'-1 SHOT', good:false, apply:p=>{ p.shots=Math.max(1, p.shots-1); } },
-  shooterMinus:{ label:'-1 SHOOTER', good:false, apply:p=>{ p.squad=Math.max(0, p.squad-1); } }
+  shooters2:{ label:'+2 SHOOTERS', good:true, cost:1.55, apply:p=>{ p.squad=Math.min(MAX_SQUAD, p.squad+2); } },
+  shooters1:{ label:'+1 SHOOTER', good:true, cost:1.0,  apply:p=>{ p.squad=Math.min(MAX_SQUAD, p.squad+1); } },
+  fireX2:  { label:'x2 FIRE RATE', good:true, cost:1.7,  apply:p=>{ p.fireRate=Math.min(MAX_RATE, p.fireRate*2); } },
+  fire50:  { label:'FIRE RATE +50%', good:true, cost:1.15, apply:p=>{ p.fireRate=Math.min(MAX_RATE, p.fireRate*1.5); } },
+  dmg50:   { label:'DMG +50%', good:true, cost:1.25, apply:p=>{ p.dmg*=1.5; } },
+  dmgX2:   { label:'x2 DAMAGE', good:true, cost:1.85, apply:p=>{ p.dmg*=2; } },
+  shots2:  { label:'+2 SHOTS', good:true, cost:1.5,  apply:p=>{ p.shots=Math.min(MAX_SHOTS, p.shots+2); } },
+  shots1:  { label:'+1 SHOT', good:true, cost:1.0,  apply:p=>{ p.shots=Math.min(MAX_SHOTS, p.shots+1); } },
+  shield:  { label:'SHIELD +2', good:true, cost:1.15, apply:p=>{ p.shield=Math.min(MAX_SHIELD, p.shield+2); } },
+  heal:    { label:'REPAIR +40', good:true, cost:0.9,  apply:p=>{ p.hp=Math.min(p.maxHp, p.hp+40); } },
+  maxhp:   { label:'MAX HP +25', good:true, cost:1.05, apply:p=>{ p.maxHp+=25; p.hp=Math.min(p.maxHp, p.hp+25); } },
+  pierce:  { label:'PIERCE +1', good:true, cost:1.35, apply:p=>{ p.pierce=Math.min(MAX_PIERCE, p.pierce+1); } }
 };
 const GOOD_GATES = ['shooters2','shooters1','fireX2','fire50','dmg50','dmgX2','shots2','shots1','shield','heal','maxhp','pierce'];
-const BAD_GATES = ['fireHalf','dmgHalf','shotsMinus','shooterMinus'];
 const EARLY_GOOD = ['shooters2','fireX2','dmg50','shots2','shield','fire50','shots1','shooters1'];
 
 const ENEMY = {
-  drone:   { name:'Drone',    r:14, hp:16,  spd:78,  dmg:14, leak:8,  score:12, color:'#5ec8ff', glow:'#2af',  kind:'grunt' },
-  striker: { name:'Striker',  r:11, hp:12,  spd:130, dmg:12, leak:8,  score:16, color:'#ff6ad5', glow:'#f3f',  kind:'fast' },
-  tank:    { name:'Shellback',r:22, hp:90,  spd:52,  dmg:22, leak:14, score:40, color:'#ff8a3d', glow:'#f80',  kind:'tank' },
-  spitter: { name:'Spitter',  r:15, hp:28,  spd:64,  dmg:14, leak:10, score:22, color:'#b8ff4a', glow:'#8f3',  kind:'ranged' },
-  pod:     { name:'Hive Pod', r:36, hp:420, spd:42,  dmg:24, leak:0,  score:280,color:'#c45cff', glow:'#a4f',  kind:'mini', boss:true },
-  tyrant:  { name:'Trench Tyrant', r:58, hp:1600, spd:36, dmg:30, leak:0, score:1600, color:'#ff3355', glow:'#f24', kind:'boss', boss:true }
+  drone:   { name:'Drone',    r:14, hp:22,  spd:88,  dmg:16, leak:16, score:14, color:'#5ec8ff', glow:'#2af',  kind:'grunt' },
+  striker: { name:'Striker',  r:11, hp:16,  spd:148, dmg:15, leak:15, score:18, color:'#ff6ad5', glow:'#f3f',  kind:'fast' },
+  tank:    { name:'Shellback',r:22, hp:130, spd:58,  dmg:26, leak:28, score:48, color:'#ff8a3d', glow:'#f80',  kind:'tank' },
+  spitter: { name:'Spitter',  r:15, hp:40,  spd:72,  dmg:16, leak:20, score:26, color:'#b8ff4a', glow:'#8f3',  kind:'ranged' },
+  pod:     { name:'Hive Pod', r:36, hp:700, spd:46,  dmg:28, leak:0,  score:320,color:'#c45cff', glow:'#a4f',  kind:'mini', boss:true },
+  tyrant:  { name:'Trench Tyrant', r:58, hp:2400, spd:40, dmg:34, leak:0, score:2000, color:'#ff3355', glow:'#f24', kind:'boss', boss:true }
 };
 
 // ---------- state ----------
 let player = null, enemies = [], bullets = [], ebullets = [], gates = [], particles = [], floats = [], banners = [];
 let score = 0, wave = 1, gameTime = 0, distance = 0, spawnTimer = 0, gateTimer = 0, fireAcc = 0, scroll = 0;
 let shake = 0, flash = 0, mode = 'normal', bossTimer = 0, addTimer = 0, bestAtStart = 0, newBest = false;
+let simMode = false, pairSeq = 1, lastHurt = '';
 let stars = [];
 function resetStars(){
   stars = [];
@@ -244,7 +240,7 @@ function startGame(){
   particles = []; floats = []; banners = [];
   score = 0; wave = 1; gameTime = 0; distance = 0;
   spawnTimer = 0.8; gateTimer = 3.0; fireAcc = 0; scroll = 0;
-  shake = 0; flash = 0; mode = 'normal'; bossTimer = 0; addTimer = 0;
+  shake = 0; flash = 0; mode = 'normal'; bossTimer = 0; addTimer = 0; pairSeq = 1;
   bestAtStart = getBest(); newBest = false;
   resetStars();
   state = 'play';
@@ -296,7 +292,8 @@ function gameOver(){
   burst(player.x, player.y, 48, '#ffd25a', 8);
   burst(player.x, player.y, 24, '#ff5a3a', 6);
   shake = 22;
-  if (score > getBest()){ setBest(score); newBest = true; }
+  if (!simMode && score > getBest()){ setBest(score); newBest = true; }
+  if (simMode) return;
   document.getElementById('overTitle').textContent = newBest ? 'NEW BEST' : 'LINE BROKEN';
   document.getElementById('overSub').textContent = newBest ? 'A new trench record' : 'The swarm reached the trench floor';
   document.getElementById('overStats').innerHTML = statRows() + `<span>Best</span><b>${fmt(getBest())}</b>`;
@@ -315,6 +312,7 @@ document.getElementById('best').textContent = getBest() ? ('BEST  ' + fmt(getBes
 
 // ---------- fx ----------
 function burst(x,y,n,color,spd){
+  if (simMode) return;
   const cap = 260;
   const can = Math.max(0, cap - particles.length);
   const m = Math.min(n, can);
@@ -324,23 +322,31 @@ function burst(x,y,n,color,spd){
   }
 }
 function spark(x,y,color){
+  if (simMode) return;
   if (particles.length>240) return;
   particles.push({x,y,vx:rand(-40,40),vy:rand(-80,-10),life:.28,t:0,r:1.6*S,color});
 }
 function floatText(x,y,text,color){
+  if (simMode) return;
   floats.push({x,y,text,color,t:0,life:.85,vy:-46});
 }
 function banner(text,color){
+  if (simMode) return;
   banners.push({text, color:color||'#ffd25a', t:0, life:1.6});
 }
 function dmgNum(x,y,n,crit){
+  if (simMode) return;
   floats.push({x,y,text:String(Math.round(n)), color: crit?'#fff6a8':'#fff', t:0, life:.5, vy:-54, size: crit?18:13});
 }
 
 // ---------- spawn ----------
-function hpScale(){ return 1 + (wave-1)*0.1; }
-function spdScale(){ return 1 + Math.min(0.45, (wave-1)*0.028); }
-function scrollSpeed(){ return (150 + Math.min(70, wave*4)) * S; }
+function hpScale(){ return 1 + (wave-1)*0.16 + Math.max(0, wave-5)*0.13; }
+function spdScale(){ return 1 + Math.min(0.75, (wave-1)*0.04 + Math.max(0, wave-6)*0.035); }
+function scrollSpeed(){ return (165 + Math.min(95, wave*6)) * S; }
+function gateHitsFor(kind){
+  const cost = (kind==='shotGrow'||kind==='dmgGrow') ? 1.7 : ((GATE[kind]&&GATE[kind].cost)||1);
+  return Math.max(6, Math.round(10 * cost * (1 + (wave-1)*0.34)));
+}
 
 function spawnEnemy(type, x, y, extra){
   const d = ENEMY[type];
@@ -353,85 +359,81 @@ function spawnEnemy(type, x, y, extra){
     parked:false
   };
   if (extra) Object.assign(e, extra);
-  if (e.kind==='mini') e.hp = e.maxHp = 280 * (1+wave*0.18);
-  if (e.kind==='boss') e.hp = e.maxHp = 900 * (1+wave*0.22);
+  if (e.kind==='mini') e.hp = e.maxHp = 1600 * (1+(wave-1)*0.4);
+  if (e.kind==='boss') e.hp = e.maxHp = 5200 * (1+(wave-1)*0.45);
   enemies.push(e);
   return e;
 }
 
 function spawnGroup(){
   const w = wave;
-  const forms = w<3 ? ['line','pair','cluster'] : ['line','vee','cluster','col','pair','swarm'];
+  const forms = w<3 ? ['line','pair','cluster','vee'] : ['line','vee','cluster','col','pair','swarm'];
   const form = pick(forms);
   const pad = 36+SL;
   const usable = W-pad-(36+SR);
-  const types = [];
   const roll = () => {
     const r = Math.random();
-    if (w>=5 && r<0.16) return 'tank';
+    if (w>=6 && r<0.22) return 'tank';
+    if (w>=4 && r<0.18) return 'tank';
+    if (w>=6 && r<0.55) return 'spitter';
     if (w>=3 && r<0.32) return 'spitter';
-    if (w>=2 && r<0.55) return 'striker';
+    if (r<0.48) return 'striker';
     return 'drone';
   };
   if (form==='line'){
-    const n = Math.min(7, 3 + Math.floor(w*0.35) + randi(0,1));
+    const n = Math.min(9, 3 + Math.floor(w*0.45) + randi(0,1));
     for (let i=0;i<n;i++){
       const x = pad + usable*(i+0.5)/n;
       spawnEnemy(roll(), x, -20-rand(0,30));
     }
   } else if (form==='vee'){
-    const n = Math.min(7, 3+Math.floor(w*0.3));
+    const n = Math.min(9, 3+Math.floor(w*0.45));
     const cx = W/2;
     for (let i=0;i<n;i++){
       const t = i-(n-1)/2;
-      spawnEnemy(roll(), cx + t*36*S, -20 + Math.abs(t)*22*S);
+      spawnEnemy(roll(), cx + t*34*S, -20 + Math.abs(t)*20*S);
     }
   } else if (form==='cluster'){
-    const n = Math.min(8, 3+Math.floor(w*0.4));
+    const n = Math.min(11, 4+Math.floor(w*0.45));
     const cx = rand(pad+40, W-pad-40), cy = -40;
-    for (let i=0;i<n;i++) spawnEnemy(roll(), cx+rand(-40,40)*S, cy+rand(-30,30)*S);
+    for (let i=0;i<n;i++) spawnEnemy(roll(), cx+rand(-46,46)*S, cy+rand(-34,34)*S);
   } else if (form==='col'){
-    const cols = w>=6 ? 3 : 2;
-    const n = 3+Math.floor(w*0.15);
+    const cols = w>=5 ? 3 : 2;
+    const n = 2+Math.floor(w*0.25);
     for (let c=0;c<cols;c++){
       const x = pad + usable*(c+0.5)/cols;
-      for (let i=0;i<n;i++) spawnEnemy(i===n-1 && w>=5 ? 'tank' : roll(), x+rand(-8,8), -20-i*28*S);
+      for (let i=0;i<n;i++) spawnEnemy(i===n-1 && w>=3 ? 'tank' : roll(), x+rand(-8,8), -20-i*26*S);
     }
   } else if (form==='pair'){
     const n = 2+randi(0,1);
     for (let k=0;k<n;k++){
       const x = pad + usable*(k+0.5)/n;
       spawnEnemy(roll(), x, -24);
-      if (w>=3) spawnEnemy(roll(), x, -56);
+      if (w>=2) spawnEnemy(roll(), x, -54);
+      if (w>=5) spawnEnemy(roll(), x, -84);
     }
   } else {
-    const n = Math.min(12, 5+Math.floor(w*0.5));
-    for (let i=0;i<n;i++) spawnEnemy(Math.random()<0.5?'striker':'drone', pad+Math.random()*usable, -20-rand(0,80));
+    const n = Math.min(16, 6+Math.floor(w*0.6));
+    for (let i=0;i<n;i++) spawnEnemy(Math.random()<0.55?'striker':'drone', pad+Math.random()*usable, -20-rand(0,90));
   }
 }
 
-function makeShootable(kind){
-  if (kind==='shotGrow') return { kind, label:'+1 SHOT', good:true, value:1, hits:0, shootable:true, color:'#ffd25a' };
-  return { kind:'dmgGrow', label:'DMG +25%', good:true, value:25, hits:0, shootable:true, color:'#ffd25a' };
+function makeGrow(kind){
+  if (kind==='shotGrow') return { kind, label:'+1 SHOT', good:true, value:1, hits:0, grow:true, color:'#ffd25a' };
+  return { kind:'dmgGrow', label:'DMG +25%', good:true, value:25, hits:0, grow:true, color:'#ffd25a' };
 }
 
 function pickGateKinds(){
   const goods = wave<=3 ? EARLY_GOOD : GOOD_GATES;
-  const good = () => pick(goods);
-  const bad = () => {
-    if (player.squad<=0 && player.shots<=1) return pick(['fireHalf','dmgHalf']);
-    if (player.squad<=0) return pick(['fireHalf','dmgHalf','shotsMinus']);
-    return pick(BAD_GATES);
+  const good = (not) => {
+    let k = pick(goods), n=0;
+    while (k===not && n++<8) k = pick(goods);
+    return k;
   };
   const r = Math.random();
-  if (wave<=2){
-    if (r<0.7) return [good(), good()];
-    return [good(), bad()];
-  }
-  if (r<0.38) return [good(), bad()];
-  if (r<0.62) return [good(), good()];
-  if (r<0.84) return [Math.random()<0.5?'shotGrow':'dmgGrow', Math.random()<0.55?good():bad()];
-  return [Math.random()<0.5?'shotGrow':'dmgGrow', Math.random()<0.5?'shotGrow':'dmgGrow'];
+  if (r<0.22) return [Math.random()<0.5?'shotGrow':'dmgGrow', good()];
+  const a = good();
+  return [a, good(a)];
 }
 
 function spawnGatePair(leftKind, rightKind, y){
@@ -442,12 +444,14 @@ function spawnGatePair(leftKind, rightKind, y){
   }
   const inset = 14+SL;
   const mid = W/2;
-  const h = 78*S;
+  const h = 90*S;
   const gy = y==null ? -h-10 : y;
+  const pid = pairSeq++;
   const mk = (kind, x, w) => {
-    const shootable = kind==='shotGrow'||kind==='dmgGrow';
-    const base = shootable ? makeShootable(kind) : { kind, label:GATE[kind].label, good:GATE[kind].good, shootable:false, color: GATE[kind].good?'#3dff8a':'#ff4a5a' };
-    return Object.assign({x,y:gy,w,h, live:true, flash:0}, base);
+    const grow = kind==='shotGrow'||kind==='dmgGrow';
+    const base = grow ? makeGrow(kind) : { kind, label:GATE[kind].label, good:true, grow:false, color:'#3dff8a' };
+    const hp = gateHitsFor(kind);
+    return Object.assign({x,y:gy,w,h, live:true, flash:0, pairId:pid, hp, maxHp:hp, shatter:0}, base);
   };
   const gap = 4;
   gates.push(mk(leftKind, inset, mid-inset-gap/2));
@@ -470,8 +474,6 @@ function spawnEBullet(x,y,vx,vy,dmg){
 
 // ---------- combat ----------
 function applyGateObj(g){
-  if (!g.live) return;
-  g.live = false;
   if (g.kind==='shotGrow'){
     player.shots = Math.min(MAX_SHOTS, player.shots + g.value);
   } else if (g.kind==='dmgGrow'){
@@ -479,21 +481,61 @@ function applyGateObj(g){
   } else if (GATE[g.kind]){
     GATE[g.kind].apply(player);
   }
-  const col = g.good ? '#3dff8a' : '#ff4a5a';
-  floatText(player.x, player.y - 40*S, g.label, g.shootable?'#ffd25a':col);
-  burst(g.x+g.w/2, g.y+g.h/2, g.good?28:16, col, 7);
-  shake = Math.max(shake, g.good?7:11);
-  flash = g.good?0:0.18;
-  sfx(g.good||g.shootable ? 'gate' : 'bad');
+  const col = g.grow ? '#ffd25a' : '#3dff8a';
+  floatText(player.x, player.y - 40*S, g.label, col);
+  burst(g.x+g.w/2, g.y+g.h/2, 30, col, 7);
+  shake = Math.max(shake, 8);
+  sfx('gate');
   if (g.kind==='heal'||g.kind==='maxhp') sfx('heal');
   if (g.kind==='shield') sfx('shield');
 }
 
-function hurt(amount){
+function shatterGate(g, claimed){
+  if (!g.live) return;
+  g.live = false;
+  g.shatter = claimed ? 0.12 : 0.28;
+  g.hp = 0;
+  burst(g.x+g.w/2, g.y+g.h/2, claimed?12:22, claimed?(g.color||'#3dff8a'):'#9a8aaa', claimed?5:7);
+}
+
+function claimGate(g){
+  if (!g.live) return;
+  applyGateObj(g);
+  shatterGate(g, true);
+  for (const p of gates){
+    if (p!==g && p.pairId===g.pairId && p.live){
+      shatterGate(p, false);
+      sfx('bad');
+    }
+  }
+}
+
+function hitGate(g, b){
+  if (!g.live || g.hp<=0) return;
+  g.flash = 1;
+  g.hits = (g.hits||0)+1;
+  g.hp = Math.max(0, g.hp-1);
+  if (g.grow){
+    if (g.kind==='shotGrow'){
+      if (g.hits%4===0) g.value = Math.min(5, g.value+1);
+      g.label = '+' + g.value + (g.value===1?' SHOT':' SHOTS');
+    } else {
+      g.value = Math.min(160, g.value+7);
+      g.label = 'DMG +' + g.value + '%';
+    }
+    sfx('grow');
+  } else {
+    sfx('hit');
+  }
+  spark(b.x, b.y, g.color||'#3dff8a');
+  if (g.hp<=0) claimGate(g);
+}
+
+function hurt(amount, why){
   if (player.invuln>0) return;
   if (player.shield>0){
     player.shield--;
-    player.invuln = 0.75;
+    player.invuln = 0.55;
     burst(player.x, player.y, 22, '#7fd7ff', 7);
     sfx('shield');
     shake = Math.max(shake, 8);
@@ -501,7 +543,8 @@ function hurt(amount){
     return;
   }
   player.hp -= amount;
-  player.invuln = 1.0;
+  lastHurt = why||'hit';
+  player.invuln = why==='leak' ? 0.28 : why==='shot' ? 0.4 : 0.55;
   sfx('hurt');
   shake = Math.max(shake, 14);
   flash = 0.28;
@@ -526,8 +569,8 @@ function hitEnemy(e, dmg, hx, hy){
       shake = 18;
       floatText(e.x, e.y, e.kind==='boss'?'TYRANT DOWN':'+ BONUS', '#ffd25a');
       // victory drip
-      player.shield = Math.min(MAX_SHIELD, player.shield+1);
-      player.hp = Math.min(player.maxHp, player.hp+20);
+      if (e.kind==='boss') player.shield = Math.min(MAX_SHIELD, player.shield+1);
+      player.hp = Math.min(player.maxHp, player.hp + (e.kind==='boss'?16:8));
       score += e.kind==='boss'?400:80;
     }
     return true;
@@ -556,20 +599,6 @@ function volley(){
   sfx('shoot');
 }
 
-function hitShootable(g, b){
-  g.flash = 1;
-  g.hits++;
-  if (g.kind==='shotGrow'){
-    if (g.hits%3===0) g.value = Math.min(5, g.value+1);
-    g.label = '+' + g.value + (g.value===1?' SHOT':' SHOTS');
-  } else {
-    g.value = Math.min(180, g.value+8);
-    g.label = 'DMG +' + g.value + '%';
-  }
-  spark(b.x, b.y, '#ffd25a');
-  sfx('grow');
-}
-
 // ---------- update ----------
 function update(dt){
   player.y = H - SB - 88*S;
@@ -586,7 +615,7 @@ function update(dt){
   gameTime += dt;
   distance += scrollSpeed()*dt * 0.35;
 
-  const waveLen = 13;
+  const waveLen = 10;
   if (mode==='normal' && gameTime > wave*waveLen){
     wave++;
     banner('WAVE '+wave, '#ffd25a');
@@ -596,30 +625,30 @@ function update(dt){
   }
 
   if (mode==='normal'){
-    const interval = Math.max(0.72, 1.85 - wave*0.07);
+    const interval = Math.max(0.44, 1.50 - wave*0.08);
     spawnTimer -= dt;
     if (spawnTimer<=0){
-      spawnTimer = interval + rand(0, 0.15);
-      if (enemies.length<70) spawnGroup();
+      spawnTimer = interval + rand(0, 0.12);
+      if (enemies.length<90) spawnGroup();
     }
     gateTimer -= dt;
-    if (gateTimer<=0 && !gates.some(g=>g.live && g.y<H*0.35)){
+    if (gateTimer<=0 && !gates.some(g=>g.live && g.y<H*0.32)){
       spawnGatePair();
-      gateTimer = rand(5.2, 6.6) - Math.min(1.2, wave*0.06);
+      gateTimer = rand(5.8, 7.2);
     }
   } else {
     addTimer -= dt;
     const boss = enemies.find(e=>e.boss);
     if (!boss){
       mode='normal';
-      gateTimer = Math.min(gateTimer, 2.2);
+      gateTimer = Math.min(gateTimer, 2.4);
       banner('TRENCH CLEAR', '#3dff8a');
     } else if (addTimer<=0){
-      addTimer = boss.kind==='boss' ? 2.4 : 3.2;
-      const n = boss.kind==='boss' ? 3+Math.min(3, Math.floor(wave/8)) : 2;
+      addTimer = boss.kind==='boss' ? 1.7 : 2.4;
+      const n = boss.kind==='boss' ? 4+Math.min(4, Math.floor(wave/6)) : 3;
       for (let i=0;i<n;i++){
-        const x = clamp(boss.x + rand(-80,80)*S, 40+SL, W-40-SR);
-        spawnEnemy(Math.random()<0.4?'striker':'drone', x, boss.y+boss.r+8);
+        const x = clamp(boss.x + rand(-90,90)*S, 40+SL, W-40-SR);
+        spawnEnemy(Math.random()<0.45?'striker':(wave>=5 && Math.random()<0.2)?'spitter':'drone', x, boss.y+boss.r+8);
       }
     }
   }
@@ -634,29 +663,34 @@ function update(dt){
     const b = bullets[i];
     b.t += dt; b.x += b.vx*dt; b.y += b.vy*dt;
     if (b.t>b.life || b.y<-20 || b.x<-20 || b.x>W+20){ bullets.splice(i,1); continue; }
-    let dead = false;
+    let hitType = null, hitObj = null, hitY = -Infinity;
     for (const g of gates){
-      if (!g.live || !g.shootable) continue;
+      if (!g.live || g.hp<=0) continue;
       if (b.x>g.x && b.x<g.x+g.w && b.y>g.y && b.y<g.y+g.h){
-        hitShootable(g,b);
-        dead = true;
-        break;
+        if (g.y+g.h > hitY){ hitType='gate'; hitObj=g; hitY=g.y+g.h; }
       }
     }
-    if (dead){ bullets.splice(i,1); continue; }
-    for (let j=enemies.length-1;j>=0;j--){
+    for (let j=0;j<enemies.length;j++){
       const e = enemies[j];
+      if (b.hit.indexOf(e)>=0) continue;
       const dx=b.x-e.x, dy=b.y-e.y, rr=b.r+e.r;
-      if (dx*dx+dy*dy < rr*rr){
-        if (b.hit.indexOf(e)>=0) continue;
-        b.hit.push(e);
-        const killed = hitEnemy(e, b.dmg, b.x, b.y);
-        if (killed) enemies.splice(j,1);
-        if (b.pierce>0){ b.pierce--; b.dmg *= 0.85; }
-        else { dead = true; break; }
-      }
+      if (dx*dx+dy*dy < rr*rr && e.y > hitY){ hitType='enemy'; hitObj=e; hitY=e.y; }
     }
-    if (dead) bullets.splice(i,1);
+    if (hitType==='gate'){
+      hitGate(hitObj, b);
+      bullets.splice(i,1);
+      continue;
+    }
+    if (hitType==='enemy'){
+      const killed = hitEnemy(hitObj, b.dmg, b.x, b.y);
+      if (killed){
+        const idx = enemies.indexOf(hitObj);
+        if (idx>=0) enemies.splice(idx,1);
+      }
+      b.hit.push(hitObj);
+      if (b.pierce>0){ b.pierce--; b.dmg *= 0.85; }
+      else bullets.splice(i,1);
+    }
   }
 
   // enemy bullets
@@ -665,7 +699,7 @@ function update(dt){
     b.t += dt; b.x += b.vx*dt; b.y += b.vy*dt;
     if (b.t>b.life || b.y>H+20 || b.y<-30 || b.x<-20 || b.x>W+20){ ebullets.splice(i,1); continue; }
     const dx=b.x-player.x, dy=b.y-player.y, rr=b.r+12*S;
-    if (dx*dx+dy*dy<rr*rr){ hurt(b.dmg); ebullets.splice(i,1); }
+    if (dx*dx+dy*dy<rr*rr){ hurt(b.dmg, 'shot'); ebullets.splice(i,1); }
   }
 
   // enemies
@@ -686,13 +720,13 @@ function update(dt){
       e.x = e.baseX + Math.sin(e.phase*0.6)*26*S;
       e.shootT -= dt;
       if (e.shootT<=0 && e.parked){
-        e.shootT = e.kind==='boss' ? 1.35 : 1.8;
-        const n = e.kind==='boss' ? 7 : 4;
+        e.shootT = e.kind==='boss' ? 1.05 : 1.45;
+        const n = e.kind==='boss' ? 9 : 5;
         for (let k=0;k<n;k++){
           const t = n===1?0:(k/(n-1)-0.5)*2;
-          const ang = Math.PI/2 + t*0.7;
-          const sp = (180+wave*4)*S;
-          spawnEBullet(e.x, e.y+e.r*0.4, Math.cos(ang)*sp, Math.sin(ang)*sp, e.kind==='boss'?16:12);
+          const ang = Math.PI/2 + t*0.78;
+          const sp = (210+wave*6)*S;
+          spawnEBullet(e.x, e.y+e.r*0.4, Math.cos(ang)*sp, Math.sin(ang)*sp, (e.kind==='boss'?18:14)+Math.floor(wave*0.4));
         }
       }
     } else {
@@ -701,20 +735,25 @@ function update(dt){
       if (e.kind==='ranged'){
         e.shootT -= dt;
         if (e.shootT<=0 && e.y>40 && e.y<player.y-80){
-          e.shootT = rand(1.8, 2.6);
-          const sp = 200*S;
+          e.shootT = Math.max(0.8, rand(1.25, 1.95) - wave*0.04);
+          const sp = (230+wave*3)*S;
           const ang = Math.atan2(player.y-e.y, player.x-e.x);
-          spawnEBullet(e.x, e.y+8, Math.cos(ang)*sp, Math.sin(ang)*sp, 12);
+          const dmg = 13 + Math.floor(Math.max(0, wave-3)*0.7);
+          const n = wave>=6 ? 2 : 1;
+          for (let k=0;k<n;k++){
+            const a = ang + (n===1?0:(k-0.5)*0.18);
+            spawnEBullet(e.x, e.y+8, Math.cos(a)*sp, Math.sin(a)*sp, dmg);
+          }
         }
       }
     }
     const dx=e.x-player.x, dy=e.y-player.y, rr=e.r+13*S;
     if (dx*dx+dy*dy<rr*rr){
-      hurt(e.dmg);
+      hurt(e.dmg, 'contact');
       if (!e.boss){ burst(e.x,e.y,10,e.color,5); enemies.splice(i,1); continue; }
     }
     if (!e.boss && e.y > player.y + 36*S){
-      hurt(e.leak);
+      hurt(e.leak, 'leak');
       burst(e.x, e.y, 8, '#ff4a5a', 4);
       enemies.splice(i,1);
       continue;
@@ -722,14 +761,16 @@ function update(dt){
     if (e.y > H+60) enemies.splice(i,1);
   }
 
-  // gates
+  // gates (pass-through — no claim by flying through)
   const gspd = scrollSpeed()*0.92;
   for (let i=gates.length-1;i>=0;i--){
     const g = gates[i];
     g.y += gspd*dt;
     g.flash = Math.max(0, g.flash-dt*6);
-    if (g.live && g.y+g.h >= player.y-8*S && g.y <= player.y+16*S){
-      if (player.x >= g.x && player.x <= g.x+g.w) applyGateObj(g);
+    if (!g.live){
+      g.shatter -= dt;
+      if (g.shatter<=0 || g.y>H+20) gates.splice(i,1);
+      continue;
     }
     if (g.y > H+20) gates.splice(i,1);
   }
@@ -848,37 +889,40 @@ function drawEnemy(e){
 }
 
 function drawGate(g){
-  const col = g.shootable ? '#ffd25a' : (g.good ? '#3dff8a' : '#ff4a5a');
-  const a = 0.55 + Math.sin(gameTime*6 + g.x)*0.1 + g.flash*0.35;
+  const col = g.grow ? '#ffd25a' : (g.color||'#3dff8a');
+  const live = g.live;
   ctx.save();
-  ctx.globalAlpha = g.live ? 1 : 0.25;
+  ctx.globalAlpha = live ? 1 : Math.max(0, (g.shatter||0)*3);
   ctx.fillStyle = col;
-  ctx.globalAlpha = (g.live?0.16:0.05) + g.flash*0.2;
+  ctx.globalAlpha = ((live?0.18:0.06) + g.flash*0.22) * (live?1:Math.max(0,g.shatter*4));
   rr(ctx, g.x+3, g.y+4, g.w-6, g.h-8, 10); ctx.fill();
-  ctx.globalAlpha = g.live?1:0.25;
+  ctx.globalAlpha = live ? 1 : Math.max(0, (g.shatter||0)*3);
   ctx.strokeStyle = col;
   ctx.lineWidth = 3;
   ctx.shadowColor = col; ctx.shadowBlur = 16;
   rr(ctx, g.x+3, g.y+4, g.w-6, g.h-8, 10); ctx.stroke();
-  // inner chevron rails
   ctx.shadowBlur = 0;
-  ctx.globalAlpha = 0.7;
+  ctx.globalAlpha *= 0.7;
   ctx.beginPath();
   ctx.moveTo(g.x+10, g.y+10); ctx.lineTo(g.x+18, g.y+g.h/2); ctx.lineTo(g.x+10, g.y+g.h-10);
   ctx.moveTo(g.x+g.w-10, g.y+10); ctx.lineTo(g.x+g.w-18, g.y+g.h/2); ctx.lineTo(g.x+g.w-10, g.y+g.h-10);
   ctx.stroke();
-  ctx.globalAlpha = 1;
-  ctx.fillStyle = '#fff';
-  ctx.font = `800 ${Math.max(13, Math.min(18, g.w/10))}px system-ui,-apple-system,sans-serif`;
+  ctx.globalAlpha = live ? 1 : Math.max(0, (g.shatter||0)*3);
+  const cx = g.x+g.w/2;
   ctx.textAlign='center'; ctx.textBaseline='middle';
+  ctx.fillStyle = '#fff';
   ctx.shadowColor = col; ctx.shadowBlur = 10;
-  const label = g.label;
-  const cx = g.x+g.w/2, cy=g.y+g.h/2;
-  const parts = label.split(' ');
-  if (parts.length>=2 && g.w<170){
-    ctx.fillText(parts[0], cx, cy-9);
-    ctx.fillText(parts.slice(1).join(' '), cx, cy+9);
-  } else ctx.fillText(label, cx, cy);
+  ctx.font = `800 ${Math.max(12, Math.min(16, g.w/11))}px system-ui,-apple-system,sans-serif`;
+  ctx.fillText(g.label, cx, g.y + 20*S);
+  const n = Math.max(0, Math.ceil(g.hp));
+  ctx.font = `800 ${Math.max(26, Math.min(36, g.w/5))}px system-ui,-apple-system,sans-serif`;
+  ctx.fillText(String(n), cx, g.y + g.h*0.55);
+  ctx.shadowBlur = 0;
+  // fill bar
+  const bx = g.x+16, by = g.y+g.h-16*S, bw = g.w-32, bh = 6;
+  ctx.fillStyle='rgba(0,0,0,.45)'; rr(ctx,bx,by,bw,bh,3); ctx.fill();
+  const pct = g.maxHp>0 ? Math.max(0, g.hp/g.maxHp) : 0;
+  if (pct>0){ ctx.fillStyle=col; rr(ctx,bx,by,Math.max(3,bw*pct),bh,3); ctx.fill(); }
   ctx.restore();
 }
 
@@ -1077,17 +1121,42 @@ window.__GS = {
   enemies(){ return enemies; },
   gates(){ return gates; },
   bullets(){ return bullets; },
-  spawnGatePair, spawnEnemy, spawnGroup, startBoss,
-  applyGate(kind){ const def=GATE[kind]; if(!def||!player) return; const g={kind,label:def.label,good:def.good,live:true,x:player.x-40,y:player.y,w:80,h:40,shootable:false}; applyGateObj(g); },
+  spawnGatePair, spawnEnemy, spawnGroup, startBoss, claimGate, hitGate,
+  applyGate(kind){ const def=GATE[kind]; if(!def||!player) return; applyGateObj({kind,label:def.label,good:true,grow:false}); },
   killPlayer(){ if(player){ player.shield=0; player.invuln=0; player.hp=0; gameOver(); } },
   setMode(m){ mode=m; },
+  setSim(v){ simMode=!!v; if (v) muted=true; },
+  tick(dt){ if (state==='play') update(dt); },
+  snapshot(){ return { state, wave, gameTime, score, hp: player?player.hp:0, maxHp: player?player.maxHp:0, dmg: player?player.dmg:0, shots: player?player.shots:0, squad: player?player.squad:0, fireRate: player?player.fireRate:0, enemies: enemies.length, gates: gates.filter(g=>g.live).length, lastHurt }; },
+  botSteer(){
+    if (!player || state!=='play') return;
+    const live = enemies.filter(e=>!e.boss);
+    live.sort((a,b)=>b.y-a.y);
+    const threat = live[0];
+    const boss = enemies.find(e=>e.boss);
+    const gs = gates.filter(g=>g.live && g.y+g.h>40 && g.y<player.y-20);
+    let tx = W/2;
+    // naive: stop leaks first; if a gate is mid-screen and no immediate leak, dump shots into the closer / cheaper gate
+    const leaking = threat && threat.y > player.y - 220*S;
+    if (leaking) tx = threat.x;
+    else if (gs.length){
+      gs.sort((a,b)=> (a.hp-b.hp) || (Math.abs((a.x+a.w/2)-player.x)-Math.abs((b.x+b.w/2)-player.x)));
+      const g = gs[0];
+      tx = g.x + g.w/2;
+    } else if (threat) tx = threat.x;
+    else if (boss) tx = boss.x;
+    player.targetX = tx;
+  },
   showcase(kind){
     if (state!=='play') startGame();
     enemies.length=0; bullets.length=0; ebullets.length=0; gates.length=0; particles.length=0; floats.length=0; banners.length=0;
     if (kind==='gates'){
       player.squad=2; player.shots=2; player.fireRate=8; player.dmg=16; player.shield=2;
       score=3640; distance=820; wave=3;
-      spawnGatePair('shooters2','fireHalf', H*0.38);
+      spawnGatePair('shooters2','dmgX2', H*0.36);
+      const pair = gates.slice(-2);
+      if (pair[0]){ pair[0].hp = Math.max(4, Math.floor(pair[0].maxHp*0.55)); }
+      if (pair[1]){ pair[1].hp = pair[1].maxHp; }
       for (let i=0;i<6;i++) spawnEnemy(i%2?'striker':'drone', 50+SL+(W-100-SL-SR)*((i%3)/2), 70+ST+ (i<3?0:70));
     } else if (kind==='storm'){
       player.squad=6; player.shots=4; player.fireRate=11; player.dmg=28; player.pierce=1; player.shield=3;
