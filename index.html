@@ -48,7 +48,7 @@
   <h1>KYLE'S ARCADE</h1>
   <p class="lead">A growing shelf of pocket arcade games. Tap Play, then Add to Home Screen in Safari for the full-screen treatment.</p>
   <div class="grid" id="grid"></div>
-  <footer>BUILT FOR THE TRENCH &middOT; MORE GAMES COMING</footer>
+  <footer>A POCKET ARCADE &middOT; MORE GAMES COMING</footer>
 </div>
 <script>
 // Add new games here. `href` can be a relative path (./slug/) or an absolute URL.
@@ -64,14 +64,14 @@ const GAMES = [
     art: 'void'
   },
   {
-    id: 'gate-storm',
-    name: 'GATE STORM',
-    subtitle: 'Hold the Line',
-    blurb: 'Steer your gunship through power gates and melt the xeno tide pouring down the trench.',
-    href: './gate-storm/',
-    accent: '#ffd25a',
-    tag: 'LANE SHOOTER',
-    art: 'gate'
+    id: 'mob-siege',
+    name: 'MOB SIEGE',
+    subtitle: 'Storm the Keep',
+    blurb: 'March a host through the war-gates, multiply your soldiers, and tear down the enemy keep.',
+    href: './mob-siege/',
+    accent: '#e8c44a',
+    tag: 'CROWD SIEGE',
+    art: 'siege'
   }
 ];
 
@@ -117,7 +117,7 @@ function paintArt(c, kind, accent){
         ctx.arc(W-40-k*80-i*16, 36+((i+k)%3)*18, 4, 0, 7); ctx.fill();
       }
     });
-  } else {
+  } else if (kind==='gate') {
     const g=ctx.createLinearGradient(0,0,0,H);
     g.addColorStop(0,'#1a0a22'); g.addColorStop(1,'#0a0612');
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
@@ -146,6 +146,31 @@ function paintArt(c, kind, accent){
     ctx.beginPath(); ctx.moveTo(-40,-8); ctx.lineTo(-32,10); ctx.lineTo(-46,10); ctx.closePath(); ctx.fill();
     ctx.beginPath(); ctx.moveTo(40,-8); ctx.lineTo(32,10); ctx.lineTo(46,10); ctx.closePath(); ctx.fill();
     ctx.restore();
+  } else {
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#6ea6d4'); g.addColorStop(0.35,'#7da85a'); g.addColorStop(1,'#2f6a32');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#6e6256';
+    ctx.fillRect(0,0,28,H); ctx.fillRect(W-28,0,28,H);
+    // castle
+    ctx.fillStyle='#6e6256'; ctx.fillRect(W*0.35, 8, W*0.3, 70);
+    ctx.fillStyle='#9a2a22';
+    ctx.beginPath(); ctx.moveTo(W*0.35-8,8); ctx.lineTo(W*0.42, -18); ctx.lineTo(W*0.50,8); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(W*0.50,8); ctx.lineTo(W*0.58, -18); ctx.lineTo(W*0.65+8,8); ctx.fill();
+    function round(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+    ctx.strokeStyle='#2f8cff'; ctx.lineWidth=4; ctx.shadowColor='#2f8cff'; ctx.shadowBlur=10;
+    round(80, 88, 220, 64, 10); ctx.stroke();
+    ctx.strokeStyle='#7b4cff'; round(420, 88, 220, 64, 10); ctx.stroke();
+    ctx.shadowBlur=0; ctx.fillStyle='#fff'; ctx.font='800 22px Palatino,Georgia,serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('+10', 190, 120); ctx.fillText('x3', 530, 120);
+    // crowds
+    ctx.shadowBlur=0;
+    for(let i=0;i<22;i++){ ctx.fillStyle='#3a7bff'; ctx.beginPath(); ctx.arc(160+(i%8)*18, 200+(i%3)*12, 6, 0, 7); ctx.fill(); }
+    for(let i=0;i<10;i++){ ctx.fillStyle='#d43a3a'; ctx.beginPath(); ctx.arc(480+(i%5)*16, 40+(i%2)*12, 6, 0, 7); ctx.fill(); }
+    // ballista
+    ctx.fillStyle=accent; ctx.fillRect(W*0.5-4, 210, 8, 28);
+    ctx.fillStyle='#8a6234';
+    ctx.beginPath(); ctx.moveTo(W*0.5-28, 250); ctx.lineTo(W*0.5, 230); ctx.lineTo(W*0.5+28, 250); ctx.fill();
   }
 }
 </script>
