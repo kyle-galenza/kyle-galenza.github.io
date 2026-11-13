@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Kyle's Arcade">
+<meta name="theme-color" content="#07060d">
+<meta name="format-detection" content="telephone=no">
+<title>Kyle's Arcade</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2312101c'/%3E%3Cpath fill='%23ffd25a' d='M8 2 L13 13 L8 10 L3 13Z'/%3E%3C/svg%3E">
+<style>
+  :root{ --bg:#07060d; --card:#12101c; --ink:#f4efe4; --dim:#9a917f; --line:#2a2438; }
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
+  body{padding:calc(18px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));overflow-x:hidden}
+  body::before{content:"";position:fixed;inset:0;pointer-events:none;background:
+    radial-gradient(ellipse at 50% -10%, rgba(255,180,60,.14), transparent 50%),
+    radial-gradient(ellipse at 100% 80%, rgba(80,40,180,.12), transparent 45%),
+    radial-gradient(ellipse at 0% 60%, rgba(0,180,200,.08), transparent 40%);z-index:0}
+  .wrap{position:relative;z-index:1;max-width:720px;margin:0 auto}
+  .kicker{display:inline-block;border:1px solid #f0a02088;color:#f0a020;padding:4px 10px;letter-spacing:.22em;font-size:11px;font-weight:700;margin-bottom:10px}
+  h1{font-size:clamp(32px,9.5vw,58px);margin:0 0 6px;letter-spacing:.12em;font-weight:800;line-height:.95;
+    background:linear-gradient(180deg,#ffe9a8,#ffb02a);-webkit-background-clip:text;background-clip:text;color:transparent;
+    text-shadow:none;filter:drop-shadow(0 0 18px rgba(255,160,40,.35))}
+  .lead{color:var(--dim);margin:0 0 16px;font-size:14px;line-height:1.45;max-width:28em}
+  .grid{display:grid;gap:12px;grid-template-columns:1fr}
+  @media (min-width:620px){ .grid{grid-template-columns:1fr 1fr} }
+  .card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.28);transition:transform .15s ease,border-color .15s ease}
+  .card:hover{transform:translateY(-3px);border-color:#5a4a2a}
+  .art{height:104px;position:relative;overflow:hidden}
+  .art canvas{display:block;width:100%;height:100%}
+  .tag{position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;letter-spacing:.14em;padding:3px 8px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff}
+  .body{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1}
+  .name{font-weight:800;letter-spacing:.08em;font-size:18px;margin:0 0 2px}
+  .sub{font-size:11px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;margin:0 0 6px}
+  .blurb{margin:0 0 12px;color:#c9c0ae;font-size:13px;line-height:1.4;flex:1}
+  .play{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:10px;border:2px solid var(--accent,#ffd25a);color:var(--accent,#ffd25a);background:color-mix(in srgb, var(--accent,#ffd25a) 10%, transparent);font:700 14px system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.2em;text-decoration:none;touch-action:manipulation}
+  .play:hover{background:color-mix(in srgb, var(--accent,#ffd25a) 22%, transparent)}
+  footer{margin-top:16px;color:#5c5648;font-size:11px;letter-spacing:.08em;text-align:center}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="kicker">GAME LIBRARY</div>
+  <h1>KYLE'S ARCADE</h1>
+  <p class="lead">A growing shelf of pocket arcade games. Tap Play, then Add to Home Screen in Safari for the full-screen treatment.</p>
+  <div class="grid" id="grid"></div>
+  <footer>BUILT FOR THE TRENCH &middOT; MORE GAMES COMING</footer>
+</div>
+<script>
+// Add new games here. `href` can be a relative path (./slug/) or an absolute URL.
+const GAMES = [
+  {
+    id: 'voidbreaker',
+    name: 'VOIDBREAKER',
+    subtitle: 'Xeno Swarm',
+    blurb: 'Last marine on Kepler-9. Auto-fire, level up, and hold the deck until evac arrives.',
+    href: 'https://kyle-galenza.github.io/voidbreaker/',
+    accent: '#3defff',
+    tag: 'HORDE SURVIVOR',
+    art: 'void'
+  },
+  {
+    id: 'gate-storm',
+    name: 'GATE STORM',
+    subtitle: 'Hold the Line',
+    blurb: 'Steer your gunship through power gates and melt the xeno tide pouring down the trench.',
+    href: './gate-storm/',
+    accent: '#ffd25a',
+    tag: 'LANE SHOOTER',
+    art: 'gate'
+  }
+];
+
+const grid = document.getElementById('grid');
+GAMES.forEach((g, i) => {
+  const card = document.createElement('article');
+  card.className = 'card';
+  card.innerHTML = `
+    <div class="art" style="--accent:${g.accent}">
+      <canvas width="720" height="264" aria-hidden="true"></canvas>
+      <div class="tag">${g.tag}</div>
+    </div>
+    <div class="body">
+      <h2 class="name" style="color:${g.accent}">${g.name}</h2>
+      <p class="sub">${g.subtitle}</p>
+      <p class="blurb">${g.blurb}</p>
+      <a class="play" style="--accent:${g.accent}" href="${g.href}">PLAY</a>
+    </div>`;
+  grid.appendChild(card);
+  paintArt(card.querySelector('canvas'), g.art, g.accent);
+});
+
+function paintArt(c, kind, accent){
+  const ctx = c.getContext('2d');
+  const W=c.width, H=c.height;
+  if (kind==='void'){
+    const g=ctx.createLinearGradient(0,0,W,H);
+    g.addColorStop(0,'#04101c'); g.addColorStop(1,'#0b0630');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    for(let i=0;i<80;i++){ ctx.fillStyle=i%4? '#9ff': '#fff'; ctx.globalAlpha=.3+Math.random()*.7; ctx.fillRect(Math.random()*W,Math.random()*H,1.6,1.6); }
+    ctx.globalAlpha=1;
+    // marine
+    ctx.save(); ctx.translate(W*0.5, H*0.62);
+    ctx.fillStyle=accent; ctx.shadowColor=accent; ctx.shadowBlur=18;
+    ctx.beginPath(); ctx.moveTo(0,-28); ctx.lineTo(18,16); ctx.lineTo(6,22); ctx.lineTo(-6,22); ctx.lineTo(-18,16); ctx.closePath(); ctx.fill();
+    ctx.restore();
+    // swarm dots
+    ctx.shadowBlur=0;
+    ['#5f5','#f5f','#fa3'].forEach((col,k)=>{
+      for(let i=0;i<8;i++){
+        ctx.fillStyle=col; ctx.beginPath();
+        ctx.arc(40+k*90+i*18, 30+((i+k)%4)*16, 5-k, 0, 7); ctx.fill();
+        ctx.arc(W-40-k*80-i*16, 36+((i+k)%3)*18, 4, 0, 7); ctx.fill();
+      }
+    });
+  } else {
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#1a0a22'); g.addColorStop(1,'#0a0612');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#2a1638';
+    ctx.fillRect(0,0,36,H); ctx.fillRect(W-36,0,36,H);
+    ctx.strokeStyle='rgba(255,160,50,0.35)'; ctx.lineWidth=3;
+    ctx.beginPath(); ctx.moveTo(36,0); ctx.lineTo(36,H); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(W-36,0); ctx.lineTo(W-36,H); ctx.stroke();
+    for(let i=0;i<50;i++){ ctx.fillStyle='#ffd25a'; ctx.globalAlpha=.25+Math.random()*.6; ctx.fillRect(Math.random()*W,Math.random()*H,1.5,3); }
+    ctx.globalAlpha=1;
+    // gates
+    function gate(x,w,col,label){
+      ctx.strokeStyle=col; ctx.shadowColor=col; ctx.shadowBlur=12; ctx.lineWidth=4;
+      round(x, 44, w, 70, 12); ctx.stroke();
+      ctx.shadowBlur=0; ctx.fillStyle='#fff'; ctx.font='700 16px system-ui'; ctx.textAlign='center'; ctx.textBaseline='middle';
+      ctx.fillText(label, x+w/2, 79);
+    }
+    function round(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+    gate(70, 250, '#3dff8a', '+2 SHOOTERS');
+    gate(400, 250, '#ff4a5a', 'x0.5 DAMAGE');
+    // ship
+    ctx.save(); ctx.translate(W*0.5, H*0.82);
+    ctx.fillStyle=accent; ctx.shadowColor=accent; ctx.shadowBlur=16;
+    ctx.beginPath(); ctx.moveTo(0,-22); ctx.lineTo(10,10); ctx.lineTo(4,16); ctx.lineTo(-4,16); ctx.lineTo(-10,10); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#e8d8a0';
+    ctx.beginPath(); ctx.moveTo(-40,-8); ctx.lineTo(-32,10); ctx.lineTo(-46,10); ctx.closePath(); ctx.fill();
+    ctx.beginPath(); ctx.moveTo(40,-8); ctx.lineTo(32,10); ctx.lineTo(46,10); ctx.closePath(); ctx.fill();
+    ctx.restore();
+  }
+}
+</script>
+</body>
+</html>
