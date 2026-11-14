@@ -218,7 +218,6 @@ GAMES.forEach((g, i) => {
     <div class="art" style="--accent:${g.accent}">
       <canvas width="720" height="400" aria-hidden="true"></canvas>
       <div class="tag">${g.tag}</div>
-      ${g.mature?'<div class="mature" aria-label="Rated 18 plus, mature">18+ · MATURE</div>':''}
     </div>
     <div class="body">
       ${g.id === lastId ? '<p class="recent">KEEP PLAYING</p>' : ''}
