@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -12,34 +12,137 @@
 <title>Kyle's Arcade</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2312101c'/%3E%3Cpath fill='%23ffd25a' d='M8 2 L13 13 L8 10 L3 13Z'/%3E%3C/svg%3E">
 <style>
-  :root{ --bg:#07060d; --card:#12101c; --ink:#f4efe4; --dim:#9a917f; --line:#2a2438; }
+  :root{
+    --bg:#07060d; --ink:#f4efe4; --dim:#9a917f; --line:#2a2438;
+    --r:28px; --pad:14px; --inner:14px;
+  }
   *{box-sizing:border-box}
-  html,body{margin:0;min-height:100%;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-text-size-adjust:100%}
-  body{padding:calc(18px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(24px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));overflow-x:hidden}
+  html,body{
+    margin:0; background:var(--bg); color:var(--ink);
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    -webkit-text-size-adjust:100%;
+    min-height:100%; min-height:100svh;
+  }
+  body{
+    min-height:100svh; min-height:100dvh;
+    padding:calc(18px + env(safe-area-inset-top)) 0 calc(24px + env(safe-area-inset-bottom));
+    overflow-x:hidden;
+  }
   body::before{content:"";position:fixed;inset:0;pointer-events:none;background:
     radial-gradient(ellipse at 50% -10%, rgba(255,180,60,.14), transparent 50%),
     radial-gradient(ellipse at 100% 80%, rgba(80,40,180,.12), transparent 45%),
     radial-gradient(ellipse at 0% 60%, rgba(0,180,200,.08), transparent 40%);z-index:0}
-  .wrap{position:relative;z-index:1;max-width:720px;margin:0 auto}
-  .kicker{display:inline-block;border:1px solid #f0a02088;color:#f0a020;padding:4px 10px;letter-spacing:.22em;font-size:11px;font-weight:700;margin-bottom:10px}
-  h1{font-size:clamp(32px,9.5vw,58px);margin:0 0 6px;letter-spacing:.12em;font-weight:800;line-height:.95;
+  .wrap{position:relative;z-index:1;max-width:720px;margin:0 auto;padding-inline:calc(20px + env(safe-area-inset-left)) calc(20px + env(safe-area-inset-right))}
+  .kicker{display:inline-block;border:1px solid #f0a02088;color:#f0a020;padding:4px 10px;letter-spacing:.14em;font-size:11px;font-weight:700;margin-bottom:10px;border-radius:999px}
+  h1{font-size:clamp(36px,10vw,56px);margin:0 0 6px;letter-spacing:-0.03em;font-weight:800;line-height:1.05;
     background:linear-gradient(180deg,#ffe9a8,#ffb02a);-webkit-background-clip:text;background-clip:text;color:transparent;
-    text-shadow:none;filter:drop-shadow(0 0 18px rgba(255,160,40,.35))}
-  .lead{color:var(--dim);margin:0 0 16px;font-size:14px;line-height:1.45;max-width:28em}
-  .grid{display:grid;gap:12px;grid-template-columns:1fr}
-  @media (min-width:620px){ .grid{grid-template-columns:1fr 1fr} }
-  .card{display:flex;flex-direction:column;background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:0 10px 30px rgba(0,0,0,.28);transition:transform .15s ease,border-color .15s ease}
-  .card:hover{transform:translateY(-3px);border-color:#5a4a2a}
-  .art{height:104px;position:relative;overflow:hidden}
+    filter:drop-shadow(0 0 18px rgba(255,160,40,.35))}
+  .lead{color:var(--dim);margin:0 0 18px;font-size:15px;line-height:1.5;max-width:28em;letter-spacing:0}
+  .shelf-wrap{margin-inline:0;position:relative}
+  .shelf{
+    display:flex; gap:12px;
+    overflow-x:auto; overflow-y:hidden;
+    scroll-snap-type:x mandatory;
+    scroll-padding-inline:calc(20px + env(safe-area-inset-left)) calc(20px + env(safe-area-inset-right));
+    -webkit-overflow-scrolling:touch;
+    padding-inline:calc(20px + env(safe-area-inset-left)) calc(20px + env(safe-area-inset-right));
+    padding-bottom:18px;
+    scrollbar-width:none;
+  }
+  .shelf::-webkit-scrollbar{display:none}
+  .shelf::after{content:"";flex:0 0 4px}
+  /* Card is sized so ~32% of the next card peeks (card + gap + 0.32*card = 100%). */
+  .card{
+    --r:28px; --pad:14px;
+    flex:0 0 calc((100% - 12px) / 1.32);
+    max-width:420px;
+    scroll-snap-align:start;
+    display:flex; flex-direction:column;
+    background:rgb(18 16 28 / 0.72);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    backdrop-filter:blur(20px) saturate(160%);
+    border:1px solid rgb(255 255 255 / 0.08);
+    border-radius:var(--r);
+    overflow:hidden;
+    box-shadow:0 10px 30px rgba(0,0,0,.28);
+    opacity:0; transform:translateY(12px) scale(.98);
+    animation:cardIn .4s cubic-bezier(.2,.8,.2,1) forwards;
+  }
+  .card:nth-child(2){animation-delay:.08s}
+  .card:nth-child(3){animation-delay:.16s}
+  @keyframes cardIn{to{opacity:1;transform:none}}
+  .art{height:200px;position:relative;overflow:hidden;border-radius:var(--r) var(--r) 0 0}
   .art canvas{display:block;width:100%;height:100%}
-  .tag{position:absolute;top:10px;left:10px;font-size:10px;font-weight:700;letter-spacing:.14em;padding:3px 8px;border-radius:999px;background:rgba(0,0,0,.45);border:1px solid rgba(255,255,255,.18);color:#fff}
-  .body{padding:12px 14px 14px;display:flex;flex-direction:column;flex:1}
-  .name{font-weight:800;letter-spacing:.08em;font-size:18px;margin:0 0 2px}
-  .sub{font-size:11px;letter-spacing:.16em;color:var(--dim);text-transform:uppercase;margin:0 0 6px}
-  .blurb{margin:0 0 12px;color:#c9c0ae;font-size:13px;line-height:1.4;flex:1}
-  .play{display:inline-flex;align-items:center;justify-content:center;min-height:44px;padding:0 18px;border-radius:10px;border:2px solid var(--accent,#ffd25a);color:var(--accent,#ffd25a);background:color-mix(in srgb, var(--accent,#ffd25a) 10%, transparent);font:700 14px system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.2em;text-decoration:none;touch-action:manipulation}
-  .play:hover{background:color-mix(in srgb, var(--accent,#ffd25a) 22%, transparent)}
-  footer{margin-top:16px;color:#5c5648;font-size:11px;letter-spacing:.08em;text-align:center}
+  .tag{
+    position:absolute;top:10px;left:10px;
+    font-size:11px;font-weight:700;letter-spacing:.1em;
+    padding:4px 10px;border-radius:999px;
+    background:rgb(0 0 0 / 0.45);
+    -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
+    border:1px solid rgb(255 255 255 / 0.18);color:#fff
+  }
+  .mature{position:absolute;bottom:10px;right:10px;font-size:11px;font-weight:800;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:rgb(0 0 0 / .6);border:1px solid rgb(232 104 90 / .7);color:#ffd2c8}
+  .body{padding:var(--pad);display:flex;flex-direction:column;flex:1;gap:0}
+  .name{font-weight:800;letter-spacing:-0.02em;font-size:22px;margin:0 0 2px;line-height:1.15}
+  .sub{font-size:11px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;margin:0 0 8px}
+  .blurb{margin:0 0 14px;color:#c9c0ae;font-size:14px;line-height:1.45;flex:1}
+  .play{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    align-self:stretch; margin-top:auto;
+    min-height:44px;padding:0 18px;
+    border-radius:max(0px, calc(var(--r) - var(--pad)));
+    border:2px solid var(--accent,#ffd25a);color:var(--accent,#ffd25a);
+    background:color-mix(in srgb, var(--accent,#ffd25a) 12%, transparent);
+    font:700 15px system-ui,-apple-system,"Segoe UI",sans-serif;
+    letter-spacing:.08em;text-decoration:none;touch-action:manipulation;
+  }
+  .play .tri{
+    width:0;height:0;border-style:solid;
+    border-width:7px 0 7px 12px;
+    border-color:transparent transparent transparent currentColor;
+    transform:translateX(8%);
+    display:inline-block;
+  }
+  .card.last .play{box-shadow:0 0 0 1px color-mix(in srgb, var(--accent,#ffd25a) 40%, transparent)}
+  .recent{font-size:11px;letter-spacing:.08em;color:var(--accent,#ffd25a);margin:0 0 8px;font-weight:700}
+  .recents{margin:4px 0 16px;display:flex;flex-direction:column;gap:10px}
+  .continue{
+    --r:24px; --pad:14px;
+    display:flex;align-items:center;justify-content:space-between;gap:12px;
+    padding:var(--pad);border-radius:var(--r);
+    background:rgb(18 16 28 / 0.72);
+    -webkit-backdrop-filter:blur(20px) saturate(160%);
+    backdrop-filter:blur(20px) saturate(160%);
+    border:1px solid rgb(255 255 255 / 0.08);
+    text-decoration:none;color:inherit;touch-action:manipulation;min-height:44px;
+  }
+  .continue .meta{display:flex;flex-direction:column;gap:2px;min-width:0}
+  .continue .k{font-size:11px;letter-spacing:.12em;font-weight:700;color:var(--accent,#ffd25a)}
+  .continue .n{font-size:18px;font-weight:800;letter-spacing:-0.02em;line-height:1.15}
+  .continue .s{font-size:13px;color:var(--dim);letter-spacing:0}
+  .continue .go{
+    flex:0 0 auto;display:inline-flex;align-items:center;justify-content:center;gap:8px;
+    min-height:44px;padding:0 16px;border-radius:max(0px, calc(var(--r) - var(--pad)));
+    border:2px solid var(--accent,#ffd25a);color:var(--accent,#ffd25a);
+    font:700 14px system-ui,-apple-system,"Segoe UI",sans-serif;letter-spacing:.08em;
+  }
+  .continue .go .tri{width:0;height:0;border-style:solid;border-width:6px 0 6px 10px;border-color:transparent transparent transparent currentColor;transform:translateX(8%)}
+  .bests{display:flex;flex-direction:column;gap:4px;padding:4px 2px 0;color:var(--dim);font-size:13px;line-height:1.45}
+  .bests b{color:var(--ink);font-weight:800;letter-spacing:-0.02em}
+  footer{margin-top:8px;color:#9a917f;font-size:11px;letter-spacing:.04em;text-align:center}
+  .fade-edge{
+    pointer-events:none;position:absolute;top:0;right:0;bottom:18px;width:28px;
+    background:linear-gradient(90deg, transparent, var(--bg));
+  }
+  @supports not ((-webkit-backdrop-filter:blur(1px)) or (backdrop-filter:blur(1px))){
+    .card{background:rgb(18 16 28 / 0.94)}
+  }
+  @media (prefers-reduced-transparency: reduce){
+    .card{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgb(18 16 28 / 0.96)}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .card{animation:none;opacity:1;transform:none}
+  }
 </style>
 </head>
 <body>
@@ -47,11 +150,16 @@
   <div class="kicker">GAME LIBRARY</div>
   <h1>KYLE'S ARCADE</h1>
   <p class="lead">A growing shelf of pocket arcade games. Tap Play, then Add to Home Screen in Safari for the full-screen treatment.</p>
-  <div class="grid" id="grid"></div>
-  <footer>A POCKET ARCADE &middOT; MORE GAMES COMING</footer>
+</div>
+<div class="shelf-wrap">
+  <div class="shelf" id="grid"></div>
+  <div class="fade-edge" aria-hidden="true"></div>
+</div>
+<div class="wrap">
+  <div class="recents" id="recents"></div>
+  <footer>A POCKET ARCADE &middot; MORE GAMES COMING</footer>
 </div>
 <script>
-// Add new games here. `href` can be a relative path (./slug/) or an absolute URL.
 const GAMES = [
   {
     id: 'voidbreaker',
@@ -72,27 +180,102 @@ const GAMES = [
     accent: '#e8c44a',
     tag: 'CROWD SIEGE',
     art: 'siege'
+  },
+  {
+    id: 'lumenspire',
+    name: 'ASHSPIRE',
+    subtitle: 'Climb the Burning Tower',
+    blurb: 'Knight, ranger or hexblade. Cut through ghouls, wraiths and cultists up a black tower, take their steel and face the Ashen Drake.',
+    href: './lumenspire/',
+    accent: '#d9a35a',
+    tag: 'DARK FANTASY RPG',
+    mature: true,
+    art: 'spire'
+  },
+  {
+    id: 'starfall-vale',
+    name: 'GRAVENMOOR',
+    subtitle: 'The Moor Keeps No Dead',
+    blurb: 'Leave Greyhollow, cross the Gallows Moor and descend into the Ashen Barrow. Wolves, wraiths and the Barrow King wait below.',
+    href: './starfall-vale/',
+    accent: '#e8685a',
+    tag: 'GRIMDARK ADVENTURE',
+    mature: true,
+    art: 'vale'
   }
 ];
+
+const LAST_KEY = 'kylearcade_last_game';
+let lastId = '';
+try { lastId = localStorage.getItem(LAST_KEY) || ''; } catch (e) {}
 
 const grid = document.getElementById('grid');
 GAMES.forEach((g, i) => {
   const card = document.createElement('article');
-  card.className = 'card';
+  card.className = 'card' + (g.id === lastId ? ' last' : '');
+  card.dataset.id = g.id;
   card.innerHTML = `
     <div class="art" style="--accent:${g.accent}">
-      <canvas width="720" height="264" aria-hidden="true"></canvas>
+      <canvas width="720" height="400" aria-hidden="true"></canvas>
       <div class="tag">${g.tag}</div>
+      ${g.mature?'<div class="mature" aria-label="Rated 18 plus, mature">18+ · MATURE</div>':''}
     </div>
     <div class="body">
+      ${g.id === lastId ? '<p class="recent">KEEP PLAYING</p>' : ''}
       <h2 class="name" style="color:${g.accent}">${g.name}</h2>
       <p class="sub">${g.subtitle}</p>
       <p class="blurb">${g.blurb}</p>
-      <a class="play" style="--accent:${g.accent}" href="${g.href}">PLAY</a>
+      <a class="play" style="--accent:${g.accent}" href="${g.href}" data-id="${g.id}"><span class="tri" aria-hidden="true"></span>PLAY</a>
     </div>`;
   grid.appendChild(card);
   paintArt(card.querySelector('canvas'), g.art, g.accent);
 });
+
+grid.addEventListener('click', (e) => {
+  const a = e.target.closest('a.play');
+  if (!a) return;
+  try { localStorage.setItem(LAST_KEY, a.dataset.id || ''); } catch (err) {}
+});
+
+if (lastId) {
+  const el = grid.querySelector('.card.last');
+  if (el) el.scrollIntoView({ inline: 'start', block: 'nearest', behavior: 'instant' });
+}
+
+(function fillRecents(){
+  const box=document.getElementById('recents');
+  if(!box) return;
+  const fmtTime=s=>{ s=Math.floor(+s||0); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); };
+  let voidBest=0, siegeBest=0, spireBest=0, valeLv=0, valeBoss=false;
+  try{ const sp=JSON.parse(localStorage.getItem('kylearcade_lumenspire_save')||'null'); spireBest=sp?(sp.bestFloor||0):0; }catch(e){}
+  try{ const sv=JSON.parse(localStorage.getItem('kylearcade_starfall-vale_save')||'null'); if(sv){ valeLv=sv.lvl||1; valeBoss=!!(sv.flags&&(sv.flags.boss_barrowking||sv.flags.boss_wyrm)); } }catch(e){}
+  try{ voidBest=+(localStorage.getItem('voidbreaker_best')||0)||0; }catch(e){}
+  try{ siegeBest=+(localStorage.getItem('kylearcade_mobsiege_best')||0)||0; }catch(e){}
+  const byId=Object.fromEntries(GAMES.map(g=>[g.id,g]));
+  const last=byId[lastId];
+  let html='';
+  if(last){
+    const score=last.id==='voidbreaker'?(voidBest?'Best survival  '+fmtTime(voidBest):'Hold the deck for 10:00')
+      :last.id==='lumenspire'?(spireBest?'Best floor  '+spireBest:'Climb the tower')
+      :last.id==='starfall-vale'?(valeLv?(valeBoss?'Barrow King slain  ·  Lv '+valeLv:'Level '+valeLv):'Cross the moor')
+      :(siegeBest?'Furthest level  '+siegeBest:'Storm the keep');
+    html+=`<a class="continue" href="${last.href}" data-id="${last.id}" style="--accent:${last.accent}">
+      <div class="meta"><div class="k">CONTINUE</div><div class="n" style="color:${last.accent}">${last.name}</div><div class="s">${score}</div></div>
+      <span class="go"><span class="tri" aria-hidden="true"></span>PLAY</span>
+    </a>`;
+  }
+  const lines=[];
+  if(voidBest) lines.push(`<div>VOIDBREAKER  ·  <b>${fmtTime(voidBest)}</b></div>`);
+  if(siegeBest) lines.push(`<div>MOB SIEGE  ·  <b>Level ${siegeBest}</b></div>`);
+  if(spireBest) lines.push(`<div>ASHSPIRE  ·  <b>Floor ${spireBest}</b></div>`);
+  if(valeLv) lines.push(`<div>GRAVENMOOR  ·  <b>Level ${valeLv}${valeBoss?' · King slain':''}</b></div>`);
+  if(lines.length) html+=`<div class="bests">${lines.join('')}</div>`;
+  box.innerHTML=html;
+  box.addEventListener('click',e=>{
+    const a=e.target.closest('a.continue'); if(!a) return;
+    try{ localStorage.setItem(LAST_KEY, a.dataset.id||''); }catch(err){}
+  });
+})();
 
 function paintArt(c, kind, accent){
   const ctx = c.getContext('2d');
@@ -103,12 +286,10 @@ function paintArt(c, kind, accent){
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     for(let i=0;i<80;i++){ ctx.fillStyle=i%4? '#9ff': '#fff'; ctx.globalAlpha=.3+Math.random()*.7; ctx.fillRect(Math.random()*W,Math.random()*H,1.6,1.6); }
     ctx.globalAlpha=1;
-    // marine
     ctx.save(); ctx.translate(W*0.5, H*0.62);
     ctx.fillStyle=accent; ctx.shadowColor=accent; ctx.shadowBlur=18;
     ctx.beginPath(); ctx.moveTo(0,-28); ctx.lineTo(18,16); ctx.lineTo(6,22); ctx.lineTo(-6,22); ctx.lineTo(-18,16); ctx.closePath(); ctx.fill();
     ctx.restore();
-    // swarm dots
     ctx.shadowBlur=0;
     ['#5f5','#f5f','#fa3'].forEach((col,k)=>{
       for(let i=0;i<8;i++){
@@ -128,7 +309,6 @@ function paintArt(c, kind, accent){
     ctx.beginPath(); ctx.moveTo(W-36,0); ctx.lineTo(W-36,H); ctx.stroke();
     for(let i=0;i<50;i++){ ctx.fillStyle='#ffd25a'; ctx.globalAlpha=.25+Math.random()*.6; ctx.fillRect(Math.random()*W,Math.random()*H,1.5,3); }
     ctx.globalAlpha=1;
-    // gates
     function gate(x,w,col,label){
       ctx.strokeStyle=col; ctx.shadowColor=col; ctx.shadowBlur=12; ctx.lineWidth=4;
       round(x, 44, w, 70, 12); ctx.stroke();
@@ -138,7 +318,6 @@ function paintArt(c, kind, accent){
     function round(x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
     gate(70, 250, '#3dff8a', '+2 SHOOTERS');
     gate(400, 250, '#ff4a5a', 'x0.5 DAMAGE');
-    // ship
     ctx.save(); ctx.translate(W*0.5, H*0.82);
     ctx.fillStyle=accent; ctx.shadowColor=accent; ctx.shadowBlur=16;
     ctx.beginPath(); ctx.moveTo(0,-22); ctx.lineTo(10,10); ctx.lineTo(4,16); ctx.lineTo(-4,16); ctx.lineTo(-10,10); ctx.closePath(); ctx.fill();
@@ -146,13 +325,72 @@ function paintArt(c, kind, accent){
     ctx.beginPath(); ctx.moveTo(-40,-8); ctx.lineTo(-32,10); ctx.lineTo(-46,10); ctx.closePath(); ctx.fill();
     ctx.beginPath(); ctx.moveTo(40,-8); ctx.lineTo(32,10); ctx.lineTo(46,10); ctx.closePath(); ctx.fill();
     ctx.restore();
+  } else if (kind==='spire') {
+    let sd=7; const R=()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};
+    const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#060607'); g.addColorStop(.55,'#1a1614'); g.addColorStop(1,'#2a1a12');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    for(let i=0;i<70;i++){ ctx.fillStyle='#d8d0c4'; ctx.globalAlpha=.1+R()*.4; ctx.fillRect(R()*W,R()*H*.55,1.4,1.4); } ctx.globalAlpha=1;
+    // moon
+    let r=ctx.createRadialGradient(W*.18,90,0,W*.18,90,120); r.addColorStop(0,'rgba(220,210,190,.25)'); r.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=r; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='rgba(226,218,204,.9)'; ctx.beginPath(); ctx.arc(W*.18,90,26,0,7); ctx.fill(); ctx.fillStyle='rgba(20,18,18,.35)'; ctx.beginPath(); ctx.arc(W*.18+9,84,21,0,7); ctx.fill();
+    // ember glow at summit
+    r=ctx.createRadialGradient(W*.56,40,0,W*.56,40,220); r.addColorStop(0,'rgba(255,110,40,.42)'); r.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=r; ctx.fillRect(0,0,W,H);
+    // black tower, broken crown
+    const cx=W*.56; ctx.fillStyle='#0b0a0a'; ctx.beginPath(); ctx.moveTo(cx-60,H); ctx.lineTo(cx-34,90); ctx.lineTo(cx-26,58); ctx.lineTo(cx-14,70); ctx.lineTo(cx-4,34); ctx.lineTo(cx+8,62); ctx.lineTo(cx+20,48); ctx.lineTo(cx+34,92); ctx.lineTo(cx+60,H); ctx.closePath(); ctx.fill();
+    ctx.fillStyle='#ff8a3a'; ctx.shadowColor='#ff5a1a'; ctx.shadowBlur=14;
+    for(let i=0;i<7;i++){ const y=110+i*38, x=cx+(i%2?10:-16); ctx.fillRect(x,y,6,11); } ctx.shadowBlur=0;
+    // embers rising
+    for(let i=0;i<40;i++){ ctx.fillStyle=R()<.5?'#ff8a3a':'#ffb060'; ctx.globalAlpha=.25+R()*.6; const x=cx+(R()-.5)*260, y=R()*H*.8; ctx.fillRect(x,y,2,2); } ctx.globalAlpha=1;
+    // drake silhouette circling
+    ctx.save(); ctx.translate(W*.8,70); ctx.fillStyle='#0a0808'; ctx.beginPath();
+    ctx.moveTo(-60,4); ctx.quadraticCurveTo(-30,-26,-6,-4); ctx.lineTo(0,-8); ctx.lineTo(8,-4); ctx.quadraticCurveTo(34,-30,64,2); ctx.quadraticCurveTo(36,-6,14,6); ctx.lineTo(22,10); ctx.lineTo(4,8); ctx.lineTo(-2,22); ctx.lineTo(-8,8); ctx.quadraticCurveTo(-34,-4,-60,4); ctx.fill(); ctx.restore();
+    // ridge + fog
+    ctx.fillStyle='#120f0e'; ctx.beginPath(); ctx.moveTo(0,H); for(let x=0;x<=W;x+=20) ctx.lineTo(x,H-70+Math.sin(x*.011)*16); ctx.lineTo(W,H); ctx.fill();
+    // dead trees
+    ctx.strokeStyle='#0a0909'; ctx.lineWidth=3; [[70,H-62],[640,H-70],[230,H-58]].forEach(([x,y])=>{ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x,y-58); ctx.moveTo(x,y-30); ctx.lineTo(x-18,y-48); ctx.moveTo(x,y-40); ctx.lineTo(x+16,y-60); ctx.stroke(); });
+    // armored knight silhouette
+    ctx.save(); ctx.translate(W*.24,H-60); ctx.fillStyle='#070606';
+    ctx.beginPath(); ctx.moveTo(-14,0); ctx.lineTo(-12,-46); ctx.lineTo(-20,-44); ctx.lineTo(-16,-78); ctx.lineTo(-8,-84); ctx.lineTo(-7,-100); ctx.quadraticCurveTo(0,-108,7,-100); ctx.lineTo(8,-84); ctx.lineTo(18,-78); ctx.lineTo(24,-40); ctx.lineTo(12,-44); ctx.lineTo(14,0); ctx.closePath(); ctx.fill();
+    ctx.fillRect(22,-120,3,82); ctx.fillRect(16,-46,15,3); // sword
+    ctx.fillStyle='#ff6a2a'; ctx.fillRect(-4,-98,8,2); ctx.restore();
+    const f=ctx.createLinearGradient(0,H-110,0,H); f.addColorStop(0,'rgba(60,50,46,0)'); f.addColorStop(1,'rgba(60,50,46,.35)'); ctx.fillStyle=f; ctx.fillRect(0,H-110,W,110);
+    const v=ctx.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,W*.7); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.55)'); ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
+  } else if (kind==='vale') {
+    let sd=11; const R=()=>{sd=(sd*16807)%2147483647;return sd/2147483647;};
+    const g=ctx.createLinearGradient(0,0,0,H); g.addColorStop(0,'#08090a'); g.addColorStop(.5,'#252a2c'); g.addColorStop(.62,'#363b38'); g.addColorStop(1,'#121412');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    // blood moon
+    let r=ctx.createRadialGradient(W*.74,92,0,W*.74,92,160); r.addColorStop(0,'rgba(200,60,40,.35)'); r.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=r; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#b8442e'; ctx.beginPath(); ctx.arc(W*.74,92,34,0,7); ctx.fill(); ctx.fillStyle='rgba(30,10,8,.3)'; ctx.beginPath(); ctx.arc(W*.74-8,86,10,0,7); ctx.arc(W*.74+12,104,7,0,7); ctx.fill();
+    // far hills + ruined keep
+    ctx.fillStyle='#15191a'; ctx.beginPath(); ctx.moveTo(0,H); for(let x=0;x<=W;x+=20) ctx.lineTo(x,H*.55+Math.sin(x*.009+1)*22); ctx.lineTo(W,H); ctx.fill();
+    const kx=W*.74,ky=H*.5; ctx.fillStyle='#0b0c0d'; ctx.beginPath(); ctx.moveTo(kx-50,ky+10); ctx.lineTo(kx-48,ky-40); ctx.lineTo(kx-30,ky-40); ctx.lineTo(kx-30,ky-62); ctx.lineTo(kx-16,ky-62); ctx.lineTo(kx-12,ky-46); ctx.lineTo(kx+10,ky-46); ctx.lineTo(kx+12,ky-82); ctx.lineTo(kx+28,ky-86); ctx.lineTo(kx+32,ky-50); ctx.lineTo(kx+48,ky-44); ctx.lineTo(kx+50,ky+10); ctx.fill();
+    ctx.fillStyle='#ff8a3a'; ctx.shadowColor='#ff5a1a'; ctx.shadowBlur=10; ctx.fillRect(kx-24,ky-40,4,7); ctx.fillRect(kx+18,ky-70,4,7); ctx.shadowBlur=0;
+    // fog band
+    for(let i=0;i<8;i++){ const fx=R()*W, fy=H*.6+R()*30; const fg=ctx.createRadialGradient(fx,fy,0,fx,fy,140); fg.addColorStop(0,'rgba(150,150,140,.14)'); fg.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=fg; ctx.fillRect(0,0,W,H); }
+    // near moor
+    ctx.fillStyle='#1a1e1b'; ctx.beginPath(); ctx.moveTo(0,H); for(let x=0;x<=W;x+=16) ctx.lineTo(x,H*.7+Math.sin(x*.016+2)*10); ctx.lineTo(W,H); ctx.fill();
+    // gallows
+    ctx.strokeStyle='#0a0b0b'; ctx.lineWidth=6; ctx.beginPath(); ctx.moveTo(110,H*.72); ctx.lineTo(110,H*.36); ctx.lineTo(190,H*.36); ctx.moveTo(110,H*.44); ctx.lineTo(130,H*.36); ctx.stroke();
+    ctx.lineWidth=2; ctx.beginPath(); ctx.moveTo(182,H*.36); ctx.lineTo(182,H*.47); ctx.stroke(); ctx.beginPath(); ctx.arc(182,H*.49,6,0,7); ctx.stroke();
+    // dead trees
+    ctx.lineWidth=3; [[300,H*.7],[620,H*.72],[40,H*.74]].forEach(([x,y])=>{ ctx.beginPath(); ctx.moveTo(x,y); ctx.lineTo(x+2,y-64); ctx.moveTo(x+1,y-34); ctx.lineTo(x-20,y-54); ctx.moveTo(x+2,y-46); ctx.lineTo(x+18,y-66); ctx.stroke(); });
+    // hooded wanderer with lantern
+    ctx.save(); ctx.translate(W*.47,H*.84); ctx.fillStyle='#060606';
+    ctx.beginPath(); ctx.moveTo(-20,0); ctx.quadraticCurveTo(-18,-50,-12,-70); ctx.quadraticCurveTo(-12,-92,0,-96); ctx.quadraticCurveTo(14,-92,13,-70); ctx.quadraticCurveTo(20,-50,22,0); ctx.closePath(); ctx.fill();
+    ctx.fillRect(-30,-100,3,100);
+    const lg2=ctx.createRadialGradient(24,-44,0,24,-44,60); lg2.addColorStop(0,'rgba(255,170,80,.5)'); lg2.addColorStop(1,'rgba(0,0,0,0)'); ctx.fillStyle=lg2; ctx.fillRect(-40,-110,130,130);
+    ctx.fillStyle='#ffb060'; ctx.shadowColor='#ff7a2a'; ctx.shadowBlur=12; ctx.fillRect(20,-50,8,11); ctx.shadowBlur=0;
+    ctx.fillStyle='#d0463a'; ctx.fillRect(-4,-80,3,2); ctx.fillRect(3,-80,3,2); ctx.restore();
+    // wolf eyes in the dark
+    [[560,H*.8],[600,H*.83],[420,H*.78]].forEach(([x,y])=>{ ctx.fillStyle='#ffb04a'; ctx.shadowColor='#ff8a1a'; ctx.shadowBlur=8; ctx.fillRect(x,y,4,2); ctx.fillRect(x+9,y,4,2); }); ctx.shadowBlur=0;
+    const v=ctx.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,W*.7); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.55)'); ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
   } else {
     const g=ctx.createLinearGradient(0,0,0,H);
     g.addColorStop(0,'#6ea6d4'); g.addColorStop(0.35,'#7da85a'); g.addColorStop(1,'#2f6a32');
     ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
     ctx.fillStyle='#6e6256';
     ctx.fillRect(0,0,28,H); ctx.fillRect(W-28,0,28,H);
-    // castle
     ctx.fillStyle='#6e6256'; ctx.fillRect(W*0.35, 8, W*0.3, 70);
     ctx.fillStyle='#9a2a22';
     ctx.beginPath(); ctx.moveTo(W*0.35-8,8); ctx.lineTo(W*0.42, -18); ctx.lineTo(W*0.50,8); ctx.fill();
@@ -163,14 +401,13 @@ function paintArt(c, kind, accent){
     ctx.strokeStyle='#7b4cff'; round(420, 88, 220, 64, 10); ctx.stroke();
     ctx.shadowBlur=0; ctx.fillStyle='#fff'; ctx.font='800 22px Palatino,Georgia,serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
     ctx.fillText('+10', 190, 120); ctx.fillText('x3', 530, 120);
-    // crowds
     ctx.shadowBlur=0;
     for(let i=0;i<22;i++){ ctx.fillStyle='#3a7bff'; ctx.beginPath(); ctx.arc(160+(i%8)*18, 200+(i%3)*12, 6, 0, 7); ctx.fill(); }
     for(let i=0;i<10;i++){ ctx.fillStyle='#d43a3a'; ctx.beginPath(); ctx.arc(480+(i%5)*16, 40+(i%2)*12, 6, 0, 7); ctx.fill(); }
-    // ballista
-    ctx.fillStyle=accent; ctx.fillRect(W*0.5-4, 210, 8, 28);
-    ctx.fillStyle='#8a6234';
-    ctx.beginPath(); ctx.moveTo(W*0.5-28, 250); ctx.lineTo(W*0.5, 230); ctx.lineTo(W*0.5+28, 250); ctx.fill();
+    ctx.fillStyle='#c4a06a';
+    ctx.beginPath(); ctx.arc(W*0.5-22, 248, 10, 0, 7); ctx.arc(W*0.5+22, 248, 10, 0, 7); ctx.fill();
+    ctx.fillStyle='#5a6570';
+    ctx.fillRect(W*0.5-8, 210, 16, 36);
   }
 }
 </script>
