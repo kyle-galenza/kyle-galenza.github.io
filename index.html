@@ -202,6 +202,16 @@ const GAMES = [
     tag: 'GRIMDARK ADVENTURE',
     mature: true,
     art: 'vale'
+  },
+  {
+    id: 'six-for-sorrow',
+    name: 'SIX FOR SORROW',
+    subtitle: 'Six Chambers, No Mercy',
+    blurb: 'Hanged, buried, back. Load your cylinder with silver, hellfire and blood, ride the Dry Mile and put the Saint Vulture in the ground.',
+    href: './six-for-sorrow/',
+    accent: '#ff9a4a',
+    tag: 'WEIRD WEST ROGUELITE',
+    art: 'sorrow'
   }
 ];
 
@@ -257,6 +267,7 @@ if (lastId) {
     const score=last.id==='voidbreaker'?(voidBest?'Best survival  '+fmtTime(voidBest):'Hold the deck for 10:00')
       :last.id==='lumenspire'?(spireBest?'Best floor  '+spireBest:'Climb the tower')
       :last.id==='starfall-vale'?(valeLv?(valeBoss?'Barrow King slain  ·  Lv '+valeLv:'Level '+valeLv):'Cross the moor')
+      :last.id==='six-for-sorrow'?'Ride the Dry Mile'
       :(siegeBest?'Furthest level  '+siegeBest:'Storm the keep');
     html+=`<a class="continue" href="${last.href}" data-id="${last.id}" style="--accent:${last.accent}">
       <div class="meta"><div class="k">CONTINUE</div><div class="n" style="color:${last.accent}">${last.name}</div><div class="s">${score}</div></div>
@@ -279,6 +290,49 @@ if (lastId) {
 function paintArt(c, kind, accent){
   const ctx = c.getContext('2d');
   const W=c.width, H=c.height;
+  if (kind==='sorrow'){
+    // dusk sky
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#2a1640'); g.addColorStop(.5,'#7a3352'); g.addColorStop(.78,'#e0684a'); g.addColorStop(1,'#ffc078');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    // sun
+    const sx=W*.66, sy=H*.74, sr=H*.3;
+    const glow=ctx.createRadialGradient(sx,sy,0,sx,sy,sr*2.4);
+    glow.addColorStop(0,'rgba(255,230,160,.9)'); glow.addColorStop(.4,'rgba(255,150,90,.35)'); glow.addColorStop(1,'rgba(255,120,80,0)');
+    ctx.fillStyle=glow; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#ffd99a'; ctx.beginPath(); ctx.arc(sx,sy,sr,0,Math.PI*2); ctx.fill();
+    // mesas + ground
+    ctx.fillStyle='#5a2038';
+    ctx.beginPath(); ctx.moveTo(0,H); ctx.lineTo(0,H*.78); ctx.lineTo(W*.12,H*.78); ctx.lineTo(W*.16,H*.62); ctx.lineTo(W*.3,H*.62); ctx.lineTo(W*.34,H*.8);
+    ctx.lineTo(W*.78,H*.8); ctx.lineTo(W*.82,H*.66); ctx.lineTo(W*.94,H*.66); ctx.lineTo(W*.97,H*.8); ctx.lineTo(W,H*.8); ctx.lineTo(W,H); ctx.fill();
+    ctx.fillStyle='#24101c'; ctx.fillRect(0,H*.86,W,H*.14);
+    // revolver cylinder emblem, rim-lit in the accent colour
+    const cx=W*.32, cy=H*.44, R=H*.24;
+    ctx.save(); ctx.shadowColor=accent; ctx.shadowBlur=24;
+    ctx.fillStyle='#1c1018'; ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.fill(); ctx.restore();
+    ctx.strokeStyle=accent; ctx.lineWidth=3; ctx.beginPath(); ctx.arc(cx,cy,R,0,Math.PI*2); ctx.stroke();
+    const cols=['#cdbba2','#dfe8f2','#ff7a3a','#cdbba2','#e2364a','#7fb8ff'];
+    for(let i=0;i<6;i++){
+      const a=i*Math.PI/3-Math.PI/2, x=cx+Math.cos(a)*R*.58, y=cy+Math.sin(a)*R*.58;
+      ctx.fillStyle='#0b0709'; ctx.beginPath(); ctx.arc(x,y,R*.26,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle=cols[i]; ctx.beginPath(); ctx.arc(x,y,R*.19,0,Math.PI*2); ctx.fill();
+      ctx.fillStyle='rgba(0,0,0,.35)'; ctx.beginPath(); ctx.arc(x,y,R*.06,0,Math.PI*2); ctx.fill();
+    }
+    ctx.fillStyle='#3a2c30'; ctx.beginPath(); ctx.arc(cx,cy,R*.16,0,Math.PI*2); ctx.fill();
+    // six magpies over the sun ("one for sorrow")
+    ctx.strokeStyle='#170a12'; ctx.lineWidth=3; ctx.lineCap='round';
+    for(let i=0;i<6;i++){
+      const bx=W*(.56+i*.06), by=H*(.22+((i*37)%5)*.04), s=10+(i%3)*2;
+      ctx.beginPath(); ctx.moveTo(bx-s,by-s*.4); ctx.quadraticCurveTo(bx-s*.4,by-s*.3,bx,by); ctx.quadraticCurveTo(bx+s*.4,by-s*.3,bx+s,by-s*.4); ctx.stroke();
+    }
+    // gallows rope on the right
+    ctx.strokeStyle='#170a12'; ctx.lineWidth=7;
+    ctx.beginPath(); ctx.moveTo(W*.9,H*.86); ctx.lineTo(W*.9,H*.18); ctx.lineTo(W*.76,H*.18); ctx.stroke();
+    ctx.strokeStyle='#a88a5a'; ctx.lineWidth=2.5;
+    ctx.beginPath(); ctx.moveTo(W*.78,H*.18); ctx.lineTo(W*.78,H*.42); ctx.stroke();
+    ctx.beginPath(); ctx.ellipse(W*.78,H*.46,10,14,0,0,Math.PI*2); ctx.stroke();
+    return;
+  }
   if (kind==='void'){
     const g=ctx.createLinearGradient(0,0,W,H);
     g.addColorStop(0,'#04101c'); g.addColorStop(1,'#0b0630');
