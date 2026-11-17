@@ -816,7 +816,7 @@ body.world-frozen #runBtn{opacity:.4}
 <script>
 (() => {
 'use strict';
-const KA_GAME='lumenspire', KA_VERSION='1.8.1';
+const KA_GAME='lumenspire', KA_VERSION='1.8.2';
 /* KA_TELEMETRY_START */
 // Shared anonymous play-log module. No personal data.
 // TELEMETRY_URL is the ntfy.sh topic. Messages over 4096 bytes become attachments,
@@ -2833,7 +2833,7 @@ function playScene(sc){
   joyEnd();
   DLG={sc,i:-1,typing:false,at:performance.now()};
   const d=$('dlg');
-  setPor($('dlL'),S.cls,CLASSES[S.cls].name);setPor($('dlR'),sc.npc?(sc.por||sc.npc):null,sc.npc?NPCS[sc.npc].name:'');
+  setPor($('dlL'),S.cls,CLASSES[S.cls].name);setPor($('dlR'),sc.npc?scenePor(sc):null,sc.npc?NPCS[sc.npc].name:'');
   $('dlL').classList.toggle('off',sc.noHero===true);updAffUI();
   d.classList.remove('in');d.classList.add('on');document.body.classList.add('dlg-on');void d.offsetWidth;
   requestAnimationFrame(()=>d.classList.add('in'));
@@ -5546,10 +5546,36 @@ const POR_DESC={
   liraen:['in the hall with keys and ledger, stern and watchful','on the town wall at night with a lantern, wind-blown cloak, wry look','in the watch tower, leaning on the sill, looking out at the valley','in her small cottage with one lamp, boots off, guard down']};
 REL_IDS.forEach(id=>{for(let s=0;s<4;s++)STAGE_POR.push({file:`portraits/${POR_BASE[id]}_s${s}.webp`,npc:id,stage:STAGE_NAMES[s],variant:'default',desc:POR_DESC[id][s]});});
 [['maid','offduty'],['maid','night'],['liraen','offduty'],['liraen','night']].forEach(([id,v])=>{for(let s=1;s<4;s++)STAGE_POR.push({file:`portraits/${POR_BASE[id]}_${v}_s${s}.webp`,npc:id,stage:STAGE_NAMES[s],variant:v,desc:(v==='night'?'nightwear (modest, adult), ':'off-duty clothes, ')+POR_DESC[id][s].split(',').slice(1).join(',').trim()});});
-const ART_HAVE={};/* filename -> true once Kyle's art lands; the build is ready for it */
-function porFor(id,stage,variant){const v=variant||(id==='maid'?(maidNight()?'night':maidOffDuty()?'offduty':''):id==='liraen'?(liraenNight()?'night':liraenOffDuty()?'offduty':''):'');
-  const f=`portraits/${POR_BASE[id]}${v?'_'+v:''}_s${stage}.webp`;if(ART_HAVE[f])return {src:f,placeholder:false};
-  const k=id==='maid'?maidPor():id==='liraen'?liraenPor():id;return {src:`portraits/${PFILE[k]||k}.webp`,placeholder:true,key:k};}
+const ART_HAVE={};/* portraits/<id>_s1..s3.webp ship in v1.8.2; night/off-duty stay on the existing variant files until staged art lands */
+REL_IDS.forEach(id=>{for(let s=1;s<=3;s++){const k=POR_BASE[id]+'_s'+s;PFILE[k]=k;ART_HAVE['portraits/'+k+'.webp']=true;}});
+function porFor(id,stage,variant){
+  const auto=id==='maid'?(maidNight()?'night':maidOffDuty()?'offduty':''):id==='liraen'?(liraenNight()?'night':liraenOffDuty()?'offduty':''):'';
+  const v=variant==null?auto:(variant||'');
+  const base=POR_BASE[id]||id;
+  if(v){
+    const staged=`portraits/${base}_${v}_s${stage}.webp`;
+    if(ART_HAVE[staged])return {src:staged,placeholder:false,key:`${base}_${v}_s${stage}`};
+    const k=id==='maid'?(v==='night'?'maid_night':'maid_offduty'):id==='liraen'?(v==='night'?'liraen_night':'liraen_offduty'):id;
+    return {src:`portraits/${PFILE[k]||k}.webp`,placeholder:true,key:k};
+  }
+  if(stage>0){
+    const key=`${base}_s${stage}`,f=`portraits/${key}.webp`;
+    if(ART_HAVE[f])return {src:f,placeholder:false,key};
+  }
+  return {src:`portraits/${PFILE[id]||id}.webp`,placeholder:true,key:id};
+}
+/* dialogue: honor explicit night/off-duty keys; otherwise the current (or given) stage look */
+function scenePor(sc){
+  if(!sc||!sc.npc)return (sc&&sc.por)||null;
+  const p=sc.por;
+  if(p==='maid_night'||p==='maid_offduty'||p==='liraen_night'||p==='liraen_offduty')return p;
+  if(!REL_IDS.includes(sc.npc))return p||sc.npc;
+  const st=sc.stage!=null?sc.stage:stageOf(sc.npc);
+  let variant;
+  if(sc.variant!=null)variant=sc.variant;
+  else if(p==='maid'||p==='liraen'||p===sc.npc)variant='';
+  return porFor(sc.npc,st,variant).key;
+}
 /* ---------- scene assets: full-bleed backgrounds, optional loops, optional voice ---------- */
 const SCENE_ASSETS=[];
 Object.keys(LOCS).forEach(l=>SCENE_ASSETS.push({file:`scenes/bg_${l}.webp`,type:'background',npc:Object.keys(STAGE_LOC).filter(id=>STAGE_LOC[id].includes(l)).concat(Object.keys(SHARED).filter(id=>SHARED[id].loc===l)).filter((v,i,a)=>a.indexOf(v)===i).join('/')||'-',stage:'-',location:LOCS[l].name,activity:'-'}));
@@ -5852,7 +5878,7 @@ function memList(id){const out=[],sc=SCENES[id]||[],x=SHARED[id];
 function memCount(){memBackfill();let n=0,t=0;REL_IDS.forEach(id=>memList(id).forEach(e=>{t++;if(S.mem&&S.mem[e.k])n++;}));return {n,t};}
 const MEM_MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function memWhen(r){if(!r)return '';if(r.b||!r.t)return 'Before Memories began';const d=new Date(r.t);return `${MEM_MON[d.getMonth()]} ${d.getDate()} · after climb ${r.c}`;}
-function memThumb(id,known){const k=id==='maid'?'maid':id==='liraen'?'liraen':id;return `<span class="mem-th${known?'':' sil'}"><img src="portraits/${PFILE[k]||k}.webp" alt="" loading="lazy" decoding="async"></span>`;}
+function memThumb(id,known){const pf=porFor(id,known?stageOf(id):0,'');return `<span class="mem-th${known?'':' sil'}"><img src="${pf.src}" alt="" loading="lazy" decoding="async"></span>`;}
 function openMemories(){memBackfill();const c=memCount();
   const groups=REL_IDS.map(id=>{const L=memList(id),seen=L.filter(e=>S.mem[e.k]).length,met=seen>0||aff(id)>0,nm=met?NPCS[id].name:'???';
     const rows=L.map(e=>{const r=S.mem[e.k];if(!r)return `<div class="mem-row locked" aria-label="Locked memory"><span class="mem-k">${e.kind}</span><span class="mem-tx"><b>???</b><small>${met?esc(e.hint):'Not yet met'}</small></span><span class="mem-lk">${ic('lock',14,2.4)}</span></div>`;
@@ -5991,7 +6017,7 @@ window.addEventListener('pagehide',()=>save(true));
 setInterval(()=>{if(S)save(true);},30000);
 load();resize();renderTitle();if(S)prefetchPor(S.cls);
 requestAnimationFrame(frame);
-window.__LS={ROMANCE,townFootprints,townCobble,onCobble,leaveInn,ruinSky,STAGE_LOC,stageOf,festivalOn,stageUpLines,drawEnt,growTown,enterInn,buildInn,townGrid,villagerSprite,loopFor,SCENE_SHIP,memRec,memBackfill,memList,memCount,openMemories,memReplay,openSettings,SCENES,STAGE_LINES,STAGE_UP,playShared,folkTalk,get S(){return S},drawWorld,get RUNV(){return RUN},get NSC(){return NSC},stageOf,STAGE_LOC,LOCS,SHARED,STAGE_POR,SCENE_ASSETS,ART_HAVE,SCENE_HAVE,porFor,openNpcScene,closeNpcScene,nsNext,playShared,sharedReady,folkTalk,growthTier,growthScore,crowdN,festivalOn,LOTS,HOMES,visitHome,startDescent,descendStairs,enterCamp,castlePack,CASTLE_MON,CASTLE_BOSSES,campBuy,openQuarter,inCastle,castleUnlocked,descentHtml,biomeOf,TOWN,skillCd,drawHero,HERO,JOY,KATel,updateWorld,disc,drillTab,artsBlock,ledgerHtml,get AREA(){return AREA},get RUNB(){return RUNB},RUN_MULT,MTYPE,DT_MULT,dtOf,dtMult,mtypeOf,ARTS,PROF_XP,profLv,profXp,profGain,curSty,artSkill,artSpec,artTargets,previewArt,doArt,counterMult,counterOf,v18Pack,swarmTick,V18_MONSTERS,trainCost,trainProf,temperCost,temperItem,INVEST,invest,investEff,telSkill,telFlush,weaponLook,weaponIconURL,itemIconHtml,heroLook,drawHeroR,drawHeroClassic,runSync,makeEnemy,makePack,heroAtkMods,battleSkill,gSpec,previewAction,get B(){return B},get RUN(){return RUN},get busy(){return busy},get PST(){return PST},selectAction,execAction,ACTS,approachNode,bestAttackTile,guardTiles,tapWorld,get DLGO(){return DLG},nextLine,endScene,tapTile,moveHero,undoMove,waitTurn,useTonic,blink,canBlink,aiChoose,aiTurn,simFight,startFight,makePack,gSpec,targetsFor,previewAction,areaTiles,reach,planAll,threatMap,flankOf,inCover,los,genArena,genFloor,validateFloor,buildFloor,heroMove,openShrine,takeBlessing,talkFolk,openFolk,buyShop,wearOutfit,takeGift,applyPerks,OUTFITS,FOLK,NPCS,LADY,openBoutique,openLiraen,buildTown,renderBattle,telegraphMap,breathStop,intentHtml,INT_IC,AREA_T,liraenOffDuty,liraenPor,maidOffDuty,maidPor,maidNight,liraenNight,nightVisit,lateHour,NIGHT_CLOCK,MAID_NIGHT,LIRAEN_NIGHT,LIRAEN_OFF,gainAff,aff,talkAff,nextScene,folkTalk,SCENES,SCENE_REQ,townTier,patronCount,giveGift,openSylwen,takeSupper,GOSSIP,SHOPS,lockPlan,foeAct,doIntent,BOSS_T,boardOpen,talkTo,goTown,enterHouse,leaveHouse,townNews,lirGift,buildHouse,TOWN,readLore,LORE,BLESS,rollIntent,enemyTurn,win,lose,returnToFloor,climbStairs,drawMiniMap,openChest,skillCost,startClimb,endRun,goHub,hs,gearPower,itemPower,equip,salvage,upCost,newSave,save,show,renderHub,openGear,openTree,openForge,openVictory,closeSheet,SH,WSTYLES,styleOf,defaultStyle,makeItem,migrate,battleSkill,makeEnemy,hitFoe,knockback,openItem,bootFight,
+window.__LS={ROMANCE,townFootprints,townCobble,onCobble,leaveInn,ruinSky,STAGE_LOC,stageOf,festivalOn,stageUpLines,drawEnt,growTown,enterInn,buildInn,townGrid,villagerSprite,loopFor,SCENE_SHIP,memRec,memBackfill,memList,memCount,openMemories,memReplay,openSettings,SCENES,STAGE_LINES,STAGE_UP,playShared,folkTalk,get S(){return S},drawWorld,get RUNV(){return RUN},get NSC(){return NSC},stageOf,STAGE_LOC,LOCS,SHARED,STAGE_POR,SCENE_ASSETS,ART_HAVE,SCENE_HAVE,porFor,scenePor,playScene,openNpcScene,closeNpcScene,nsNext,playShared,sharedReady,folkTalk,growthTier,growthScore,crowdN,festivalOn,LOTS,HOMES,visitHome,startDescent,descendStairs,enterCamp,castlePack,CASTLE_MON,CASTLE_BOSSES,campBuy,openQuarter,inCastle,castleUnlocked,descentHtml,biomeOf,TOWN,skillCd,drawHero,HERO,JOY,KATel,updateWorld,disc,drillTab,artsBlock,ledgerHtml,get AREA(){return AREA},get RUNB(){return RUNB},RUN_MULT,MTYPE,DT_MULT,dtOf,dtMult,mtypeOf,ARTS,PROF_XP,profLv,profXp,profGain,curSty,artSkill,artSpec,artTargets,previewArt,doArt,counterMult,counterOf,v18Pack,swarmTick,V18_MONSTERS,trainCost,trainProf,temperCost,temperItem,INVEST,invest,investEff,telSkill,telFlush,weaponLook,weaponIconURL,itemIconHtml,heroLook,drawHeroR,drawHeroClassic,runSync,makeEnemy,makePack,heroAtkMods,battleSkill,gSpec,previewAction,get B(){return B},get RUN(){return RUN},get busy(){return busy},get PST(){return PST},selectAction,execAction,ACTS,approachNode,bestAttackTile,guardTiles,tapWorld,get DLGO(){return DLG},nextLine,endScene,tapTile,moveHero,undoMove,waitTurn,useTonic,blink,canBlink,aiChoose,aiTurn,simFight,startFight,makePack,gSpec,targetsFor,previewAction,areaTiles,reach,planAll,threatMap,flankOf,inCover,los,genArena,genFloor,validateFloor,buildFloor,heroMove,openShrine,takeBlessing,talkFolk,openFolk,buyShop,wearOutfit,takeGift,applyPerks,OUTFITS,FOLK,NPCS,LADY,openBoutique,openLiraen,buildTown,renderBattle,telegraphMap,breathStop,intentHtml,INT_IC,AREA_T,liraenOffDuty,liraenPor,maidOffDuty,maidPor,maidNight,liraenNight,nightVisit,lateHour,NIGHT_CLOCK,MAID_NIGHT,LIRAEN_NIGHT,LIRAEN_OFF,gainAff,aff,talkAff,nextScene,folkTalk,SCENES,SCENE_REQ,townTier,patronCount,giveGift,openSylwen,takeSupper,GOSSIP,SHOPS,lockPlan,foeAct,doIntent,BOSS_T,boardOpen,talkTo,goTown,enterHouse,leaveHouse,townNews,lirGift,buildHouse,TOWN,readLore,LORE,BLESS,rollIntent,enemyTurn,win,lose,returnToFloor,climbStairs,drawMiniMap,openChest,skillCost,startClimb,endRun,goHub,hs,gearPower,itemPower,equip,salvage,upCost,newSave,save,show,renderHub,openGear,openTree,openForge,openVictory,closeSheet,SH,WSTYLES,styleOf,defaultStyle,makeItem,migrate,battleSkill,makeEnemy,hitFoe,knockback,openItem,bootFight,
   get screen(){return screen},get AREA(){return AREA},HERO,JOY,CAM,talkTo,bumpMonster,enterFloor,goTown,enterHouse,openMap,openGate,get DLG(){return DLG},TUNE,checkpoints,get FAST(){return FAST},GC,GR,BOSS_T,ELITE_T,MONSTERS,BOSSES,computeIdle,openIdle,KATel,CLASSES};
 })();
 </script>
