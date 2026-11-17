@@ -7,1500 +7,425 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Moonpetal">
-<meta name="theme-color" content="#10160f">
+<meta name="apple-mobile-web-app-title" content="Lanternveil">
+<meta name="theme-color" content="#100e0c">
 <meta name="format-detection" content="telephone=no">
-<title>Moonpetal</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2310160f'/%3E%3Cpath fill='%23e7c56a' d='M8 2c2 3 3 4 3 6a3 3 0 1 1-6 0c0-2 1-3 3-6z'/%3E%3C/svg%3E">
+<title>Lanternveil</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%23100e0c'/%3E%3Cpath fill='%23e7c98a' d='M8 1.2l1.1 3.2h3.4l-2.7 2 1 3.3L8 7.8 5.2 9.7l1-3.3-2.7-2h3.4z'/%3E%3C/svg%3E">
 <style>
-  :root{--bg:#10160f;--ink:#f6f1e6;--dim:#b7c0ae;--gold:#e7c56a;--line:rgba(231,197,106,.28);--glass:rgba(12,16,12,.82)}
+  :root{
+    --bg:#100e0c; --ink:#f6f1e6; --dim:#b7ad9e; --gold:#e7c98a; --line:rgba(231,201,138,.28);
+    --glass:rgba(14,12,10,.78); --ae:#e2b15a; --ny:#c4c2ff; --li:#9dce8a;
+  }
   *{box-sizing:border-box}
   html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:500 16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif}
   body{min-height:100dvh;overflow:hidden;user-select:none;-webkit-user-select:none}
   button,input{font:inherit;color:inherit}
   button{cursor:pointer;touch-action:manipulation}
-  button:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
   [hidden]{display:none !important}
-  #crash{position:fixed;z-index:80;left:12px;right:12px;top:12px;padding:12px;border-radius:12px;background:#3a1020;color:#ffd0d8;font:600 12px/1.4 ui-monospace,monospace;white-space:pre-wrap}
-  #toast{position:fixed;z-index:70;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translate(-50%,-8px);opacity:0;max-width:min(460px,92vw);padding:10px 14px;border-radius:16px;background:rgba(28,24,16,.94);border:1px solid var(--line);color:var(--gold);font:700 14px/1.35 system-ui;transition:.2s;pointer-events:none}
+  #bg,#fade{position:fixed;inset:0}
+  #bg{z-index:0;background:#14110e}
+  #bg.gardens{background:
+    radial-gradient(ellipse at 72% 18%, rgba(255,196,90,.55), transparent 42%),
+    radial-gradient(ellipse at 18% 80%, rgba(40,90,48,.55), transparent 46%),
+    linear-gradient(180deg,#24301c 0%,#3d4a28 42%,#1a140e 100%)}
+  #bg.tower{background:
+    radial-gradient(circle at 78% 16%, rgba(244,244,255,.85) 0 18px, rgba(180,190,255,.25) 19px, transparent 70px),
+    radial-gradient(ellipse at 30% 100%, rgba(70,60,140,.45), transparent 50%),
+    linear-gradient(180deg,#070b18 0%,#1a2040 55%,#0c1018 100%)}
+  #bg.falls{background:
+    linear-gradient(180deg, rgba(220,240,230,.18), transparent 30%),
+    radial-gradient(ellipse at 50% 28%, rgba(210,230,220,.35), transparent 28%),
+    linear-gradient(180deg,#163028 0%,#2a4034 40%,#101610 100%)}
+  #bg.festival,#bg.date{background:
+    radial-gradient(circle at 20% 30%, rgba(255,180,70,.35), transparent 18%),
+    radial-gradient(circle at 70% 22%, rgba(255,140,60,.28), transparent 16%),
+    radial-gradient(circle at 46% 70%, rgba(255,200,100,.18), transparent 30%),
+    linear-gradient(180deg,#2a140c 0%,#4a2814 48%,#140e0c 100%)}
+  #bg.pool{background:
+    radial-gradient(ellipse at 50% 72%, rgba(120,140,220,.35), transparent 42%),
+    radial-gradient(circle at 80% 14%, rgba(230,230,255,.7) 0 14px, transparent 60px),
+    linear-gradient(180deg,#101628 0%,#243048 60%,#0c1218 100%)}
+  #bg.camp{background:
+    radial-gradient(ellipse at 50% 78%, rgba(255,140,50,.4), transparent 36%),
+    linear-gradient(180deg,#10160f 0%,#1c2416 50%,#120c0a 100%)}
+  #bg.gate{background:
+    radial-gradient(ellipse at 50% 40%, rgba(231,201,138,.28), transparent 42%),
+    linear-gradient(180deg,#1a140e,#070605)}
+  #fade{z-index:4;background:#07060a;opacity:0;pointer-events:none;transition:opacity .7s}
+  body.fade-out #fade{opacity:.92}
+  #toast{position:fixed;z-index:40;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translate(-50%,-8px);opacity:0;pointer-events:none;max-width:min(520px,92vw);padding:10px 14px;border-radius:999px;background:rgba(20,16,12,.92);border:1px solid var(--line);color:var(--gold);font:700 13px/1.3 system-ui;transition:.25s}
   #toast.show{opacity:1;transform:translate(-50%,0)}
-  .screen{position:fixed;inset:0}
-  #title{display:flex;flex-direction:column;justify-content:flex-end;overflow:auto;background:#10160f url('art/aelith.jpg') center 18%/cover no-repeat;padding:calc(12px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))}
-  #title::before{content:"";position:absolute;inset:0;pointer-events:none;background:linear-gradient(180deg,rgba(8,12,8,.05) 0%,rgba(8,12,8,.35) 36%,rgba(8,12,8,.92) 70%)}
-  .cast{position:relative;z-index:1;display:flex;justify-content:center;gap:8px;margin:0 auto 12px;width:min(640px,100%)}
-  .cast img{width:30%;max-height:34vh;object-fit:cover;object-position:center 12%;border-radius:18px;border:1px solid rgba(255,255,255,.18);box-shadow:0 10px 30px rgba(0,0,0,.35)}
-  .cast img.lead{width:36%;transform:translateY(-8px)}
-  .panel{position:relative;z-index:1;width:min(640px,100%);margin:0 auto;padding:16px;border-radius:26px;background:rgba(12,16,12,.84);border:1px solid var(--line);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
-  h1{margin:0;font:800 42px/1 Georgia,"Palatino Linotype",serif;letter-spacing:-.03em}
-  .sub{margin:4px 0 8px;color:var(--gold);letter-spacing:.14em;font:800 12px/1.2 system-ui}
-  .lore{font:500 16px/1.45 Georgia,serif;margin:0 0 8px}
-  .note{color:var(--dim);font:600 12px/1.4 system-ui;margin:0 0 12px}
+  #crash{position:fixed;z-index:80;left:12px;right:12px;top:12px;padding:12px;border-radius:12px;background:#3a1020;color:#ffd0d8;font:600 12px/1.4 ui-monospace,monospace;white-space:pre-wrap}
+  .screen{position:fixed;inset:0;z-index:6;overflow:auto;padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+  .lanterns{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+  .lanterns i{position:absolute;width:6px;height:6px;border-radius:50%;background:#ffd89a;box-shadow:0 0 12px #ffb450;opacity:.75;animation:float 9s ease-in-out infinite}
+  .lanterns i:nth-child(1){left:12%;top:20%}
+  .lanterns i:nth-child(2){left:28%;top:64%;animation-delay:-2s}
+  .lanterns i:nth-child(3){left:70%;top:18%;animation-delay:-4s}
+  .lanterns i:nth-child(4){left:84%;top:48%;animation-delay:-1s}
+  .lanterns i:nth-child(5){left:48%;top:30%;animation-delay:-3s}
+  .lanterns i:nth-child(6){left:60%;top:72%;animation-delay:-5s}
+  @keyframes float{50%{transform:translateY(-16px);opacity:1}}
+  .panel{width:min(560px,100%);margin:auto;padding:18px 18px 16px;border-radius:28px;background:rgba(16,12,10,.72);border:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  #title{display:flex;flex-direction:column;align-items:center;justify-content:flex-end;background:linear-gradient(180deg,rgba(8,6,4,.05),rgba(8,6,4,.55))}
+  .cast{position:relative;z-index:1;display:flex;justify-content:center;align-items:flex-end;gap:10px;width:min(720px,100%);margin:0 auto 12px}
+  .cast img{width:28%;max-height:42vh;object-fit:cover;object-position:center 15%;border-radius:18px;border:1px solid rgba(255,255,255,.2);box-shadow:0 12px 28px rgba(0,0,0,.35)}
+  .cast img.lead{width:34%;max-height:48vh}
+  h1{margin:0;font:italic 64px/0.95 Georgia,"Times New Roman",serif;letter-spacing:-0.03em}
+  .sub{margin:6px 0 0;letter-spacing:.28em;font:800 12px/1 system-ui;color:var(--gold)}
+  .notice{margin:14px 0;padding:10px 12px;border-radius:16px;border:1px solid rgba(231,201,138,.4);background:rgba(0,0,0,.28);color:#f0e2c4;font:600 13px/1.45 system-ui}
+  .hint{color:var(--dim);font-size:12px;margin:8px 0 0}
   .row{display:flex;flex-wrap:wrap;gap:8px}
-  .btn{min-height:46px;padding:0 14px;border-radius:14px;border:0;background:rgba(255,255,255,.08);font:800 13px/1 system-ui;letter-spacing:.04em}
-  .btn.pri{background:linear-gradient(180deg,#f0d78a,#c4923a);color:#241c0c}
-  .btn.ghost{background:transparent;border:1px solid var(--line)}
+  .btn{min-height:46px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06);font:800 13px/1 system-ui;letter-spacing:.04em}
+  .btn.pri{background:linear-gradient(180deg,#f3ddb0,#c9964a);color:#24180c;border:0}
   .btn.on{box-shadow:0 0 0 1px var(--gold);color:var(--gold)}
-  .saveinfo{margin-top:8px;color:var(--dim);font-size:12px}
-  #app{display:flex;flex-direction:column;background:#0c100c}
-  header{flex:0 0 auto;display:flex;gap:8px;align-items:center;justify-content:space-between;padding:calc(8px + env(safe-area-inset-top)) 10px 8px;background:rgba(8,12,8,.9);border-bottom:1px solid rgba(255,255,255,.06);z-index:5}
-  .daylab{font:800 12px/1.2 system-ui;letter-spacing:.12em;color:var(--gold)}
-  .meters{display:flex;gap:6px;flex:1;min-width:0}
-  .meter{position:relative;flex:1;min-width:0;height:22px;border-radius:999px;background:rgba(255,255,255,.06);overflow:hidden}
-  .meter i{position:absolute;inset:0 auto 0 0;width:0;border-radius:inherit}
-  .meter span{position:relative;z-index:1;display:block;padding:0 6px;font:800 10px/22px system-ui;letter-spacing:.03em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .meter.aelith i{background:linear-gradient(90deg,#6a4a12,#e7c56a)}
-  .meter.nyssa i{background:linear-gradient(90deg,#2a1860,#b7a6ff)}
-  .meter.lirael i{background:linear-gradient(90deg,#1a4020,#8dce7a)}
-  .iconbtn{width:44px;height:36px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.06);font:800 11px/1 system-ui}
-  .coinpill{display:flex;align-items:center;gap:4px;font:800 13px/1 system-ui;color:var(--gold)}
-  .coinpill b{font-weight:800}
-  #view{flex:1;min-height:0;display:flex;flex-direction:column}
-  #stage{position:relative;flex:0 0 46%;min-height:180px;overflow:hidden;background:#142016}
-  .bg{position:absolute;inset:0}
-  .bg.garden{background:radial-gradient(ellipse at 70% 18%,rgba(255,196,80,.5),transparent 46%),radial-gradient(ellipse at 16% 80%,rgba(80,140,70,.35),transparent 42%),linear-gradient(180deg,#4a3416,#12180f 72%)}
-  .bg.moon{background:radial-gradient(circle at 18% 16%,rgba(230,236,255,.85),transparent 14%),radial-gradient(ellipse at 72% 30%,rgba(90,60,180,.5),transparent 48%),linear-gradient(180deg,#070b1c,#160818 78%)}
-  .bg.falls{background:radial-gradient(ellipse at 62% 24%,rgba(190,230,255,.28),transparent 40%),linear-gradient(180deg,#1d4630,#0c1610 74%)}
-  .bg.market{background:radial-gradient(ellipse at 40% 24%,rgba(255,150,60,.4),transparent 46%),linear-gradient(180deg,#3a2414,#120e0c)}
-  .bg.green{background:radial-gradient(ellipse at 50% 16%,rgba(255,210,110,.3),transparent 42%),linear-gradient(180deg,#24381e,#10160f)}
-  .bg.ball{background:radial-gradient(ellipse at 50% 0%,rgba(255,214,130,.45),transparent 50%),linear-gradient(180deg,#3a2c18,#140e16)}
-  .sprite{position:relative;z-index:1;width:100%;height:100%;object-fit:cover;object-position:center 12%;display:block}
-  .sprite.look-outfit{object-position:center 6%}
-  .sprite.look-outfit.aelith{filter:saturate(1.18) contrast(1.04) drop-shadow(0 12px 28px rgba(255,190,70,.35))}
-  .sprite.look-outfit.nyssa{filter:saturate(1.15) hue-rotate(-8deg) drop-shadow(0 12px 28px rgba(160,140,255,.45))}
-  .sprite.look-outfit.lirael{filter:sepia(.16) saturate(1.12) drop-shadow(0 12px 24px rgba(255,150,60,.28))}
-  .sprite.look-end{object-position:center 18%;filter:saturate(1.08) brightness(1.06) contrast(1.04)}
-  #look{position:absolute;z-index:2;left:10px;bottom:10px;padding:4px 8px;border-radius:999px;background:rgba(0,0,0,.55);border:1px solid var(--line);color:var(--gold);font:800 11px/1 system-ui;letter-spacing:.08em}
-  #lower{flex:1;min-height:0;overflow:auto;padding:12px 12px calc(14px + env(safe-area-inset-bottom));background:linear-gradient(180deg,rgba(8,12,10,.15),#0e140f 28px)}
-  #daypick{width:min(640px,100%);margin:0 auto;display:flex;flex-direction:column;gap:8px}
-  #daypick h2{margin:4px 0 0;font:800 28px/1.1 Georgia,serif}
-  #daySub{margin:0 0 6px;color:var(--dim);font-size:14px}
-  .place{display:flex;gap:10px;align-items:center;text-align:left;padding:8px;border-radius:18px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);min-height:72px}
-  .place img,.swatch{width:64px;height:64px;border-radius:14px;object-fit:cover;object-position:center 15%;flex:0 0 auto}
-  .swatch{display:block}
-  .swatch.market{background:radial-gradient(circle at 40% 40%,#e7a04a,#6a3a16)}
-  .swatch.green{background:radial-gradient(circle at 40% 40%,#b7d56a,#2d5a32)}
-  .swatch.ball{background:radial-gradient(circle at 40% 40%,#f0d78a,#6a5030)}
-  .place b{display:block;font:800 16px/1.2 system-ui}
-  .place small{display:block;color:var(--dim);font-size:12px}
-  .place em{font-style:normal;color:var(--gold);font:800 11px/1.2 system-ui;letter-spacing:.06em}
-  #dlg{width:min(720px,100%);margin:0 auto}
-  .who{font:800 22px/1 system-ui}
-  .who.aelith{color:#e7c56a}.who.nyssa{color:#c9b6ff}.who.lirael{color:#9ddeaf}
-  .role{color:var(--gold);font:800 11px/1 system-ui;letter-spacing:.12em;margin:4px 0 8px}
-  #text{margin:0 0 8px;min-height:4.4em;font:500 18px/1.45 Georgia,serif}
-  #hint{color:var(--dim);font:700 12px/1 system-ui;letter-spacing:.08em}
-  .choice{display:block;width:100%;text-align:left;min-height:48px;margin-top:8px;padding:10px 12px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.06)}
-  .choice:hover{background:rgba(231,197,106,.12)}
-  .choice:disabled{opacity:.4}
-  .overlay{position:fixed;inset:0;z-index:30;display:flex;align-items:flex-end;justify-content:center;padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom));background:rgba(6,8,6,.55)}
-  .sheet{width:min(560px,100%);max-height:min(86dvh,760px);overflow:auto;padding:16px;border-radius:26px;background:rgba(14,18,14,.94);border:1px solid var(--line);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px)}
-  .sheet h2{margin:0 0 4px;font:800 32px/1 Georgia,serif}
-  .sheet h3{margin:12px 0 6px;font:800 13px/1 system-ui;letter-spacing:.12em;color:var(--gold)}
-  #ending{align-items:flex-end;background:linear-gradient(180deg,rgba(8,10,8,.05),rgba(8,10,8,.78))}
-  #mini{align-items:center;background:rgba(6,8,10,.72)}
-  #range,#starfield{position:relative;height:240px;margin:8px 0;border-radius:18px;background:radial-gradient(circle at 50% 45%,rgba(255,255,255,.06),rgba(0,0,0,.25));overflow:hidden}
-  #target{position:absolute;inset:0;display:grid;place-items:center}
-  #ring{width:210px;height:210px;border-radius:50%;border:6px solid rgba(255,255,255,.8);box-shadow:inset 0 0 0 28px rgba(231,197,106,.15),inset 0 0 0 58px rgba(180,40,40,.18);transform-origin:center}
-  #ring.hot{border-color:#ffe08a;box-shadow:0 0 24px rgba(255,210,80,.85),inset 0 0 0 28px rgba(255,210,80,.35),inset 0 0 0 58px rgba(180,40,40,.18)}
-  #btnShoot{position:relative;z-index:1;min-width:120px;min-height:48px;border-radius:999px;border:0;background:linear-gradient(180deg,#f0d78a,#c4923a);color:#241c0c;font:800 14px/1 system-ui}
-  #star{position:absolute;width:72px;height:72px;margin:-36px 0 0 -36px;border-radius:50%;border:0;background:radial-gradient(circle,#fff,#e7c56a 55%,transparent 70%);color:#fff;font-size:28px;text-shadow:0 0 8px #000}
-  #gallery{align-items:stretch;justify-content:center;background:rgba(8,10,8,.92);overflow:auto;padding-top:calc(16px + env(safe-area-inset-top))}
-  #galGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin:8px 0 12px}
-  .gcard{padding:0 0 8px;border-radius:16px;border:1px solid rgba(255,255,255,.1);background:rgba(255,255,255,.04);text-align:left;overflow:hidden;min-height:44px}
-  .gcard img{width:100%;height:160px;object-fit:cover;object-position:center 12%;display:block}
-  .gcard b,.gcard small{display:block;padding:0 8px}
-  .gcard small{color:var(--dim);font-size:11px}
-  .gcard .lock{display:grid;place-items:center;height:160px;color:var(--dim);letter-spacing:.14em;font:800 12px/1 system-ui}
-  .gcard img.look-outfit{filter:saturate(1.2) contrast(1.05)}
-  .gcard img.look-end{filter:sepia(.18) saturate(1.12) brightness(1.06)}
-  #viewer{z-index:55;align-items:center;background:rgba(0,0,0,.82)}
-  #viewer img{max-width:min(420px,86vw);max-height:70dvh;border-radius:18px;object-fit:cover}
-  .slot{display:flex;gap:8px;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(255,255,255,.06);font-size:13px}
-  .slot div{flex:1;min-width:0}
-  @media (min-width:900px){
-    #view{flex-direction:row}
-    #stage{flex:0 0 48%;height:auto}
-    #lower{display:flex;align-items:flex-end}
-    #dlg,#daypick{margin-bottom:8px}
+  .btn:focus-visible,.choice:focus-visible,.place:focus-visible,.tab:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  #name{display:flex;align-items:center;justify-content:center}
+  #name input{width:100%;min-height:48px;margin:8px 0 12px;padding:0 12px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.35)}
+  #map{display:flex;flex-direction:column;gap:12px}
+  .kicker{margin:0;letter-spacing:.16em;color:var(--gold);font:800 12px/1 system-ui}
+  h2{margin:4px 0;font:italic 34px/1.05 Georgia,serif}
+  .places{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+  .place{text-align:left;min-height:160px;padding:14px;border-radius:22px;border:1px solid var(--line);background:rgba(16,12,10,.66);display:flex;flex-direction:column;gap:4px}
+  .place b{font:italic 26px/1.1 Georgia,serif}
+  .place small{color:var(--dim);font-size:13px}
+  .place .ph{letter-spacing:.14em;font:800 10px/1 system-ui;color:var(--gold)}
+  .wait{margin-top:auto;font-style:normal;font:800 11px/1 system-ui;letter-spacing:.08em;color:#ffe1a8}
+  .meters{display:flex;gap:8px;flex-wrap:wrap}
+  .meter{min-width:140px;flex:1}
+  .meter span{display:flex;justify-content:space-between;font:800 10px/1 system-ui;letter-spacing:.08em;color:var(--dim)}
+  .meter em{font-style:normal}
+  .meter i{display:block;height:8px;margin-top:4px;border-radius:99px;width:0;background:var(--gold)}
+  .meter[data-meter="aelith"] i{background:linear-gradient(90deg,#8a5a18,var(--ae))}
+  .meter[data-meter="nyssa"] i{background:linear-gradient(90deg,#3a3a78,var(--ny))}
+  .meter[data-meter="lirael"] i{background:linear-gradient(90deg,#2a5a32,var(--li))}
+  .bar{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  #scene{position:fixed;inset:0;z-index:3;pointer-events:none;background:transparent}
+  #scene[hidden]{display:none !important}
+  #hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 12px 0;pointer-events:none}
+  #hud .btn{pointer-events:auto}
+  .hud-right{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  .hud-meters{margin-top:8px;max-width:520px}
+  #hudDay{font:800 12px/1 system-ui;letter-spacing:.12em;color:var(--gold)}
+  #hudYou{color:var(--dim);font-size:12px;margin-top:4px}
+  #figure,#figure.cg{position:absolute;left:0;right:0;top:0;bottom:20dvh;width:auto;height:auto;transform:none;display:flex;align-items:flex-end;justify-content:center;pointer-events:none;transition:opacity .3s}
+  #figure.quiet{opacity:.35}
+  #sprite{max-width:min(720px,94vw);max-height:100%;width:auto;height:auto;object-fit:contain;object-position:center bottom;filter:drop-shadow(0 18px 28px rgba(0,0,0,.45))}
+  .crest{width:min(300px,70%);aspect-ratio:3/4;border-radius:28px 28px 80px 80px;border:1px solid var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:16px;background:
+    radial-gradient(circle at 50% 20%, rgba(255,220,160,.35), transparent 42%),
+    linear-gradient(180deg,rgba(40,28,16,.2),rgba(10,8,6,.45));box-shadow:inset 0 0 0 1px rgba(255,255,255,.04)}
+  #figure[data-who="nyssa"] .crest{background:radial-gradient(circle at 50% 18%, rgba(190,190,255,.4), transparent 46%),linear-gradient(180deg,rgba(20,24,48,.2),rgba(8,10,16,.5))}
+  #figure[data-who="lirael"] .crest{background:radial-gradient(circle at 50% 18%, rgba(160,220,150,.35), transparent 46%),linear-gradient(180deg,rgba(16,32,18,.2),rgba(8,12,8,.5))}
+  #crestMark{font:italic 92px/1 Georgia,serif;color:var(--gold)}
+  #crestName{font:italic 28px/1 Georgia,serif;margin-top:8px}
+  #crestRole{margin-top:6px;letter-spacing:.14em;font:800 11px/1 system-ui;color:var(--dim)}
+  #box{position:absolute;left:0;right:0;bottom:0;z-index:5;height:20dvh;max-height:20dvh;padding:4px 8px calc(4px + env(safe-area-inset-bottom));pointer-events:auto}
+  .dlg{position:relative;height:100%;width:min(980px,100%);margin:0 auto;display:flex;flex-direction:column;gap:2px;padding:4px 8px 2px;border-radius:14px;background:rgba(14,12,10,.42);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow:hidden}
+  #nameplate{display:inline-flex;align-items:baseline;gap:6px;margin:0;padding:1px 8px;width:fit-content;max-width:100%;border-radius:999px;background:rgba(0,0,0,.38);flex:0 0 auto}
+  #speaker{font:800 13px/1.2 system-ui;letter-spacing:.03em}
+  #role{color:var(--gold);font:700 10px/1 system-ui;letter-spacing:.08em}
+  #lineWrap{flex:1 1 auto;min-height:0;overflow-x:hidden;overflow-y:auto;padding-right:64px;-webkit-overflow-scrolling:touch}
+  #line{margin:0;font:500 15px/1.35 Georgia,serif}
+  #choices{display:none;flex:1 1 auto;min-height:0;overflow:auto;flex-direction:column;gap:4px;padding-right:2px}
+  body.choosing #lineWrap{display:none}
+  body.choosing #choices{display:flex}
+  .choice{min-height:34px;text-align:left;padding:4px 8px;border-radius:10px;border:1px solid var(--line);background:rgba(20,16,12,.55);font-size:14px;line-height:1.25}
+  .choice:hover{border-color:var(--gold)}
+  #btnAdvance{position:absolute;right:6px;bottom:4px;min-height:26px;padding:0 8px;font-size:12px}
+  body.choosing #btnAdvance{display:none}
+  .overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;padding:8px 8px calc(8px + env(safe-area-inset-bottom));background:rgba(6,4,4,.28)}
+  .sheet{width:min(520px,100%);max-height:42dvh;overflow:auto;padding:10px 12px;border-radius:16px;background:rgba(16,12,10,.72);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  #video{z-index:24;background:rgba(5,4,3,.2);align-items:stretch;justify-content:center;padding:0}
+  #video video,#vidPoster{position:absolute;left:0;right:0;top:0;bottom:20dvh;width:100%;height:auto;object-fit:contain;object-position:center bottom;background:transparent}
+  .vid-ui{position:absolute;left:0;right:0;bottom:0;height:20dvh;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px calc(6px + env(safe-area-inset-bottom));z-index:2;background:rgba(14,12,10,.42);border-top:1px solid var(--line)}
+  #vidTitle{position:absolute;left:12px;top:8px;z-index:2;margin:0;color:var(--gold);letter-spacing:.12em;font:800 12px/1 system-ui;text-shadow:0 1px 6px #000}
+  #miniStage{margin:12px 0;min-height:120px}
+  .track{position:relative;height:28px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  #gold{position:absolute;left:43%;width:14%;top:0;bottom:0;background:rgba(231,201,138,.85)}
+  #pip{position:absolute;top:4px;width:16px;height:20px;margin-left:-8px;border-radius:6px;background:#fff6e4}
+  .star{min-height:64px;min-width:46%;margin:4px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.05)}
+  .star.on{background:rgba(196,194,255,.35);border-color:#fff}
+  .dance{position:relative;height:180px}
+  #target,#ring{position:absolute;left:50%;top:50%;border-radius:50%}
+  #target{width:92px;height:92px;transform:translate(-50%,-50%);border:2px solid var(--gold)}
+  #ring{width:92px;height:92px;border:3px solid #fff;transform:translate(-50%,-50%)}
+  .tabs{display:flex;gap:8px;margin-bottom:10px}
+  .tab{min-height:42px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:transparent}
+  .tab.on{background:var(--gold);color:#24180c;border:0}
+  .fits{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  .fit{text-align:left;min-height:84px;padding:10px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.04);display:flex;flex-direction:column;gap:4px}
+  .fit.on{border-color:var(--gold)}
+  .fit.lock{opacity:.55}
+  .fit small,.gal small,.slot small{color:var(--dim);font-weight:600}
+  .preview{display:flex;gap:12px;align-items:center;margin:8px 0 12px}
+  #wardImg{width:120px;height:168px;object-fit:cover;border-radius:16px;background:#1a140e}
+  #wardCrest,.crest.big{width:120px;height:168px;border-radius:18px;display:flex;align-items:center;justify-content:center;font:italic 64px/1 Georgia,serif;color:var(--gold);border:1px solid var(--line)}
+  .crest.big{width:min(280px,60vw);height:min(420px,58vh);margin:20px auto;font-size:120px}
+  #viewStage{min-height:46vh;border-radius:20px;display:flex;align-items:flex-end;justify-content:center;overflow:hidden;position:relative}
+  #viewStage img{max-height:62vh;max-width:100%;object-fit:contain}
+  #galGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px}
+  .gal,.slot{text-align:left;min-height:78px;padding:10px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.04);display:flex;flex-direction:column;gap:4px}
+  .gal.lock{opacity:.5}
+  #logList p{margin:0 0 10px}
+  #logList b{color:var(--gold)}
+  #saveList{display:flex;flex-direction:column;gap:8px}
+  @media (max-width:800px){
+    h1{font-size:48px}
+    .places{grid-template-columns:1fr}
+    .hud-meters{max-width:100%}
+    #sprite{max-width:100%}
+    .fits{grid-template-columns:1fr}
   }
-  @media (max-width:720px){
-    h1{font-size:34px}
-    .cast{display:none}
-    #text{font-size:17px}
-    .meters span{font-size:9px}
+  @media (max-height:500px){
+    #line{font-size:13px;line-height:1.3}
+    #speaker{font-size:12px}
+    .choice{min-height:30px;font-size:13px}
+    #btnAdvance{min-height:24px}
   }
   @media (prefers-reduced-motion:reduce){
-    *{transition:none !important;animation:none !important}
+    .lanterns i{animation:none}
+    #fade{transition:none}
   }
 </style>
 </head>
 <body>
-<div id="crash" hidden></div>
+<div id="bg" class="bg gate"></div>
+<div id="fade"></div>
 <div id="toast" role="status"></div>
-<div id="title" class="screen">
-  <div class="cast" aria-hidden="true">
-    <img src="art/nyssa.jpg" alt="">
-    <img class="lead" src="art/aelith.jpg" alt="">
-    <img src="art/lirael.jpg" alt="">
-  </div>
+<div id="crash" hidden></div>
+
+<section id="title" class="screen">
+  <div class="lanterns" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></div>
+  <div class="cast" id="titleCast" hidden></div>
   <div class="panel">
-    <h1>Moonpetal</h1>
-    <p class="sub">FOURTEEN NIGHTS IN VAELITH</p>
-    <p class="lore">A human envoy spends the Moonpetal Festival among three elves: a sun-court noble, a moonlit tease, and a ranger who blushes when she is caught looking back.</p>
-    <p class="note">18+ · Adults only. You are twenty-nine. Aelith, Nyssa, and Lirael are centuries old and look twenty-eight, twenty-seven, and twenty-six. Flirtatious and suggestive. No nudity. Romance ends on a kiss, or fades to black.</p>
+    <p class="sub">FESTIVAL OF LIGHTS</p>
+    <h1>Lanternveil</h1>
+    <p class="notice">18+ notice. All characters are adults. Aelith, Nyssa, and Lirael are centuries old and appear about twenty-five to thirty. You are twenty-seven. Flirty fantasy. Scenes end on a kiss, an embrace, or a fade.</p>
     <div class="row">
-      <button type="button" class="btn pri" id="btnNew">New festival</button>
+      <button type="button" class="btn pri" id="btnNew">Begin</button>
       <button type="button" class="btn" id="btnCont" hidden>Continue</button>
-      <button type="button" class="btn ghost" id="btnSlots">Save slots</button>
-      <button type="button" class="btn ghost" id="btnGallery">Gallery</button>
-      <button type="button" class="btn ghost" id="btnMute">Sound on</button>
-      <button type="button" class="btn ghost" id="btnWipe">Reset save</button>
+      <button type="button" class="btn" id="btnGallery">Gallery</button>
+      <button type="button" class="btn" id="btnWardrobe">Wardrobe</button>
+      <button type="button" class="btn" id="btnSettings">Settings</button>
     </div>
-    <div id="titleSlots" hidden></div>
-    <div class="saveinfo" id="saveInfo"></div>
+    <p class="hint" id="saveInfo"></p>
+    <p class="hint">Space advances. A auto. S skip-read. Esc menu. 1–3 choose.</p>
   </div>
-</div>
-<div id="app" class="screen" hidden>
-  <header>
+</section>
+
+<section id="name" class="screen" hidden>
+  <div class="panel">
+    <p class="kicker">THE GATE ASKS</p>
+    <h2>What should they call you?</h2>
+    <input id="nameInput" maxlength="18" value="Cael" autocomplete="off" aria-label="Your name">
+    <div class="row">
+      <button type="button" class="btn pri" id="btnNameOk">Enter Vaelith</button>
+      <button type="button" class="btn" id="btnTitleFromName">Back</button>
+    </div>
+  </div>
+</section>
+
+<section id="map" class="screen" hidden>
+  <p class="kicker" id="mapKicker">Day 1</p>
+  <h2>Where will you spend the light?</h2>
+  <p class="hint" id="mapSub"></p>
+  <div class="meters" id="mapMeters">
+    <div class="meter" data-meter="aelith"><span><em>Aelith</em><b>0</b></span><div class="bar"><i></i></div></div>
+    <div class="meter" data-meter="nyssa"><span><em>Nyssa</em><b>0</b></span><div class="bar"><i></i></div></div>
+    <div class="meter" data-meter="lirael"><span><em>Lirael</em><b>0</b></span><div class="bar"><i></i></div></div>
+  </div>
+  <p class="hint" id="mapCoins">Lantern coins  3</p>
+  <div class="places">
+    <button type="button" class="place" id="place-gardens">
+      <span class="ph">SUN</span><b>Palace Gardens</b>
+      <small>Aelith keeps the sunlit paths.</small>
+      <em class="wait" data-wait="aelith" hidden>She is waiting</em>
+    </button>
+    <button type="button" class="place" id="place-tower">
+      <span class="ph">MOON</span><b>Crystal Balcony</b>
+      <small>Nyssa waits where the moon can see her.</small>
+      <em class="wait" data-wait="nyssa" hidden>She is waiting</em>
+    </button>
+    <button type="button" class="place" id="place-falls">
+      <span class="ph">WOOD</span><b>The Waterfall</b>
+      <small>Lirael hunts, or pretends to.</small>
+      <em class="wait" data-wait="lirael" hidden>She is waiting</em>
+    </button>
+  </div>
+  <div class="row">
+    <button type="button" class="btn" id="mapWardrobe">Wardrobe</button>
+    <button type="button" class="btn" id="mapGallery">Gallery</button>
+    <button type="button" class="btn" id="mapSave">Save</button>
+    <button type="button" class="btn" id="mapLoad">Load</button>
+    <button type="button" class="btn" id="mapSettings">Settings</button>
+    <button type="button" class="btn" id="mapTitle">Title</button>
+  </div>
+</section>
+
+<section id="scene" hidden>
+  <header id="hud">
     <div>
-      <div class="daylab" id="dayLabel">DAY 1 OF 14</div>
-      <div class="coinpill"><span aria-hidden="true">●</span><b id="coinLabel">0</b></div>
-    </div>
-    <div class="meters" id="meters"></div>
-    <button type="button" class="iconbtn" id="btnAuto" aria-pressed="false">AUTO</button>
-    <button type="button" class="iconbtn" id="btnSkip" aria-pressed="false">SKIP</button>
-    <button type="button" class="iconbtn" id="btnMenu" aria-label="Menu">MENU</button>
-  </header>
-  <div id="view">
-    <div id="stage">
-      <div class="bg green" id="bg"></div>
-      <img id="sprite" class="sprite" alt="" hidden>
-      <div id="look" hidden></div>
-    </div>
-    <div id="lower">
-      <div id="daypick" hidden></div>
-      <div id="dlg" hidden>
-        <div class="who" id="who"></div>
-        <div class="role" id="role"></div>
-        <p id="text"></p>
-        <div id="choices"></div>
-        <div id="hint" hidden>TAP TO CONTINUE</div>
+      <div id="hudDay">Day 1</div>
+      <div id="hudYou"></div>
+      <div class="meters hud-meters">
+        <div class="meter" data-meter="aelith"><span><em>Aelith</em><b>0</b></span><div class="bar"><i></i></div></div>
+        <div class="meter" data-meter="nyssa"><span><em>Nyssa</em><b>0</b></span><div class="bar"><i></i></div></div>
+        <div class="meter" data-meter="lirael"><span><em>Lirael</em><b>0</b></span><div class="bar"><i></i></div></div>
       </div>
     </div>
+    <div class="hud-right">
+      <button type="button" class="btn" id="btnAuto">Auto</button>
+      <button type="button" class="btn" id="btnSkip">Skip</button>
+      <button type="button" class="btn" id="btnLog">Log</button>
+      <button type="button" class="btn" id="btnMenu">Menu</button>
+    </div>
+  </header>
+  <div id="figure" class="quiet">
+    <img id="sprite" alt="" hidden>
+    <div id="crest" class="crest" hidden>
+      <div id="crestMark">✦</div>
+      <div id="crestName"></div>
+      <div id="crestRole"></div>
+    </div>
+  </div>
+  <div id="box">
+    <div class="dlg">
+      <div id="nameplate" hidden><div id="speaker"></div><div id="role"></div></div>
+      <div id="lineWrap"><p id="line"></p></div>
+      <div id="choices"></div>
+      <button type="button" class="btn" id="btnAdvance">Continue</button>
+    </div>
+  </div>
+</section>
+
+<section id="ending" class="screen" hidden>
+  <div class="panel">
+    <p class="kicker" id="endingKicker"></p>
+    <h2 id="endingTitle"></h2>
+    <p id="endingBody"></p>
+    <div class="row">
+      <button type="button" class="btn pri" id="btnEndingTitle">Title</button>
+      <button type="button" class="btn" id="btnEndingGallery">Gallery</button>
+      <button type="button" class="btn" id="btnAgain">Begin again</button>
+    </div>
+  </div>
+</section>
+
+<section id="wardrobe" class="screen" hidden>
+  <div class="panel" style="margin-top:0">
+    <p class="kicker">WARDROBE</p>
+    <h2>What she wears on ordinary days</h2>
+    <p class="hint">Story moments may still dress her for the occasion. Poses fall back to a portrait you already have.</p>
+    <div class="tabs" id="wardTabs"></div>
+    <div class="preview">
+      <img id="wardImg" alt="" hidden>
+      <div id="wardCrest" hidden></div>
+      <div id="wardCap"></div>
+    </div>
+    <div class="fits" id="wardGrid"></div>
+    <div class="row" id="poseRow" style="margin-top:10px"></div>
+    <div class="row" style="margin-top:12px"><button type="button" class="btn" id="wardBack">Back</button></div>
+  </div>
+</section>
+
+<section id="gallery" class="screen" hidden>
+  <div class="panel" style="width:min(860px,100%)">
+    <p class="kicker">MEMORIES</p>
+    <h2>Gallery</h2>
+    <div id="galGrid"></div>
+    <div class="row" style="margin-top:12px"><button type="button" class="btn" id="galBack">Back</button></div>
+  </div>
+</section>
+
+<section id="viewer" class="screen" hidden>
+  <div class="panel" style="width:min(860px,100%)">
+    <div id="viewStage"></div>
+    <h2 id="viewTitle"></h2>
+    <p id="viewCaption"></p>
+    <div class="row">
+      <button type="button" class="btn pri" id="viewPlay" hidden>Play clip</button>
+      <button type="button" class="btn" id="viewClose">Close</button>
+    </div>
+  </div>
+</section>
+
+<div id="video" class="overlay" hidden>
+  <p id="vidTitle"></p>
+  <img id="vidPoster" alt="" hidden>
+  <video id="vid" playsinline webkit-playsinline muted preload="none"></video>
+  <div class="vid-ui">
+    <button type="button" class="btn" id="btnVidSound">Tap for sound</button>
+    <button type="button" class="btn pri" id="btnVidSkip">Skip</button>
   </div>
 </div>
-<div id="menu" class="overlay" hidden><div class="sheet">
-  <h2>Menu</h2>
-  <p class="note" id="menuBlurb"></p>
-  <h3>TEXT</h3>
-  <div class="row" id="speedRow">
-    <button type="button" class="btn" data-speed="0">Instant</button>
-    <button type="button" class="btn" data-speed="90">Fast</button>
-    <button type="button" class="btn" data-speed="55">Medium</button>
-    <button type="button" class="btn" data-speed="28">Slow</button>
-  </div>
-  <div class="row" style="margin-top:8px">
-    <button type="button" class="btn" id="btnAuto2">Auto off</button>
-    <button type="button" class="btn" id="btnSkip2">Skip read off</button>
-    <button type="button" class="btn ghost" id="btnMute2">Sound on</button>
-  </div>
-  <h3>SLOTS</h3>
-  <div id="menuSlots"></div>
-  <div class="row" style="margin-top:12px">
-    <button type="button" class="btn pri" id="btnCloseMenu">Back</button>
-    <button type="button" class="btn" id="btnMenuGal">Gallery</button>
-    <button type="button" class="btn ghost" id="btnToTitle">Title</button>
-  </div>
-</div></div>
-<div id="mini" class="overlay" hidden><div class="sheet">
-  <h2 id="miniTitle">Focus</h2>
-  <p class="note" id="miniHelp"></p>
-  <div id="range"><div id="target"><i id="ring"></i><button type="button" id="btnShoot">Loose</button></div></div>
-  <div id="starfield" hidden><button type="button" id="star" aria-label="Star">✦</button></div>
-  <p id="miniScore" class="note"></p>
-</div></div>
-<div id="ending" class="overlay" hidden><div class="sheet">
-  <p class="sub" id="endKicker">THE FESTIVAL ENDS</p>
-  <h2 id="endTitle"></h2>
-  <p class="lore" id="endText"></p>
-  <p class="note" id="endStats"></p>
-  <div class="row">
-    <button type="button" class="btn pri" id="btnEndTitle">Back to title</button>
-    <button type="button" class="btn" id="btnEndGal">Gallery</button>
-  </div>
-</div></div>
-<div id="gallery" class="overlay" hidden><div class="sheet" style="width:min(860px,100%)">
-  <h2>Gallery</h2>
-  <p class="note">Scenes you have lived. Locked cards stay dark until their evening.</p>
-  <div id="galGrid"></div>
-  <button type="button" class="btn pri" id="btnGalClose">Back</button>
-</div></div>
-<div id="viewer" class="overlay" hidden>
-  <div style="text-align:center">
-    <img id="viewImg" alt="">
-    <p class="lore" id="viewCap" style="margin-top:10px"></p>
-    <button type="button" class="btn pri" id="btnViewClose">Close</button>
+
+<div id="mini" class="overlay" hidden>
+  <div class="sheet">
+    <p class="kicker" id="miniTitle"></p>
+    <p id="miniHelp"></p>
+    <div id="miniStage"></div>
+    <button type="button" class="btn pri" id="miniAct">Now</button>
   </div>
 </div>
-<script>
-'use strict';
-const SAVE_KEY='kylearcade_elves_save';
-const MUTE_KEY='kylearcade_muted';
-const CAST={
-  aelith:{name:'Aelith',looks:28,role:'SUN ELF',art:'art/aelith.jpg'},
-  nyssa:{name:'Nyssa',looks:27,role:'MOON ELF',art:'art/nyssa.jpg'},
-  lirael:{name:'Lirael',looks:26,role:'WOOD ELF',art:'art/lirael.jpg'}
-};
-const KEY={aelith:'ae',nyssa:'ny',lirael:'li'};
-const BG={aelith:'garden',nyssa:'moon',lirael:'falls'};
-const GIFT_OF={aelith:'sun',nyssa:'moon',lirael:'honey'};
-const LOOKNAME={aelith:'SUN COURT SILKS',nyssa:'MOONLACE',lirael:'EVENING LEAVES'};
-const ENDINGS={
-  aelith:{title:'Gold that stays',kicker:'AELITH · GOOD ENDING',who:'aelith',text:'The ballroom is gold and too much jewelry. Aelith offers her hand as if the dance were decided centuries ago. She is close. The kiss she takes on the last turn is brief, certain, and nobody else\'s business. Her palm stays warm at the back of your neck, the lanterns go soft, and the story lets the curtain fall.'},
-  nyssa:{title:'What the moon kept',kicker:'NYSSA · GOOD ENDING',who:'nyssa',text:'Nyssa steals you to the balcony before the third dance. The city glitters under a full moon. She kisses you like a woman collecting a bet she always meant to win, then rests her forehead to yours and laughs, quiet. The rest of the night is private. The story ends on that.'},
-  lirael:{title:'The fire fades',kicker:'LIRAEL · GOOD ENDING',who:'lirael',text:'Lirael lasts half a dance before the ballroom is too much room and not enough tree. She tugs you out by the sleeve, laughs at her own courage, and kisses you with both hands on your coat. The music thins. The falls keep talking. The night fades to black, kind and unhurried.'},
-  neutral:{title:'The festival ends',kicker:'NEUTRAL ENDING',who:null,text:'Fourteen nights fold their lanterns. Nobody is owed a vow, and nobody pretends otherwise. You leave Vaelith with a pressed moonpetal, three fond looks, and the road. Friendship, kept. That is a real thing to carry.'}
-};
-const GALLERY=[
-  {id:'aelith_garden',who:'aelith',title:'Sun garden',cap:'The first evening with Aelith.',look:'base'},
-  {id:'aelith_court',who:'aelith',title:'Sun Court silks',cap:'Festival gold over emerald.',look:'outfit'},
-  {id:'aelith_end',who:'aelith',title:'The last dance',cap:'A kiss, and the curtain.',look:'end'},
-  {id:'nyssa_balcony',who:'nyssa',title:'Moon balcony',cap:'Nyssa, counting your nerve.',look:'base'},
-  {id:'nyssa_stars',who:'nyssa',title:'Moonlace',cap:'Stars, and a shawl worn for you.',look:'outfit'},
-  {id:'nyssa_end',who:'nyssa',title:'Under the moon',cap:'She collects the kiss she was owed.',look:'end'},
-  {id:'lirael_falls',who:'lirael',title:'The falls',cap:'Lirael forgets her greeting.',look:'base'},
-  {id:'lirael_range',who:'lirael',title:'Evening leaves',cap:'Three arrows, and her eyes.',look:'outfit'},
-  {id:'lirael_end',who:'lirael',title:'The fire fades',cap:'A shy kiss, then black.',look:'end'}
-];
-const GIFT_LINE={
-  aelith:'That ribbon is from the night market. A sun-lily. You brought it all the way here, so you may as well be brave about it.',
-  nyssa:'A moon crystal. Pretty thing. Did you buy it for the balcony, or for the woman who stands on it?',
-  lirael:'Honey cakes. You noticed. I was going to pretend I do not like those. I am terrible at pretending.'
-};
-const GIFT_BTN={
-  aelith:'Offer her the sun-lily.',
-  nyssa:'Offer her the moon crystal.',
-  lirael:'Offer her the honey cakes.'
-};
-const GIFT_THANK={
-  aelith:'She tucks the lily at her collarbone and looks entirely too pleased. Careful. Gifts make me generous.',
-  nyssa:'She turns the crystal in the moonlight and smiles like you passed a test. Accepted. Do not get smug.',
-  lirael:'She breaks a cake and gives you the bigger half, ears pink. Thanks. Really. Eat, before I lose my nerve and take both.'
-};
 
-const errors=[];
-let meta, run, slots, settings, muted=false, mode='title';
-let current=null, currentLine=null, nodeIndex=0, phase='idle';
-let gen=0, autoT=0, typer=0, typingAlready=false, shownToken=0;
-let miniKind=null, miniState=null, miniRAF=0;
-let armNew=false, armWipe=false, galleryFrom='title', AC=null;
+<div id="menu" class="overlay" hidden>
+  <div class="sheet">
+    <h2>Paused</h2>
+    <div class="row">
+      <button type="button" class="btn pri" id="menuClose">Resume</button>
+      <button type="button" class="btn" id="menuSave">Save</button>
+      <button type="button" class="btn" id="menuLoad">Load</button>
+      <button type="button" class="btn" id="menuLog">Log</button>
+      <button type="button" class="btn" id="menuWard">Wardrobe</button>
+      <button type="button" class="btn" id="menuGal">Gallery</button>
+      <button type="button" class="btn" id="menuSet">Settings</button>
+      <button type="button" class="btn" id="menuTitle">Title</button>
+    </div>
+  </div>
+</div>
 
-function $(id){return document.getElementById(id);}
-function L(id, who, text, extra){return Object.assign({id:id, who:who, text:text}, extra||{});}
-function C(t, extra){return Object.assign({t:t}, extra||{});}
-const SCENES={};
-function Sc(id, bg, sprite, lines, extra){
-  const s={id:id, bg:bg, sprite:sprite, lines:lines};
-  if(extra) Object.assign(s, extra);
-  SCENES[id]=s;
-}
+<div id="log" class="overlay" hidden>
+  <div class="sheet">
+    <h2>Backlog</h2>
+    <div id="logList"></div>
+    <button type="button" class="btn" id="logClose">Close</button>
+  </div>
+</div>
 
-Sc('intro','green',null,[
-  L('in1','narr','You are twenty-nine, an envoy of the human court, sent to the elven realm of Vaelith for the Moonpetal Festival. Fourteen nights. Three hosts. Every one of them is centuries old, and every one of them is grown — faces of twenty-six, twenty-seven, and twenty-eight, and eyes much older.'),
-  L('in2','narr','The brief was plain. Flirt if you are flirted with. Keep your clothes on. Let a kiss be the end of a scene, not the start of a rumor you cannot finish. The elves will not be impressed by a mortal who rushes.',{end:'map'})
-]);
-Sc('market','market',null,[
-  L('mk1','narr','The night market smells of honey and hot metal. A sun-lily for a sun elf, a moon crystal for a balcony, honey cakes for a ranger who will deny her sweet tooth. One festival coin each. You are carrying {coins}.',{choices:[
-    C('Buy the sun-lily.',{need:1,buy:'sun',goto:'mk2'}),
-    C('Buy the moon crystal.',{need:1,buy:'moon',goto:'mk2'}),
-    C('Buy the honey cakes.',{need:1,buy:'honey',goto:'mk2'}),
-    C('Just looking.',{end:'map'})
-  ]}),
-  L('mk2','narr','The vendor ties a ribbon and winks like a co-conspirator. The evening is spent.',{end:'day'})
-]);
-Sc('green','green',null,[
-  L('gr1','narr','You spend the day on the festival green, stringing lanterns with stewards who have argued about knots for centuries. It is honest work, and nobody asks you to be charming.'),
-  L('gr2','narr','A coin, warm from someone else\'s pocket. The lanterns look better for your hands on them.',{coin:1,end:'day'})
-]);
+<div id="saves" class="overlay" hidden>
+  <div class="sheet">
+    <h2 id="saveHead">Lanterns</h2>
+    <div id="saveList"></div>
+    <button type="button" class="btn" id="saveClose" style="margin-top:10px">Close</button>
+  </div>
+</div>
 
-Sc('ae1','garden','aelith',[
-  L('ae1a','aelith','You found the inner garden. Most envoys find the wine and stay there. I am Aelith of the Sun Court. This face is twenty-eight. The centuries under it have not made me shy.'),
-  L('ae1b','aelith','If you are going to look, look properly. The emerald is on purpose.',{choices:[
-    C('Then I will look properly, and say so.',{aff:8,goto:'ae1y'}),
-    C('I was admiring the archway.',{aff:1,goto:'ae1n'})
-  ]}),
-  L('ae1y','aelith','Honest. A dangerous quality in a garden. Stay through the festival and I may let you earn a worse reputation.',{set:['ae_meet'],unlock:'aelith_garden',end:'day'}),
-  L('ae1n','aelith','The archway will still be here when you grow bold. So will I.',{set:['ae_meet'],unlock:'aelith_garden',end:'day'})
-]);
-Sc('ae2','garden','aelith',[
-  L('ae2a','aelith','Walk with me. The court wants my name pinned to their errands. I want a lap of the hedge with someone who is not auditioning.'),
-  L('ae2b','aelith','Say you came for the company, or keep praising the shrubbery. I can tell those apart.',{choices:[
-    C('I came for the company.',{aff:8,goto:'ae2y'}),
-    C('The hedges really are excellent.',{aff:1,goto:'ae2n'})
-  ]}),
-  L('ae2y','aelith','Company. I will remember you chose the smaller word. It sounded like the true one.',{set:['ae_b2'],end:'day'}),
-  L('ae2n','aelith','A diplomat\'s answer. Pretty, and a step to the side. I notice steps.',{set:['ae_b2'],end:'day'})
-]);
-Sc('ae3','garden','aelith',[
-  L('ae3a','aelith','Festival silks. I sent the plain gown away. Same emerald, more gold, and still very much a dress. You may stare. You will also meet my eyes.',{set:['outfit_aelith'],unlock:'aelith_court'}),
-  L('ae3b','aelith','Well? I did not change for the roses.',{choices:[
-    C('You look like the sun kept a promise.',{aff:8,goto:'ae3y'}),
-    C('That is a great deal of gown.',{aff:1,goto:'ae3n'})
-  ]}),
-  L('ae3y','aelith','Flatterer. Save a little of that nerve for the ball, if you still have it when the lanterns go up.',{set:['ae_b3'],end:'day'}),
-  L('ae3n','aelith','It is. I like the weight of it. Try not to trip over your manners on the way out.',{set:['ae_b3'],end:'day'})
-]);
-Sc('ae4','garden','aelith',[
-  L('ae4a','aelith','I am done circling you like a polite season. If you want the kiss, take it. If you want only the wine, say so. I do not sulk. I do remember.'),
-  L('ae4b','aelith','Choose. The garden can keep a secret, and so can I.',{choices:[
-    C('Kiss me.',{aff:12,set:['ae_b4','ae_kiss'],goto:'ae4y'}),
-    C('Not tonight.',{aff:-3,goto:'ae4n'})
-  ]}),
-  L('ae4y','aelith','She kisses you once, sure and unhurried, a gloved hand at your collar. The lanterns smear into gold. Whatever the garden keeps after that, the story does not follow.',{end:'day'}),
-  L('ae4n','aelith','Then not tonight. The offer can survive a no. Do not make me repeat it out of pity.',{end:'day'})
-]);
+<div id="settings" class="overlay" hidden>
+  <div class="sheet">
+    <h2>Settings</h2>
+    <p class="hint">Text speed</p>
+    <div class="row">
+      <button type="button" class="btn" data-speed="0">Instant</button>
+      <button type="button" class="btn" data-speed="1">Fast</button>
+      <button type="button" class="btn" data-speed="2">Normal</button>
+      <button type="button" class="btn" data-speed="3">Slow</button>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button type="button" class="btn" id="btnMute">Sound on</button>
+      <button type="button" class="btn" id="btnWipe">Erase saves</button>
+      <button type="button" class="btn" id="btnWipeAll">Erase memories</button>
+    </div>
+    <p id="wipeAsk" class="hint" hidden></p>
+    <div class="row">
+      <button type="button" class="btn pri" id="wipeYes">Confirm</button>
+      <button type="button" class="btn" id="wipeNo">Cancel</button>
+    </div>
+    <button type="button" class="btn" id="setClose" style="margin-top:10px">Close</button>
+  </div>
+</div>
 
-Sc('ny1','moon','nyssa',[
-  L('ny1a','nyssa','A human on my balcony. Either you are lost, or you like a woman who sharpens her sentences. Nyssa. Twenty-seven, if you are counting the face. The moon and I are older than your city.'),
-  L('ny1b','nyssa','You may stand at the rail. You may also admit why you climbed all those stairs.',{choices:[
-    C('I like the sharp ones.',{aff:8,goto:'ny1y'}),
-    C('I came out for the moon.',{aff:1,goto:'ny1n'})
-  ]}),
-  L('ny1y','nyssa','Good. Liars say they came for the architecture. You may stay, and try to keep up.',{set:['ny_meet'],unlock:'nyssa_balcony',end:'day'}),
-  L('ny1n','nyssa','The moon was here before your excuse and will outlast it. Still. The rail is wide enough for two.',{set:['ny_meet'],unlock:'nyssa_balcony',end:'day'})
-]);
-Sc('ny2','moon','nyssa',[
-  L('ny2a','nyssa','The crystal gallery. Every facet is a chance to watch someone pretend they are not looking at me. You are doing a poor job of pretending. I am complimenting you.'),
-  L('ny2b','nyssa','Shall we drop the performance, or do you want to tell me the crystals are impressive?',{choices:[
-    C('I won\'t pretend.',{aff:8,goto:'ny2y'}),
-    C('The crystals are impressive.',{aff:1,goto:'ny2n'})
-  ]}),
-  L('ny2y','nyssa','There. That was almost brave. Hold still. The violet light likes your mouth, and I am not above agreeing with it.',{set:['ny_b2'],end:'day'}),
-  L('ny2n','nyssa','Impressive crystals. I will have that carved somewhere tasteful, if I ever need a monument to small talk.',{set:['ny_b2'],end:'day'})
-]);
-Sc('ny3','moon','nyssa',[
-  L('ny3a','nyssa','Come stargaze properly. I name the ones that matter. You catch them before they sulk and go out. Impress me a little.'),
-  L('ny3b','nyssa','Well? The sky is not going to wait on your courage.',{choices:[
-    C('I\'ll take the dare.',{aff:2,goto:'ny3go'}),
-    C('Another night.',{aff:-1,goto:'ny3no'})
-  ]}),
-  L('ny3go','nyssa','Eyes up, envoy.',{mini:'stars',good:'ny3y',bad:'ny3ok'}),
-  L('ny3y','nyssa','A steady hand. I am annoyed by how much I like it. Moonlace — I dressed for someone who might actually look.',{set:['ny_b3','outfit_nyssa'],unlock:'nyssa_stars',end:'day'}),
-  L('ny3ok','nyssa','Close, and not quite. I am still keeping you. The shawl stays. So does your chance.',{set:['ny_b3','outfit_nyssa'],unlock:'nyssa_stars',end:'day'}),
-  L('ny3no','nyssa','Run along, then. The stars will gossip, and I will let them.',{end:'day'})
-]);
-Sc('ny4','moon','nyssa',[
-  L('ny4a','nyssa','You keep finding this balcony. Come here. If you are going to study my mouth, be honest with it.'),
-  L('ny4b','nyssa','I do not do almost. Almost is for poets and people who leave.',{choices:[
-    C('Then I will be honest.',{aff:12,set:['ny_b4','ny_kiss'],goto:'ny4y'}),
-    C('I will keep my distance.',{aff:-3,goto:'ny4n'})
-  ]}),
-  L('ny4y','nyssa','The kiss is cool at the first breath and warm by the second. Her laugh stays against your mouth. The moon watches, and the night fades before it can become anything more.',{end:'day'}),
-  L('ny4n','nyssa','Distance. How virtuous. Stand where you like. I will still be here when you tire of it.',{end:'day'})
-]);
-
-Sc('li1','falls','lirael',[
-  L('li1a','lirael','Oh. The falls. I had a whole composed greeting, and then you looked at me and it fell apart. I am Lirael. Twenty-six, freckles included, and old enough that the wood calls me grown. Stop smiling. Do not stop.'),
-  L('li1b','lirael','I noticed, by the way. The looking. It is fine. It is more than fine. Say something before I climb a tree to escape my own face.',{choices:[
-    C('I was looking at you. Not sorry.',{aff:8,goto:'li1y'}),
-    C('I was looking at the waterfall.',{aff:1,goto:'li1n'})
-  ]}),
-  L('li1y','lirael','Heh. I knew. It is cute. Do not let that live in your head rent-free. The path is slick and I am not catching you. Maybe I am.',{set:['li_meet'],unlock:'lirael_falls',end:'day'}),
-  L('li1n','lirael','The waterfall is very good at being a waterfall. I am standing right here, though. Just so the record is straight.',{set:['li_meet'],unlock:'lirael_falls',end:'day'})
-]);
-Sc('li2','falls','lirael',[
-  L('li2a','lirael','Trail is quiet. If you walk behind me you can pretend you were not looking. If you walk beside me, I will know. I think I want you beside me. That is annoying.'),
-  L('li2b','lirael','Your choice. I will only tease you a little either way. A little.',{choices:[
-    C('Beside you, then.',{aff:8,goto:'li2y'}),
-    C('Behind is safer for my footing.',{aff:1,goto:'li2n'})
-  ]}),
-  L('li2y','lirael','Beside. Good. If I go red, it is the climb. It is not the climb. Do not say it out loud.',{set:['li_b2'],end:'day'}),
-  L('li2n','lirael','Safer. Fine. I will hear you slip anyway, and I will only laugh a little. A little.',{set:['li_b2'],end:'day'})
-]);
-Sc('li3','falls','lirael',[
-  L('li3a','lirael','Archery. Three arrows, one target, and also the way you stand when you think I am checking the fletching. I am not only checking the fletching.'),
-  L('li3b','lirael','Loose when the ring goes gold. I will be watching both things. Try not to show off unless you can back it up.',{choices:[
-    C('Loose when you say.',{aff:2,goto:'li3go'}),
-    C('I am all thumbs today.',{aff:-1,goto:'li3no'})
-  ]}),
-  L('li3go','lirael','Breathe out, then loose.',{mini:'archery',good:'li3y',bad:'li3ok'}),
-  L('li3y','lirael','That was showing off. I like it. Do not grin at me. Evening leaves — I changed the shoulder. You can notice. You were going to.',{set:['li_b3','outfit_lirael'],unlock:'lirael_range',end:'day'}),
-  L('li3ok','lirael','You tried. That counts more than you think, and less than a bullseye. Come back anyway. I already changed for the evening.',{set:['li_b3','outfit_lirael'],unlock:'lirael_range',end:'day'}),
-  L('li3no','lirael','Then we will not make a spectacle of it. The target will survive the disappointment. So will I. Mostly.',{end:'day'})
-]);
-Sc('li4','falls','lirael',[
-  L('li4a','lirael','Camp is warm. I am going to say this before I lose the nerve and go check the snares for the fourth time. If you want to kiss me, I want that too. If you do not, we can watch the fire and I will survive it.'),
-  L('li4b','lirael','Plain words. I practiced them on a tree. The tree was supportive and useless.',{choices:[
-    C('I want to kiss you.',{aff:12,set:['li_b4','li_kiss'],goto:'li4y'}),
-    C('Let us just have the fire.',{aff:-2,goto:'li4n'})
-  ]}),
-  L('li4y','lirael','She kisses you like she might laugh in the middle of it, shy and sure at once. The fire pops. Her hand stays on your wrist. The rest of the night fades to black, decently, with the falls still talking.',{end:'day'}),
-  L('li4n','lirael','All right. Fire it is. I am glad you said it plain. Sit close anyway. Some friends do that.',{end:'day'})
-]);
-
-Sc('end_ae','ball','aelith',[
-  L('ea1','aelith','The last dance is mine. I am not asking twice.',{end:'finale:aelith'})
-]);
-Sc('end_ny','ball','nyssa',[
-  L('en1','nyssa','Leave the floor. The moon has a better view, and so do I.',{end:'finale:nyssa'})
-]);
-Sc('end_li','ball','lirael',[
-  L('el1','lirael','If we stay in this ballroom I am going to hide behind a curtain. Come outside. Please.',{end:'finale:lirael'})
-]);
-Sc('soft_ae','ball','aelith',[
-  L('sa1','aelith','One dance. I am warm, and I will not pretend the night is a vow. You were good company. That is not a small thing.',{end:'finale:neutral'})
-]);
-Sc('soft_ny','ball','nyssa',[
-  L('sn1','nyssa','A dance, then, and no claim after it. I like you enough not to counterfeit the rest. Go home in one piece.',{end:'finale:neutral'})
-]);
-Sc('soft_li','ball','lirael',[
-  L('sl1','lirael','We can dance. I will step on you once and pretend it was the floor. Friends do leave in the morning. I can live with friends.',{end:'finale:neutral'})
-]);
-Sc('end_alone','ball',null,[
-  L('alone1','narr','You keep your hands in your pockets and walk the long garden. No one is owed a dance. Aelith lifts a cup. Nyssa\'s smile is a small sharp kindness. Lirael presses a moonpetal into your palm and does not ask you to stay.',{end:'finale:neutral'})
-]);
-
-function hang(k, who, packs){
-  packs.forEach(function(p, i){
-    const id=k+'_h'+i;
-    Sc(id, BG[who], who, [
-      L(id+'a', who, p.setup),
-      L(id+'b', who, p.ask, {choices:[
-        C(p.warm, {aff:p.wa, goto:id+'y'}),
-        C(p.cool, {aff:p.ca, goto:id+'n'})
-      ]}),
-      L(id+'y', who, p.yes, {end:'day'}),
-      L(id+'n', who, p.no, {end:'day'})
-    ], {hang:true});
-  });
-}
-hang('ae','aelith',[
-  {setup:'The court is loud tonight. I stole a quiet bench and, inconveniently, hoped you would find it.',ask:'Sit. Or hover, and be admired from a safe distance. Both are traditional.',warm:'I will sit.',wa:4,yes:'Good. The bench was never the point. Stay until the music gets foolish.',cool:'The bench is a bit obvious.',ca:-2,no:'Obvious is a style. You are allowed to be worse at it than I am.'},
-  {setup:'You keep ending up in my light. I have decided to take it personally, in the flattering direction.',ask:'Tell me one true thing. Small is fine. I collect them.',warm:'I look for you in every room.',wa:5,yes:'There. That will keep me unbearable for the rest of the week. Thank you.',cool:'The festival is well organized.',ca:1,no:'It is. And you are a coward with excellent posture. Come back when you are braver.'},
-  {setup:'If you are wondering about the slit in the skirt, the answer is that I like the way you wonder. The dress stays on. Your imagination may do as it likes.',ask:'Still with me, envoy?',warm:'Still with you.',wa:4,yes:'Good. Imaginations are free. Hands are a later conversation, and not tonight.',cool:'I should give you the room.',ca:-2,no:'Then take the room with you when you go. I was using it to be looked at.'}
-]);
-hang('ny','nyssa',[
-  {setup:'You have a tell. You touch the rail when you are about to say something honest, and then you do not.',ask:'Say it, or let me invent a worse version.',warm:'I came up here for you.',wa:5,yes:'Better. I will allow myself to be pleased, briefly, where you can see it.',cool:'Nice night for a walk.',ca:-2,no:'A walk. How sporting. The stairs will still lead here tomorrow, if your courage does.'},
-  {setup:'The lace is deliberate. So is the pause I leave after a sentence, in case you want to be interesting.',ask:'Are you going to be interesting?',warm:'I can try, if you stop grading me.',wa:4,yes:'I never stop grading. You are currently passing. Do not bow.',cool:'I am just taking the air.',ca:0,no:'The air was free downstairs. You paid in stairs. I will pretend that means something.'},
-  {setup:'People think the moon makes me soft. It makes me honest, which is ruder. I like you in a way I do not intend to unpack on a balcony.',ask:'You may blush or you may answer.',warm:'I like you too. Unpacked or not.',wa:5,yes:'Dangerous answer. I will keep it in my sleeve for the ball.',cool:'We should not name it.',ca:-2,no:'Unnamed things still take up a chair. Mine is occupied. Yours is optional.'}
-]);
-hang('li','lirael',[
-  {setup:'I saved you the dry rock. That is ranger for I hoped you would show up and I am not going to make a speech about it.',ask:'You can sit. The moss is only a little judgmental.',warm:'I was hoping you saved it.',wa:5,yes:'Heh. Okay. Good. Do not look at me like that or I will forget which trail we are on.',cool:'I cannot stay long.',ca:-1,no:'Then do not. The rock will be here. I might be. I probably will.'},
-  {setup:'You keep glancing and then being polite about it. Polite is nice. It is also funny, on you.',ask:'I am allowed to think it is funny. You are allowed to stop pretending.',warm:'Then I will stop pretending.',wa:4,yes:'Good. My ears go hot when you are direct. Ignore that. Or do not. I am a mess. A capable mess.',cool:'Polite keeps everyone comfortable.',ca:-2,no:'Comfortable is a tent. I live in the woods. Come back when you want the weather.'},
-  {setup:'If this were a story I would braid your hair or something ridiculous. It is not. I brought extra flatbread and a question I am going to ask badly.',ask:'Do you actually like it here, or do you like that I am here?',warm:'I like that you are here.',wa:5,yes:'Oh. That is. Yes. Eat the bread before I get brave and useless.',cool:'The falls are the draw.',ca:1,no:'They are a very good waterfall. I will tell them you said so. They do not care. I do, a bit.'}
-]);
-
-function validate(){
-  const ids=new Set();
-  const problems=[];
-  Object.keys(SCENES).forEach(function(sid){
-    const s=SCENES[sid];
-    if(!s.lines||!s.lines.length) problems.push('empty '+sid);
-    const local=new Set(s.lines.map(function(l){return l.id;}));
-    s.lines.forEach(function(l){
-      if(ids.has(l.id)) problems.push('dup '+l.id);
-      ids.add(l.id);
-      (l.choices||[]).forEach(function(c){
-        if(c.goto && !local.has(c.goto)) problems.push(l.id+' missing '+c.goto);
-        if(c.end && c.end.indexOf('finale:')===0 && !ENDINGS[c.end.slice(7)]) problems.push('bad finale '+c.end);
-        if(c.end && c.end.indexOf('scene:')===0 && !SCENES[c.end.slice(6)]) problems.push('bad scene '+c.end);
-      });
-      if(l.good && !local.has(l.good)) problems.push(l.id+' good');
-      if(l.bad && !local.has(l.bad)) problems.push(l.id+' bad');
-      if(l.end && l.end.indexOf('scene:')===0 && !SCENES[l.end.slice(6)]) problems.push(l.id+' scene');
-      if(l.end && l.end.indexOf('finale:')===0 && !ENDINGS[l.end.slice(7)]) problems.push(l.id+' finale');
-    });
-  });
-  ['ae','ny','li'].forEach(function(k){
-    ['1','2','3','4','_h0','_h1','_h2'].forEach(function(suf){
-      if(!SCENES[k+suf]) problems.push('missing '+k+suf);
-    });
-  });
-  ['end_ae','end_ny','end_li','soft_ae','soft_ny','soft_li','end_alone','intro','market','green'].forEach(function(id){
-    if(!SCENES[id]) problems.push('missing '+id);
-  });
-  if(problems.length) throw new Error(problems.join('\n'));
-}
-
-function blankMeta(){return {gallery:{},endings:{},seen:{},best:{aelith:0,nyssa:0,lirael:0}};}
-function blankSettings(){return {speed:55,auto:false,skipRead:false};}
-function blankRun(){return {day:1,aff:{aelith:0,nyssa:0,lirael:0},coins:2,gifts:{sun:0,moon:0,honey:0},flags:{},hang:{aelith:0,nyssa:0,lirael:0},pending:null,done:null};}
-function normalize(r){
-  if(!r||typeof r!=='object') return null;
-  r.day=Math.max(1, Math.min(14, r.day|0||1));
-  r.aff=Object.assign({aelith:0,nyssa:0,lirael:0}, r.aff||{});
-  ['aelith','nyssa','lirael'].forEach(function(k){r.aff[k]=Math.max(0, Math.min(100, r.aff[k]|0));});
-  r.coins=Math.max(0, Math.min(8, r.coins|0));
-  r.gifts=Object.assign({sun:0,moon:0,honey:0}, r.gifts||{});
-  ['sun','moon','honey'].forEach(function(k){r.gifts[k]=Math.max(0, r.gifts[k]|0);});
-  r.flags=r.flags||{};
-  r.hang=Object.assign({aelith:0,nyssa:0,lirael:0}, r.hang||{});
-  if(!r.pending || !r.pending.id) r.pending=null;
-  r.done=r.done||null;
-  return r;
-}
-function loadAll(){
-  meta=blankMeta(); run=null; slots=[null,null,null]; settings=blankSettings();
-  try{
-    const raw=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');
-    if(raw){
-      meta=Object.assign(blankMeta(), raw.meta||{});
-      meta.gallery=meta.gallery||{};
-      meta.endings=meta.endings||{};
-      meta.seen=meta.seen||{};
-      meta.best=Object.assign({aelith:0,nyssa:0,lirael:0}, meta.best||{});
-      run=raw.run?normalize(raw.run):null;
-      slots=Array.isArray(raw.slots)?raw.slots.slice(0,3):[null,null,null];
-      while(slots.length<3) slots.push(null);
-      if(raw.settings) settings=Object.assign(blankSettings(), raw.settings);
-    }
-  }catch(e){run=null;}
-  try{muted=localStorage.getItem(MUTE_KEY)==='1';}catch(e){}
-}
-function commit(){
-  try{localStorage.setItem(SAVE_KEY, JSON.stringify({meta:meta, run:run, slots:slots, settings:settings}));}catch(e){}
-}
-function fill(text){
-  return String(text||'').replace(/\{coins\}/g, run?String(run.coins):'0').replace(/\{day\}/g, run?String(run.day):'1');
-}
-function toast(msg){
-  const el=$('toast');
-  if(!el) return;
-  el.textContent=msg;
-  el.classList.add('show');
-  clearTimeout(toast._t);
-  toast._t=setTimeout(function(){el.classList.remove('show');}, 1400);
-}
-function addAff(who, n){
-  if(!n || !who || !run || !CAST[who]) return;
-  run.aff[who]=Math.max(0, Math.min(100, (run.aff[who]|0)+n));
-  meta.best[who]=Math.max(meta.best[who]||0, run.aff[who]);
-  toast((n>0?'+':'')+n+'  '+CAST[who].name);
-  renderMeters();
-}
-function unlock(id){
-  if(!id || meta.gallery[id]) return;
-  meta.gallery[id]=true;
-  const g=GALLERY.filter(function(x){return x.id===id;})[0];
-  toast('Gallery · '+(g?g.title:id));
-}
-function audioUnlock(){
-  try{
-    const A=window.AudioContext||window.webkitAudioContext;
-    if(!A) return;
-    if(!AC) AC=new A();
-    if(AC.state==='suspended') AC.resume();
-  }catch(e){}
-}
-function tone(freq,dur,type,vol){
-  if(muted||!AC) return;
-  try{
-    const t=AC.currentTime, o=AC.createOscillator(), g=AC.createGain();
-    o.type=type||'sine';
-    o.frequency.setValueAtTime(freq,t);
-    g.gain.setValueAtTime(0.0001,t);
-    g.gain.exponentialRampToValueAtTime(vol||0.03,t+0.01);
-    g.gain.exponentialRampToValueAtTime(0.0001,t+dur);
-    o.connect(g).connect(AC.destination);
-    o.start(t); o.stop(t+dur+0.02);
-  }catch(e){}
-}
-const sfx={
-  blip:function(){tone(660,0.05,'triangle',0.03);},
-  fanfare:function(){tone(523,0.1,'triangle',0.04); setTimeout(function(){tone(784,0.16,'triangle',0.035);}, 90);}
-};
-function later(fn, ms){
-  const g=gen;
-  clearTimeout(autoT);
-  autoT=setTimeout(function(){if(g===gen) fn();}, ms);
-}
-function cancelLine(){
-  gen++;
-  if(typer) cancelAnimationFrame(typer);
-  typer=0;
-  clearTimeout(autoT);
-}
-function cancelMini(){
-  if(miniState && miniState.timer) clearTimeout(miniState.timer);
-  if(miniRAF) cancelAnimationFrame(miniRAF);
-  miniRAF=0;
-  miniState=null;
-  miniKind=null;
-  const m=$('mini');
-  if(m){m.hidden=true; m.dataset.hot='0'; m.dataset.kind='';}
-}
-function storyId(who){
-  const k=KEY[who];
-  const f=run.flags;
-  const a=run.aff[who]|0;
-  if(!f[k+'_meet']) return k+'1';
-  if(!f[k+'_b2'] && a>=8) return k+'2';
-  if(!f[k+'_b3'] && a>=20) return k+'3';
-  if(!f[k+'_b4'] && a>=32) return k+'4';
-  return k+'_h'+((run.hang[who]||0)%3);
-}
-function ready(who){
-  return !!(run.flags[KEY[who]+'_kiss'] && run.aff[who]>=36);
-}
-function makeGift(who, next){
-  const item=GIFT_OF[who];
-  return {
-    id:'gift_'+who, bg:BG[who], sprite:who, next:next,
-    lines:[
-      L('gf_'+who, who, GIFT_LINE[who], {choices:[
-        C(GIFT_BTN[who], {aff:8, give:item, goto:'gfy_'+who}),
-        C('Save it for another evening.', {goto:'gfn_'+who})
-      ]}),
-      L('gfy_'+who, who, GIFT_THANK[who], {end:'scene:'+next}),
-      L('gfn_'+who, 'narr', 'You keep the gift tucked away.', {end:'scene:'+next})
-    ]
-  };
-}
-function hidePlayBits(){
-  $('daypick').hidden=true;
-  $('dlg').hidden=true;
-  $('ending').hidden=true;
-  $('menu').hidden=true;
-  $('gallery').hidden=true;
-  $('viewer').hidden=true;
-  $('hint').hidden=true;
-  $('choices').innerHTML='';
-}
-function renderMeters(){
-  const lab=$('dayLabel');
-  if(lab) lab.textContent=!run?'':(run.day>=14?'NIGHT 14 · THE BALL':('DAY '+run.day+' OF 14'));
-  const coin=$('coinLabel');
-  if(coin) coin.textContent=run?String(run.coins):'0';
-  const box=$('meters');
-  if(!box) return;
-  box.innerHTML=['aelith','nyssa','lirael'].map(function(id){
-    const v=run?run.aff[id]:0;
-    return '<div class="meter '+id+'"><span>'+CAST[id].name+' '+v+'</span><i style="width:'+v+'%"></i></div>';
-  }).join('');
-}
-function renderStage(scene){
-  const bg=$('bg');
-  bg.className='bg '+(scene&&scene.bg?scene.bg:'green');
-  const img=$('sprite');
-  const chip=$('look');
-  if(!scene || !scene.sprite){
-    img.hidden=true;
-    chip.hidden=true;
-    return;
-  }
-  const c=CAST[scene.sprite];
-  img.hidden=false;
-  if(img.getAttribute('src')!==c.art) img.src=c.art;
-  img.alt=c.name+', an adult elf';
-  const outfit=!!(run && run.flags['outfit_'+scene.sprite]);
-  const look=scene.look==='end'?'end':(outfit?'outfit':'');
-  img.className='sprite '+scene.sprite+(look?(' look-'+look):'');
-  if(look){
-    chip.hidden=false;
-    chip.textContent=look==='end'?'CLOSE AS A KISS':LOOKNAME[scene.sprite];
-  }else chip.hidden=true;
-}
-function renderMap(){
-  const root=$('daypick');
-  root.innerHTML='';
-  const h=document.createElement('h2');
-  h.textContent=run.day>=14?'The Moonpetal Ball':'Day '+run.day+' of 14';
-  const sub=document.createElement('p');
-  sub.id='daySub';
-  const inv=[];
-  if(run.gifts.sun) inv.push('sun-lily');
-  if(run.gifts.moon) inv.push('moon crystal');
-  if(run.gifts.honey) inv.push('honey cakes');
-  sub.textContent=(run.day>=14?'The lanterns are up. Who do you ask to dance?':'Where do you spend the evening?')+(inv.length?('  ·  Carrying '+inv.join(', ')):'');
-  root.appendChild(h);
-  root.appendChild(sub);
-  const places=run.day>=14?[
-    {place:'aelith',title:"Aelith's hand",hint:ready('aelith')?'A good ending waits':(run.aff.aelith>=16?'A kind dance, not a vow':'She will still take your hand'),art:CAST.aelith.art},
-    {place:'nyssa',title:"Nyssa's hand",hint:ready('nyssa')?'A good ending waits':(run.aff.nyssa>=16?'A kind dance, not a vow':'She will still take your hand'),art:CAST.nyssa.art},
-    {place:'lirael',title:"Lirael's hand",hint:ready('lirael')?'A good ending waits':(run.aff.lirael>=16?'A kind dance, not a vow':'She will still take your hand'),art:CAST.lirael.art},
-    {place:'alone',title:'Walk the gardens alone',hint:'Leave the night unfinished',swatch:'ball'}
-  ]:[
-    {place:'aelith',title:"Aelith's garden",hint:mapHint('aelith'),art:CAST.aelith.art},
-    {place:'nyssa',title:"Nyssa's balcony",hint:mapHint('nyssa'),art:CAST.nyssa.art},
-    {place:'lirael',title:"Lirael's clearing",hint:mapHint('lirael'),art:CAST.lirael.art},
-    {place:'market',title:'Night market',hint:run.coins?('Gifts · '+run.coins+' coin'+(run.coins===1?'':'s')):'Gifts · no coins yet',swatch:'market'},
-    {place:'green',title:'The festival green',hint:'Lanterns, and a coin for the work',swatch:'green'}
-  ];
-  places.forEach(function(p){
-    const b=document.createElement('button');
-    b.type='button';
-    b.className='place';
-    b.dataset.place=p.place;
-    if(p.art){
-      const im=document.createElement('img');
-      im.src=p.art; im.alt='';
-      b.appendChild(im);
-    }else{
-      const sw=document.createElement('i');
-      sw.className='swatch '+(p.swatch||'green');
-      b.appendChild(sw);
-    }
-    const span=document.createElement('span');
-    const strong=document.createElement('b');
-    strong.textContent=p.title;
-    const small=document.createElement('small');
-    small.textContent=p.hint;
-    span.appendChild(strong);
-    span.appendChild(small);
-    if(CAST[p.place]){
-      const em=document.createElement('em');
-      em.textContent=CAST[p.place].name+' · '+run.aff[p.place];
-      span.appendChild(em);
-    }
-    b.appendChild(span);
-    b.addEventListener('click', function(){pickPlace(p.place);});
-    root.appendChild(b);
-  });
-}
-function mapHint(who){
-  const id=storyId(who);
-  if(/1$/.test(id) && id.indexOf('_h')<0) return 'You have not spoken yet';
-  if(/_h\d$/.test(id)) return 'A quiet hour';
-  if(/2$/.test(id)) return 'She would walk with you';
-  if(/3$/.test(id)) return who==='aelith'?'Festival silks are waiting':'A small game, if you dare';
-  if(/4$/.test(id)) return 'She is done circling';
-  return 'Spend the hour';
-}
-function showMap(){
-  cancelLine();
-  cancelMini();
-  if(!run){toTitle(); return;}
-  if(run.done){showFinale(run.done); return;}
-  run.pending=null;
-  mode='map';
-  current=null;
-  currentLine=null;
-  phase='map';
-  $('title').hidden=true;
-  $('app').hidden=false;
-  hidePlayBits();
-  $('daypick').hidden=false;
-  renderStage({bg:run.day>=14?'ball':'green', sprite:null});
-  renderMap();
-  renderMeters();
-  syncToggles();
-  commit();
-}
-function startScene(scene, lineIndex, opt){
-  opt=opt||{};
-  cancelLine();
-  cancelMini();
-  if(!scene){showMap(); return;}
-  current=scene;
-  if(scene.hang && !opt.resume && scene.sprite){
-    run.hang[scene.sprite]=(run.hang[scene.sprite]||0)+1;
-  }
-  mode='scene';
-  phase='scene';
-  $('title').hidden=true;
-  $('app').hidden=false;
-  hidePlayBits();
-  $('dlg').hidden=false;
-  $('ending').hidden=true;
-  renderStage(scene);
-  renderMeters();
-  enterLine(lineIndex||0);
-}
-function enterLine(index){
-  cancelLine();
-  if(!current || !current.lines[index]){endDay(); return;}
-  nodeIndex=index;
-  const line=current.lines[index];
-  currentLine=line;
-  run.pending={id:current.id, line:index, who:current.sprite||null, next:current.next||null, hang:!!current.hang};
-  applyLineEnter(line);
-  commit();
-  renderLine(line);
-  const ae=document.activeElement;
-  if(ae && ae.blur && ae!==document.body) ae.blur();
-}
-function applyLineEnter(line){
-  if(line.set) line.set.forEach(function(f){run.flags[f]=true;});
-  if(line.unlock) unlock(line.unlock);
-  if(line.coin){
-    const key='once_'+line.id+'_'+run.day;
-    if(!run.flags[key]){
-      run.flags[key]=true;
-      run.coins=Math.max(0, Math.min(8, run.coins+line.coin));
-      toast('+'+line.coin+' coin');
-    }
-  }
-  if(line.set && line.set.some(function(f){return f.indexOf('outfit_')===0;})) renderStage(current);
-}
-function renderLine(line){
-  const cast=CAST[line.who];
-  $('who').className='who '+(cast?line.who:'');
-  $('who').textContent=cast?cast.name:'Vaelith';
-  $('role').textContent=cast?(cast.role+' · LOOKS '+cast.looks+' · CENTURIES OLD'):'THE FESTIVAL';
-  if(cast && current) renderStage({bg:current.bg, sprite:line.who, look:current.look||'', hang:current.hang});
-  const full=fill(line.text);
-  const already=!!(meta.seen && meta.seen[line.id]);
-  typingAlready=already;
-  shownToken++;
-  phase='type';
-  $('choices').innerHTML='';
-  $('hint').hidden=true;
-  $('text').textContent='';
-  const instant=settings.speed<=0 || (settings.skipRead && already && !line.choices && !line.mini);
-  if(instant){
-    $('text').textContent=full;
-    finishType(line, full, already);
-  }else typewrite(line, full, already);
-}
-function typewrite(line, full, already){
-  const g=gen;
-  const token=shownToken;
-  let i=0, acc=0, last=performance.now();
-  const cps=Math.max(1, settings.speed|0);
-  function step(now){
-    if(g!==gen || token!==shownToken) return;
-    const dt=Math.min(0.05,(now-last)/1000);
-    last=now;
-    acc+=dt*cps;
-    let guard=0;
-    while(acc>=1 && i<full.length && guard<8){i++; acc-=1; guard++;}
-    $('text').textContent=full.slice(0,i);
-    if(i>=full.length) finishType(line, full, already);
-    else typer=requestAnimationFrame(step);
-  }
-  typer=requestAnimationFrame(step);
-}
-function finishType(line, full, already){
-  if(phase!=='type') return;
-  phase='wait';
-  meta.seen[line.id]=true;
-  commit();
-  if(line.mini){startMini(line); return;}
-  if(line.choices && line.choices.length){
-    phase='choice';
-    renderChoices(line);
-    return;
-  }
-  $('hint').hidden=false;
-  if(settings.skipRead && already) later(function(){advance();}, 70);
-  else if(settings.auto) later(function(){advance();}, Math.max(800, (full||'').length*26));
-}
-function completeType(){
-  if(phase!=='type' || !currentLine) return;
-  gen++;
-  if(typer) cancelAnimationFrame(typer);
-  const full=fill(currentLine.text);
-  $('text').textContent=full;
-  phase='type';
-  finishType(currentLine, full, typingAlready);
-}
-function renderChoices(line){
-  const box=$('choices');
-  box.innerHTML='';
-  line.choices.forEach(function(ch, i){
-    const b=document.createElement('button');
-    b.type='button';
-    b.className='choice';
-    b.textContent=fill(ch.t);
-    if(ch.need && run.coins<ch.need) b.disabled=true;
-    b.addEventListener('click', function(ev){ev.stopPropagation(); choose(i);});
-    box.appendChild(b);
-  });
-}
-function choose(i){
-  if(phase!=='choice' || !currentLine || !currentLine.choices) return;
-  const ch=currentLine.choices[i];
-  if(!ch) return;
-  if(ch.need && run.coins<ch.need){toast('You need a festival coin.'); return;}
-  audioUnlock();
-  if(ch.buy){
-    run.coins-=ch.need||1;
-    run.gifts[ch.buy]=(run.gifts[ch.buy]||0)+1;
-    toast('Gift wrapped');
-  }
-  if(ch.give) run.gifts[ch.give]=Math.max(0,(run.gifts[ch.give]||1)-1);
-  if(ch.aff) addAff(current && current.sprite, ch.aff);
-  if(ch.set) ch.set.forEach(function(f){run.flags[f]=true;});
-  sfx.blip();
-  phase='wait';
-  $('choices').innerHTML='';
-  if(ch.goto){jumpTo(ch.goto); return;}
-  if(ch.end){resolveEnd(ch.end); return;}
-  advance();
-}
-function jumpTo(id){
-  if(!current){showMap(); return;}
-  const i=current.lines.findIndex(function(l){return l.id===id;});
-  if(i<0){endDay(); return;}
-  enterLine(i);
-}
-function advance(){
-  if(phase==='type'){completeType(); return;}
-  if(phase!=='wait') return;
-  const line=currentLine;
-  if(!line){showMap(); return;}
-  if(line.end){resolveEnd(line.end); return;}
-  if(current && nodeIndex+1<current.lines.length){enterLine(nodeIndex+1); return;}
-  endDay();
-}
-function resolveEnd(end){
-  if(end==='day'){endDay(); return;}
-  if(end==='map'){showMap(); return;}
-  if(end.indexOf('scene:')===0){
-    const sc=SCENES[end.slice(6)];
-    if(!sc){showMap(); return;}
-    startScene(sc);
-    return;
-  }
-  if(end.indexOf('finale:')===0){showFinale(end.slice(7)); return;}
-  endDay();
-}
-function endDay(){
-  cancelLine();
-  cancelMini();
-  if(!run){toTitle(); return;}
-  run.pending=null;
-  if(run.day<14) run.day+=1;
-  commit();
-  showMap();
-}
-function pickPlace(place){
-  audioUnlock();
-  sfx.blip();
-  if(run.day>=14){startBall(place); return;}
-  if(place==='market'){startScene(SCENES.market); return;}
-  if(place==='green'){startScene(SCENES.green); return;}
-  if(!CAST[place]) return;
-  const id=storyId(place);
-  const key=GIFT_OF[place];
-  if((run.gifts[key]||0)>0) startScene(makeGift(place, id));
-  else startScene(SCENES[id]);
-}
-function startBall(place){
-  if(place==='alone'){startScene(SCENES.end_alone); return;}
-  if(!CAST[place]) return;
-  const k=KEY[place];
-  if(run.flags[k+'_kiss'] && run.aff[place]>=36) startScene(SCENES['end_'+k]);
-  else startScene(SCENES['soft_'+k]);
-}
-function showFinale(id){
-  const info=ENDINGS[id]||ENDINGS.neutral;
-  const reopen=!!(run && run.done===id);
-  cancelLine();
-  cancelMini();
-  mode='ending';
-  phase='ending';
-  if(run){run.done=id; run.pending=null;}
-  if(!reopen){
-    if(id==='aelith'||id==='nyssa'||id==='lirael'){
-      meta.endings[id]=true;
-      unlock(id+'_end');
-    }else meta.endings.neutral=true;
-    sfx.fanfare();
-  }
-  commit();
-  $('title').hidden=true;
-  $('app').hidden=false;
-  hidePlayBits();
-  $('ending').hidden=false;
-  $('endKicker').textContent=info.kicker;
-  $('endTitle').textContent=info.title;
-  $('endText').textContent=info.text;
-  $('endStats').textContent=run?('Aelith '+run.aff.aelith+' · Nyssa '+run.aff.nyssa+' · Lirael '+run.aff.lirael):'';
-  if(info.who) renderStage({bg:BG[info.who], sprite:info.who, look:'end'});
-  else renderStage({bg:'ball', sprite:null});
-  renderMeters();
-}
-function resumePending(){
-  const p=run.pending;
-  if(!p){showMap(); return;}
-  let scene=SCENES[p.id];
-  if(!scene && p.id.indexOf('gift_')===0 && p.who) scene=makeGift(p.who, p.next);
-  if(!scene){run.pending=null; showMap(); return;}
-  startScene(scene, p.line|0, {resume:true});
-}
-function newGame(){
-  run=blankRun();
-  armNew=false;
-  commit();
-  closeOverlays();
-  startScene(SCENES.intro);
-}
-function continueGame(){
-  if(!run) return newGame();
-  closeOverlays();
-  if(run.pending) resumePending();
-  else if(run.done) showFinale(run.done);
-  else showMap();
-}
-function toTitle(){
-  cancelLine();
-  cancelMini();
-  mode='title';
-  phase='title';
-  if(run && (mode==='scene')){}
-  commit();
-  closeOverlays();
-  $('app').hidden=true;
-  $('title').hidden=false;
-  refreshTitle();
-}
-function closeOverlays(){
-  $('menu').hidden=true;
-  $('gallery').hidden=true;
-  $('viewer').hidden=true;
-  $('ending').hidden=true;
-  $('mini').hidden=true;
-  $('titleSlots').hidden=true;
-}
-function refreshTitle(){
-  $('btnCont').hidden=!run;
-  if(run) $('btnCont').textContent=run.done?('Ending · '+(ENDINGS[run.done]?ENDINGS[run.done].title:'Moonpetal')):('Continue · Day '+run.day);
-  const bits=[];
-  if(run) bits.push(run.done?'Festival complete':'Saved on day '+run.day+' · '+['aelith','nyssa','lirael'].map(function(id){return CAST[id].name+' '+run.aff[id];}).join(' · '));
-  const ends=Object.keys(meta.endings||{}).filter(function(k){return meta.endings[k];});
-  if(ends.length) bits.push('Endings: '+ends.join(', '));
-  const gcount=Object.keys(meta.gallery||{}).length;
-  if(gcount) bits.push('Gallery '+gcount+'/9');
-  $('saveInfo').textContent=bits.join('  ·  ')||'No save yet. Gallery unlocks stay in this browser.';
-  $('btnNew').textContent=armNew?'Confirm new festival':'New festival';
-  $('btnWipe').textContent=armWipe?'Confirm reset':'Reset save';
-  syncToggles();
-}
-function syncToggles(){
-  const sound=muted?'Sound off':'Sound on';
-  $('btnMute').textContent=sound;
-  $('btnMute2').textContent=sound;
-  $('btnAuto').classList.toggle('on', !!settings.auto);
-  $('btnAuto').setAttribute('aria-pressed', settings.auto?'true':'false');
-  $('btnSkip').classList.toggle('on', !!settings.skipRead);
-  $('btnSkip').setAttribute('aria-pressed', settings.skipRead?'true':'false');
-  $('btnAuto2').textContent=settings.auto?'Auto on':'Auto off';
-  $('btnAuto2').classList.toggle('on', !!settings.auto);
-  $('btnSkip2').textContent=settings.skipRead?'Skip read on':'Skip read off';
-  $('btnSkip2').classList.toggle('on', !!settings.skipRead);
-  document.querySelectorAll('#speedRow button').forEach(function(b){
-    b.classList.toggle('on', (settings.speed|0)===(+b.dataset.speed));
-  });
-}
-function toggleMute(){
-  muted=!muted;
-  try{localStorage.setItem(MUTE_KEY, muted?'1':'0');}catch(e){}
-  syncToggles();
-}
-function toggleAuto(){
-  settings.auto=!settings.auto;
-  commit();
-  syncToggles();
-  if(settings.auto && phase==='wait' && currentLine && !currentLine.choices && !currentLine.mini) later(function(){advance();}, 400);
-}
-function toggleSkip(){
-  settings.skipRead=!settings.skipRead;
-  commit();
-  syncToggles();
-  if(settings.skipRead && phase==='wait' && currentLine && meta.seen[currentLine.id] && !currentLine.choices && !currentLine.mini) later(function(){advance();}, 60);
-}
-function setSpeed(n){
-  settings.speed=n|0;
-  commit();
-  syncToggles();
-}
-function openMenu(){
-  if(mode==='mini' || phase==='mini'){toast('Finish this moment first.'); return;}
-  if($('title').hidden===false && mode==='title') return;
-  $('menuBlurb').textContent=run?(run.done?'The festival is already told.':'Day '+run.day+' · '+['aelith','nyssa','lirael'].map(function(id){return CAST[id].name+' '+run.aff[id];}).join(' · ')):'';
-  renderSlots('menuSlots', !!run && !run.done);
-  syncToggles();
-  $('menu').hidden=false;
-}
-function closeMenu(){$('menu').hidden=true;}
-function renderSlots(rootId, canSave){
-  const root=$(rootId);
-  if(!root) return;
-  root.innerHTML='';
-  for(let i=0;i<3;i++){
-    const s=slots[i];
-    const row=document.createElement('div');
-    row.className='slot';
-    const label=document.createElement('div');
-    if(s && s.run){
-      const when=s.at?new Date(s.at).toLocaleDateString():'';
-      label.textContent=(s.done?'Ending':('Day '+s.day))+' · Ae '+(s.aff?s.aff.aelith:0)+' · Ny '+(s.aff?s.aff.nyssa:0)+' · Li '+(s.aff?s.aff.lirael:0)+(when?(' · '+when):'');
-    }else label.textContent='Empty slot '+(i+1);
-    row.appendChild(label);
-    if(canSave){
-      const b=document.createElement('button');
-      b.type='button'; b.className='btn'; b.textContent='Save';
-      b.addEventListener('click', function(){saveSlot(i);});
-      row.appendChild(b);
-    }
-    const load=document.createElement('button');
-    load.type='button'; load.className='btn'; load.textContent='Load';
-    load.disabled=!(s && s.run);
-    load.addEventListener('click', function(){loadSlot(i);});
-    row.appendChild(load);
-    root.appendChild(row);
-  }
-}
-function saveSlot(i){
-  if(!run) return;
-  slots[i]={at:Date.now(), day:run.day, done:run.done, aff:{aelith:run.aff.aelith,nyssa:run.aff.nyssa,lirael:run.aff.lirael}, run:JSON.parse(JSON.stringify(run))};
-  commit();
-  toast('Saved slot '+(i+1));
-  renderSlots('menuSlots', !$('menu').hidden && !!run && !run.done);
-  renderSlots('titleSlots', false);
-}
-function loadSlot(i){
-  const s=slots[i];
-  if(!s || !s.run){toast('Empty slot'); return;}
-  run=normalize(JSON.parse(JSON.stringify(s.run)));
-  commit();
-  closeOverlays();
-  audioUnlock();
-  if(run.pending) resumePending();
-  else if(run.done) showFinale(run.done);
-  else showMap();
-}
-function openGallery(from){
-  galleryFrom=from||'title';
-  renderGallery();
-  $('gallery').hidden=false;
-}
-function closeGallery(){
-  $('gallery').hidden=true;
-  $('viewer').hidden=true;
-}
-function renderGallery(){
-  const grid=$('galGrid');
-  grid.innerHTML='';
-  GALLERY.forEach(function(g){
-    const open=!!(meta.gallery && meta.gallery[g.id]);
-    const b=document.createElement('button');
-    b.type='button';
-    b.className='gcard';
-    if(open){
-      const img=document.createElement('img');
-      img.src=CAST[g.who].art;
-      img.alt=g.title;
-      img.className='look-'+(g.look||'base');
-      b.appendChild(img);
-    }else{
-      const lock=document.createElement('span');
-      lock.className='lock';
-      lock.textContent='LOCKED';
-      b.appendChild(lock);
-    }
-    const strong=document.createElement('b');
-    strong.textContent=g.title;
-    const small=document.createElement('small');
-    small.textContent=open?g.cap:'Not yet';
-    b.appendChild(strong);
-    b.appendChild(small);
-    if(open) b.addEventListener('click', function(){openView(g);});
-    else b.addEventListener('click', function(){toast('Still ahead of you.');});
-    grid.appendChild(b);
-  });
-}
-function openView(g){
-  const img=$('viewImg');
-  img.src=CAST[g.who].art;
-  img.alt=g.title;
-  img.className='look-'+(g.look||'base');
-  $('viewCap').textContent=g.title+' — '+g.cap;
-  $('viewer').hidden=false;
-}
-function wipeAll(){
-  meta=blankMeta(); run=null; slots=[null,null,null];
-  try{localStorage.removeItem(SAVE_KEY);}catch(e){}
-  armWipe=false;
-  closeOverlays();
-  toTitle();
-}
-function statSnapshot(){
-  const choiceBtns=[].slice.call(document.querySelectorAll('#choices button'));
-  return {
-    mode:(function(){
-      if($('viewer') && !$('viewer').hidden) return 'viewer';
-      if($('gallery') && !$('gallery').hidden) return 'gallery';
-      if($('menu') && !$('menu').hidden) return 'menu';
-      if($('ending') && !$('ending').hidden) return 'ending';
-      if($('mini') && !$('mini').hidden) return 'mini';
-      if($('title') && !$('title').hidden) return 'title';
-      return mode;
-    })(),
-    day:run?run.day:0,
-    aff:run?{aelith:run.aff.aelith,nyssa:run.aff.nyssa,lirael:run.aff.lirael}:null,
-    coins:run?run.coins:0,
-    gifts:run?{sun:run.gifts.sun,moon:run.gifts.moon,honey:run.gifts.honey}:null,
-    flags:run?Object.assign({}, run.flags):null,
-    line:currentLine?currentLine.id:null,
-    text:$('text')?$('text').textContent:'',
-    choices:choiceBtns.map(function(b){return b.textContent;}),
-    choiceCount:choiceBtns.length,
-    ending:(!$('ending').hidden)?$('endTitle').textContent:null,
-    endingId:run?run.done:null,
-    gallery:Object.assign({}, meta.gallery||{}),
-    endings:Object.assign({}, meta.endings||{}),
-    mini:miniKind,
-    hot:$('mini')?$('mini').dataset.hot||'0':'0',
-    phase:phase,
-    crash:$('crash')&&!$('crash').hidden?$('crash').textContent:'',
-    errors:errors.slice()
-  };
-}
-
-function startMini(line){
-  mode='mini';
-  phase='mini';
-  miniKind=line.mini;
-  $('mini').hidden=false;
-  $('mini').dataset.kind=line.mini;
-  $('mini').dataset.hot='0';
-  $('hint').hidden=true;
-  if(line.mini==='archery') startArchery(line);
-  else startStars(line);
-}
-function setMiniScore(){
-  if(!miniState) return;
-  const total=miniState.kind==='archery'?3:5;
-  $('miniScore').textContent=(miniState.kind==='archery'?'Arrows ':'Stars ')+miniState.n+'/'+total+' · '+miniState.hits+' true';
-}
-function finishMini(good, line){
-  const who=current && current.sprite;
-  addAff(who, good?8:3);
-  if(good && line.mini==='archery') run.coins=Math.min(8, run.coins+(1));
-  if(miniState && miniState.timer) clearTimeout(miniState.timer);
-  if(miniRAF) cancelAnimationFrame(miniRAF);
-  miniState=null;
-  miniKind=null;
-  $('mini').hidden=true;
-  $('mini').dataset.hot='0';
-  mode='scene';
-  jumpTo(good?line.good:line.bad);
-}
-function startArchery(line){
-  miniState={line:line, kind:'archery', n:0, hits:0, ring:1, last:performance.now(), alive:true};
-  $('miniTitle').textContent='Archery with Lirael';
-  $('miniHelp').textContent='Loose when the ring flashes gold. Three arrows.';
-  $('range').hidden=false;
-  $('starfield').hidden=true;
-  $('btnShoot').disabled=false;
-  setMiniScore();
-  loopArch();
-}
-function loopArch(now){
-  if(!miniState || miniState.kind!=='archery' || !miniState.alive) return;
-  now=now||performance.now();
-  const dt=Math.min(0.05,(now-miniState.last)/1000);
-  miniState.last=now;
-  miniState.ring-=dt*0.36;
-  if(miniState.ring<0.18){registerShot(false); return;}
-  const ring=$('ring');
-  ring.style.transform='scale('+miniState.ring.toFixed(3)+')';
-  const hot=Math.abs(miniState.ring-0.42)<0.11;
-  ring.classList.toggle('hot', hot);
-  $('mini').dataset.hot=hot?'1':'0';
-  $('mini').dataset.ring=miniState.ring.toFixed(3);
-  miniRAF=requestAnimationFrame(loopArch);
-}
-function shoot(){
-  if(!miniState || miniState.kind!=='archery' || !miniState.alive) return;
-  const hot=Math.abs(miniState.ring-0.42)<0.11;
-  registerShot(hot);
-}
-function registerShot(hit){
-  if(!miniState || !miniState.alive) return;
-  miniState.alive=false;
-  if(miniRAF) cancelAnimationFrame(miniRAF);
-  $('ring').classList.remove('hot');
-  $('mini').dataset.hot='0';
-  if(hit) miniState.hits++;
-  miniState.n++;
-  toast(hit?'Hit':'Miss');
-  sfx.blip();
-  setMiniScore();
-  const line=miniState.line;
-  if(miniState.n>=3){
-    const good=miniState.hits>=2;
-    finishMini(good, line);
-    return;
-  }
-  const wait=setTimeout(function(){
-    if(!miniState || miniState.kind!=='archery') return;
-    miniState.ring=1;
-    miniState.alive=true;
-    miniState.last=performance.now();
-    loopArch();
-  }, 480);
-  miniState.timer=wait;
-}
-function startStars(line){
-  miniState={line:line, kind:'stars', n:0, hits:0, live:false, timer:0};
-  $('miniTitle').textContent='Stargazing with Nyssa';
-  $('miniHelp').textContent='Tap each star before it fades. Five of them.';
-  $('range').hidden=true;
-  $('starfield').hidden=false;
-  $('star').hidden=true;
-  setMiniScore();
-  nextStar();
-}
-function nextStar(){
-  if(!miniState || miniState.kind!=='stars') return;
-  const star=$('star');
-  star.style.left=(14+Math.random()*72)+'%';
-  star.style.top=(16+Math.random()*62)+'%';
-  star.hidden=false;
-  miniState.live=true;
-  $('mini').dataset.hot='1';
-  clearTimeout(miniState.timer);
-  miniState.timer=setTimeout(function(){missStar();}, 3200);
-}
-function hitStar(){
-  if(!miniState || miniState.kind!=='stars' || !miniState.live) return;
-  miniState.live=false;
-  clearTimeout(miniState.timer);
-  $('star').hidden=true;
-  $('mini').dataset.hot='0';
-  miniState.hits++;
-  miniState.n++;
-  toast('Star');
-  sfx.blip();
-  setMiniScore();
-  afterStar();
-}
-function missStar(){
-  if(!miniState || miniState.kind!=='stars' || !miniState.live) return;
-  miniState.live=false;
-  $('star').hidden=true;
-  $('mini').dataset.hot='0';
-  miniState.n++;
-  toast('It faded');
-  setMiniScore();
-  afterStar();
-}
-function afterStar(){
-  const line=miniState.line;
-  if(miniState.n>=5){
-    finishMini(miniState.hits>=4, line);
-    return;
-  }
-  miniState.timer=setTimeout(function(){if(miniState) nextStar();}, 360);
-}
-
-function onAdvance(){
-  audioUnlock();
-  if(phase==='type'){completeType(); return;}
-  if(phase==='choice' || phase==='mini' || mode==='mini') return;
-  advance();
-}
-function boot(){
-  validate();
-  loadAll();
-  ['aelith','nyssa','lirael'].forEach(function(id){
-    const im=new Image();
-    im.src=CAST[id].art;
-  });
-  const sp=$('sprite');
-  sp.addEventListener('error', function(){sp.hidden=true;});
-  refreshTitle();
-  syncToggles();
-  window.__ELVES={
-    errors:errors,
-    snapshot:statSnapshot,
-    newGame:newGame,
-    settings:function(){return Object.assign({}, settings);}
-  };
-}
-window.addEventListener('error', function(ev){
-  errors.push(String((ev && (ev.message||ev.error))||'error'));
-  const el=$('crash');
-  if(el){el.hidden=false; el.textContent=errors.slice(-4).join('\n');}
-});
-window.addEventListener('unhandledrejection', function(ev){
-  errors.push(String(ev.reason||'rejection'));
-});
-document.addEventListener('pointerdown', function(){audioUnlock();}, {passive:true});
-$('dlg').addEventListener('click', function(ev){
-  if(ev.target.closest('button')) return;
-  onAdvance();
-});
-$('btnNew').addEventListener('click', function(){
-  audioUnlock();
-  if(run && !armNew){armNew=true; refreshTitle(); return;}
-  armNew=false;
-  newGame();
-});
-$('btnCont').addEventListener('click', function(){audioUnlock(); continueGame();});
-$('btnSlots').addEventListener('click', function(){
-  const box=$('titleSlots');
-  box.hidden=!box.hidden;
-  if(!box.hidden) renderSlots('titleSlots', false);
-});
-$('btnGallery').addEventListener('click', function(){openGallery('title');});
-$('btnMute').addEventListener('click', toggleMute);
-$('btnMute2').addEventListener('click', toggleMute);
-$('btnWipe').addEventListener('click', function(){
-  if(!armWipe){armWipe=true; refreshTitle(); return;}
-  wipeAll();
-});
-$('btnMenu').addEventListener('click', openMenu);
-$('btnCloseMenu').addEventListener('click', closeMenu);
-$('btnToTitle').addEventListener('click', function(){closeMenu(); toTitle();});
-$('btnMenuGal').addEventListener('click', function(){closeMenu(); openGallery('play');});
-$('btnAuto').addEventListener('click', toggleAuto);
-$('btnAuto2').addEventListener('click', toggleAuto);
-$('btnSkip').addEventListener('click', toggleSkip);
-$('btnSkip2').addEventListener('click', toggleSkip);
-document.querySelectorAll('#speedRow button').forEach(function(b){
-  b.addEventListener('click', function(){setSpeed(+b.dataset.speed);});
-});
-$('btnEndTitle').addEventListener('click', toTitle);
-$('btnEndGal').addEventListener('click', function(){openGallery('ending');});
-$('btnGalClose').addEventListener('click', closeGallery);
-$('btnViewClose').addEventListener('click', function(){$('viewer').hidden=true;});
-$('btnShoot').addEventListener('click', function(ev){ev.stopPropagation(); audioUnlock(); shoot();});
-$('star').addEventListener('click', function(ev){ev.stopPropagation(); audioUnlock(); hitStar();});
-window.addEventListener('keydown', function(e){
-  if(e.metaKey||e.ctrlKey||e.altKey) return;
-  if(e.code==='KeyM'){e.preventDefault(); toggleMute(); return;}
-  if(e.code==='Escape'){
-    e.preventDefault();
-    if(!$('viewer').hidden){$('viewer').hidden=true; return;}
-    if(!$('gallery').hidden){closeGallery(); return;}
-    if(!$('menu').hidden){closeMenu(); return;}
-    if(mode==='map'||mode==='scene'||mode==='ending') openMenu();
-    return;
-  }
-  if(mode==='mini' && (e.code==='Space'||e.code==='Enter')){
-    e.preventDefault();
-    if(miniKind==='archery') shoot();
-    else hitStar();
-    return;
-  }
-  if((mode==='scene') && (e.code==='Space'||e.code==='Enter')){
-    e.preventDefault();
-    onAdvance();
-    return;
-  }
-  if(e.code.indexOf('Digit')===0){
-    const n=+e.code.slice(5)-1;
-    if(n<0) return;
-    if(mode==='scene' && phase==='choice'){
-      const btns=$('choices').querySelectorAll('button');
-      if(btns[n] && !btns[n].disabled){e.preventDefault(); choose(n);}
-    }else if(mode==='map'){
-      const btns=$('daypick').querySelectorAll('button.place');
-      if(btns[n]){e.preventDefault(); btns[n].click();}
-    }
-  }
-});
-window.addEventListener('pagehide', function(){if(run) commit();});
-try{boot();}catch(err){
-  errors.push(String(err && (err.stack||err.message)||err));
-  const el=$('crash');
-  if(el){el.hidden=false; el.textContent=errors[0];}
-  window.__ELVES={errors:errors, snapshot:function(){return {mode:'crash', errors:errors.slice(), crash:errors[0]};}};
-}
-</script>
+<script src="story.js"></script>
+<script src="engine.js"></script>
 </body>
 </html>
