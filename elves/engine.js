@@ -383,6 +383,24 @@
     typeText(step.text || '', step.id || '');
     if (state && state.play) state.play.step = stepIndex;
   }
+  let choiceGate = 0;
+  let choiceGateKey = '';
+  let choiceMenu = 0;
+  function eventEl(t) {
+    if (!t) return null;
+    if (t.nodeType === 3) return t.parentElement;
+    return t;
+  }
+  function takeChoice(menu, i, e) {
+    if (e && e.stopPropagation) e.stopPropagation();
+    const now = Date.now();
+    const key = menu + ':' + i;
+    if (choiceGateKey === key && now - choiceGate < 500) return;
+    choiceGateKey = key;
+    choiceGate = now;
+    try { pickChoice(i); }
+    catch (err) { showCrash(err && (err.stack || err.message) || err); }
+  }
   function showChoice(step) {
     clearType();
     textDone = true;
@@ -391,13 +409,18 @@
     $('btnAdvance').hidden = true;
     const box = $('choices');
     box.innerHTML = '';
+    choiceMenu += 1;
+    const menu = choiceMenu;
     (step.options || []).forEach(function (opt, i) {
       const b = document.createElement('button');
       b.type = 'button';
       b.className = 'choice';
       b.id = 'choice' + i;
       b.textContent = fmt(opt.text);
-      b.addEventListener('click', function () { pickChoice(i); });
+      function arm(e) { takeChoice(menu, i, e); }
+      b.addEventListener('pointerup', arm);
+      b.addEventListener('touchend', arm);
+      b.addEventListener('click', arm);
       box.appendChild(b);
     });
     if (state && state.play) state.play.step = stepIndex;
@@ -1469,7 +1492,8 @@
     $('btnAdvance').addEventListener('click', function (e) { e.stopPropagation(); advance(); });
     $('scene').addEventListener('pointerup', function (e) {
       if (e.pointerType === 'mouse' && e.button !== 0) return;
-      if (e.target.closest && e.target.closest('button, a, input, textarea')) return;
+      const el = eventEl(e.target);
+      if (el && el.closest && el.closest('button, a, input, textarea, .choice')) return;
       if (overlayName()) return;
       if (!state || state.screen !== 'scene') return;
       if (choiceOpen) return;
