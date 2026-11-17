@@ -658,7 +658,6 @@ body.world-frozen #runBtn{opacity:.4}
 #nscene .ns-chr{position:absolute;left:0;right:0;bottom:0;height:86%;display:flex;justify-content:center;align-items:flex-end;will-change:transform;pointer-events:none}
 #nscene .ns-act{height:100%;display:flex;align-items:flex-end;transform-origin:50% 100%;animation:nsBreathe 4.2s ease-in-out infinite}
 #nscene .ns-img{height:100%;width:auto;max-width:none;flex:none;-webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.6) 9%,#000 22%);mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.6) 9%,#000 22%)}
-#nscene .ns-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 #nscene .ns-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
 #nscene .ns-grad{position:absolute;left:0;right:0;bottom:0;height:46%;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(8,5,4,.72) 45%,rgba(8,5,4,.94));pointer-events:none}
 #nscene .ns-top{position:absolute;top:calc(var(--st) + 10px);left:calc(12px + var(--sl));right:calc(12px + var(--sr));display:flex;gap:8px;align-items:center}
@@ -681,6 +680,23 @@ body.world-frozen #runBtn{opacity:.4}
 .stagebar .stg{font-weight:900;font-size:11px;padding:2px 8px;border-radius:8px;background:#3a2a24;color:#ffd8b8;letter-spacing:.04em}.stagebar .stg.s1{background:#2f5a3a;color:#d8ffd8}.stagebar .stg.s2{background:#5a2f4a;color:#ffd8f0}.stagebar .stg.s3{background:#7a2f3a;color:#ffe0e8}
 .stagebar .stp4{display:flex;gap:3px}.stagebar .stp4 i{width:14px;height:4px;border-radius:2px;background:rgba(255,255,255,.15)}.stagebar .stp4 i.on{background:#ffb0c8}
 .dg-card{margin-top:10px;border-color:rgba(140,170,230,.35)!important}.dg-card .sc-head span{color:#9fb8e0}
+/* v1.8.1 Memories + scene video loop */
+.mem-body{padding-bottom:calc(18px + env(safe-area-inset-bottom))}
+.mem-g{margin:14px 0 6px;padding:10px;border-radius:16px;background:rgba(255,240,220,.035);border:1px solid rgba(255,230,200,.08)}
+.mem-gh{display:flex;align-items:center;gap:12px;margin:0 2px 8px}
+.mem-gh b{display:block;font-family:var(--display);font-size:17px;color:#f2e6d2;letter-spacing:.02em}.mem-gh small{color:var(--dim);font-size:12.5px}
+.mem-th{flex:none;width:52px;height:52px;border-radius:50%;overflow:hidden;border:2px solid rgb(217 163 90 / .55);background:#1a1412;box-shadow:0 4px 12px rgba(0,0,0,.4)}
+.mem-th img{width:100%;height:135%;object-fit:cover;object-position:50% 8%;display:block}
+.mem-th{position:relative}.mem-th.sil{border-color:rgba(255,255,255,.14)}.mem-th.sil img{filter:grayscale(1) brightness(.22) blur(1.5px)}.mem-th.sil::after{content:'?';position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:24px;font-weight:700;color:rgba(255,240,220,.55)}
+.mem-row{display:flex;align-items:center;gap:10px;min-height:56px;padding:8px 6px 8px 8px;border-top:1px solid rgba(255,230,200,.07)}
+.mem-k{flex:none;width:52px;text-align:center;font-size:10px;font-weight:850;letter-spacing:.12em;text-transform:uppercase;color:var(--dim2);padding:4px 0;border-radius:8px;background:rgba(255,255,255,.05)}
+.mem-k.k-story{color:#ffb0c8;background:rgba(255,140,180,.1)}.mem-k.k-stage{color:var(--gold);background:rgb(217 163 90 / .12)}.mem-k.k-shared{color:#9fd0ff;background:rgba(120,180,255,.1)}
+.mem-tx{flex:1;min-width:0}.mem-tx b{display:block;font-size:15px;color:#f2e6d2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mem-tx small{display:block;font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mem-play{flex:none;min-width:92px;gap:6px;display:inline-flex;align-items:center;justify-content:center}
+.mem-row.locked .mem-tx b{color:#6f675e;letter-spacing:.2em}.mem-row.locked .mem-k{opacity:.45}.mem-lk{flex:none;width:44px;display:flex;justify-content:center;color:#6f675e}
+#nscene .ns-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 100%;opacity:0;transition:opacity .45s ease;-webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.6) 9%,#000 22%);mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.6) 9%,#000 22%)}
+#nscene.vid-on .ns-vid{opacity:1}#nscene.vid-on .ns-img{opacity:0;transition:opacity .45s ease}
+#nscene.mem .ns-loc{color:#ffd9a8}
 </style>
 </head>
 <body>
@@ -800,7 +816,7 @@ body.world-frozen #runBtn{opacity:.4}
 <script>
 (() => {
 'use strict';
-const KA_GAME='lumenspire', KA_VERSION='1.8';
+const KA_GAME='lumenspire', KA_VERSION='1.8.1';
 /* KA_TELEMETRY_START */
 // Shared anonymous play-log module. No personal data.
 // TELEMETRY_URL is the ntfy.sh topic. Messages over 4096 bytes become attachments,
@@ -1336,13 +1352,13 @@ function newSave(cls){
   S={v:4,cls,lvl:1,xp:0,statPts:0,skillPts:0,stats:Object.assign({},C.base),tree:{},
     gear:{weapon:null,helm:null,armor:null,gloves:null,boots:null,charm:null},bag:[],
     gold:0,shards:0,star:0,bestFloor:0,climbFrom:1,lastSeen:Date.now(),uid:1,
-    tot:{climbs:0,kills:0,bosses:0,deaths:0},ftue:{},story:{intro:0,smith:0,maid:0,houseVisits:0,lore:0},perks:{rest:0,stew:0,tonic:0,salve:0},cosm:{own:['base'],cur:'base'},aff:{maid:0,liraen:0,marla:0,pip:0,aelira:0,vivienne:0},affV:{},scn:{},bossBest:0,prof:{},invest:{},spent:0,wsw:0,v18:1,descent:0,descentFrom:1,stageSeen:{},voice:false,created:Date.now()};S.v=4;
+    tot:{climbs:0,kills:0,bosses:0,deaths:0},ftue:{},story:{intro:0,smith:0,maid:0,houseVisits:0,lore:0},perks:{rest:0,stew:0,tonic:0,salve:0},cosm:{own:['base'],cur:'base'},aff:{maid:0,liraen:0,marla:0,pip:0,aelira:0,vivienne:0},affV:{},scn:{},bossBest:0,prof:{},invest:{},spent:0,wsw:0,v18:1,descent:0,descentFrom:1,stageSeen:{},voice:false,mem:{},created:Date.now()};S.v=4;
   S.gear.weapon=makeItem('weapon',1,0,defaultStyle(cls));S.gear.armor=makeItem('armor',1,0);
   return S;
 }
 function load(){try{const s=JSON.parse(localStorage.getItem(SAVE_KEY)||'null');if(s&&s.cls&&CLASSES[s.cls]){S=migrate(s);}}catch(e){}return S;}
 /* v1 -> v2 (1.5): story flags. v2 -> v3 (1.6): weapons without a style get the class default. v3 -> v4 (1.7): lore progress for the grid/explore update. */
-function migrate(s){if(typeof s.descent!=='number')s.descent=0;if(typeof s.descentFrom!=='number')s.descentFrom=1;if(!s.stageSeen||typeof s.stageSeen!=='object')s.stageSeen={};if(typeof s.voice!=='boolean')s.voice=false;if(!s.prof||typeof s.prof!=='object')s.prof={};if(!s.invest||typeof s.invest!=='object')s.invest={};if(typeof s.spent!=='number')s.spent=0;if(typeof s.wsw!=='number')s.wsw=0;if(s.v18==null){s.v18=1;/* v1.7 saves: credit past kills toward the equipped style so veterans start at proficiency I-II */const w=s.gear&&s.gear.weapon;if(w&&w.sty&&s.tot&&s.tot.kills)s.prof[w.sty]=Math.max(s.prof[w.sty]||0,Math.min(149,Math.round(s.tot.kills*.6)));}if(!s.aff||typeof s.aff!=='object')s.aff={};for(const k of ['maid','liraen','marla','pip','aelira','vivienne'])if(typeof s.aff[k]!=='number')s.aff[k]=0;if(!s.affV)s.affV={};if(!s.scn)s.scn={};if(s.bossBest==null)s.bossBest=0;if(!s.story||typeof s.story!=='object')s.story={intro:0,smith:0,maid:0,houseVisits:0};if(s.story.houseVisits==null)s.story.houseVisits=0;if(s.story.lore==null)s.story.lore=0;if(!s.perks)s.perks={rest:0,stew:0,tonic:0,salve:0};if(!s.cosm)s.cosm={own:['base'],cur:'base'};if(!s.ftue||typeof s.ftue!=='object')s.ftue={};if(!s.tot)s.tot={climbs:0,kills:0,bosses:0,deaths:0};if(!Array.isArray(s.bag))s.bag=[];if(!s.gear)s.gear={};SLOTS.forEach(k=>{if(!(k in s.gear))s.gear[k]=null;});if(!s.climbFrom)s.climbFrom=1;migrateWeapons(s);if(typeof s.bestFloor!=='number')s.bestFloor=0;s.v=4;return s;}
+function migrate(s){if(!s.mem||typeof s.mem!=='object'||Array.isArray(s.mem))s.mem={};if(typeof memBackfill==='function')memBackfill(s);if(typeof s.descent!=='number')s.descent=0;if(typeof s.descentFrom!=='number')s.descentFrom=1;if(!s.stageSeen||typeof s.stageSeen!=='object')s.stageSeen={};if(typeof s.voice!=='boolean')s.voice=false;if(!s.prof||typeof s.prof!=='object')s.prof={};if(!s.invest||typeof s.invest!=='object')s.invest={};if(typeof s.spent!=='number')s.spent=0;if(typeof s.wsw!=='number')s.wsw=0;if(s.v18==null){s.v18=1;/* v1.7 saves: credit past kills toward the equipped style so veterans start at proficiency I-II */const w=s.gear&&s.gear.weapon;if(w&&w.sty&&s.tot&&s.tot.kills)s.prof[w.sty]=Math.max(s.prof[w.sty]||0,Math.min(149,Math.round(s.tot.kills*.6)));}if(!s.aff||typeof s.aff!=='object')s.aff={};for(const k of ['maid','liraen','marla','pip','aelira','vivienne'])if(typeof s.aff[k]!=='number')s.aff[k]=0;if(!s.affV)s.affV={};if(!s.scn)s.scn={};if(s.bossBest==null)s.bossBest=0;if(!s.story||typeof s.story!=='object')s.story={intro:0,smith:0,maid:0,houseVisits:0};if(s.story.houseVisits==null)s.story.houseVisits=0;if(s.story.lore==null)s.story.lore=0;if(!s.perks)s.perks={rest:0,stew:0,tonic:0,salve:0};if(!s.cosm)s.cosm={own:['base'],cur:'base'};if(!s.ftue||typeof s.ftue!=='object')s.ftue={};if(!s.tot)s.tot={climbs:0,kills:0,bosses:0,deaths:0};if(!Array.isArray(s.bag))s.bag=[];if(!s.gear)s.gear={};SLOTS.forEach(k=>{if(!(k in s.gear))s.gear[k]=null;});if(!s.climbFrom)s.climbFrom=1;migrateWeapons(s);if(typeof s.bestFloor!=='number')s.bestFloor=0;s.v=4;return s;}
 let saveT=0;
 function save(now){
   if(!S)return;clearTimeout(saveT);
@@ -2186,6 +2202,7 @@ function openForge(o={}){
 function openSettings(){
   openSheet('A',head('Settings','')+`<div class="sh-body">
     <div class="toggle"><span>Sound</span><button class="sw ${muted?'':'on'}" data-act="mute" aria-label="Sound"></button></div>
+    <button class="bless shop mem-open" data-act="memories"><span class="bi">${ic('heart',22)}</span><span class="tx"><b>Memories</b><small>${(()=>{const c=memCount();return c.n?`${c.n} of ${c.t} moments remembered · replay any of them`:'Moments with the people of Cinderholt will be kept here';})()}</small></span><span class="pr">${ic('book',16,2.2)}</span></button>
     <div class="toggle"><span>Climbs · Bosses · Kills</span><span style="color:var(--dim)">${S.tot.climbs} · ${S.tot.bosses} · ${S.tot.kills}</span></div>
     <p class="note">Progress saves on this device. Hold the version text on the title screen to copy your play log. Drag anywhere to walk; walk into people to talk and into monsters to fight.</p>
     <button class="btn ghost wide" data-act="reset1" style="margin-top:12px">Start a new hero</button></div>`,{kind:'settings',onClose:renderHub});
@@ -2318,8 +2335,6 @@ function drawTownLayer(c){
     c.fillStyle='#f0d7a0';c.beginPath();c.moveTo(X+11,Y+7);c.lineTo(X+17,Y+7);c.lineTo(X+19,Y+12);c.lineTo(X+22,Y+21);c.lineTo(X+6,Y+21);c.lineTo(X+9,Y+12);c.closePath();c.fill();}
   // boutique: striped awning + mannequin in the window
   for(let i=0;i<7;i++){const x=TOWN.boutique.x+120+i*12;c.fillStyle=i%2?'#f6e8dc':'#9a72b4';c.beginPath();c.moveTo(x,1236);c.lineTo(x+12,1236);c.lineTo(x+12,1248);c.quadraticCurveTo(x+6,1252,x,1248);c.closePath();c.fill();}
-  // inn: outdoor table for Pip's regulars
-  c.fillStyle='rgba(0,0,0,.2)';ell(c,624,452,22,7);c.fill();c.fillStyle='#8a5a34';ell(c,622,444,20,10);c.fill();c.fillStyle='#a87448';ell(c,622,442,18,8);c.fill();c.fillStyle='#e8dcc8';ell(c,616,440,4,3);c.fill();c.fillStyle='#d8a040';ell(c,628,441,3,3);c.fill();
   // smithy yard: hearth stones
   c.fillStyle='#6e655c';rr(c,72,478,64,40,8);c.fill();c.fillStyle='#4e4640';rr(c,80,484,48,26,6);c.fill();
   // house garden + fence
@@ -2337,7 +2352,7 @@ function drawTownLayer(c){
 }
 function buildTown0(){
   const T=TOWN,b=k=>{const q=T[k];return [q.x-4,q.y+8,q.x+q.w+4,q.y+q.h];};
-  const rects=[[0,0,T.w,186],[0,186,330,206],[410,186,T.w,206],b('smithy'),b('house'),b('inn'),b('infirmary'),b('boutique'),[604,436,642,452],
+  const rects=[[0,0,T.w,186],[0,186,330,206],[410,186,T.w,206],b('smithy'),b('house'),b('inn'),b('infirmary'),b('boutique'),
     [72,480,136,516],[150,664,232,690],[590,494,672,520],[252,462,284,494],[190,882,210,898],[690,412,710,428],[442,232,462,248],[688,598,722,636],[240,660,262,680],
     [466,940,544,958],[620,940,694,958],[352,592,408,628]];
   const ents=[];
@@ -2346,14 +2361,9 @@ function buildTown0(){
   ents.push({k:'well',x:380,y:618});ents.push({k:'anvil',x:180,y:506});rects.push([164,496,198,512]);
   ents.push({k:'forgefire',x:104,y:500});
   ents.push({k:'npc',id:'blacksmith',x:222,y:530,solidR:12,face:-1});
-  ents.push({k:'npc',id:'marla',x:536,y:432,solidR:12,face:1},{k:'npc',id:'pip',x:664,y:446,solidR:12,face:-1},
-    {k:'npc',id:'aelira',x:168,y:944,solidR:12,face:-1},{k:'npc',id:'vivienne',x:520,y:1300,solidR:12,face:1});
-  /* the inn gets busier with every boss you put down */
-  {const n=patronCount(),spots=[[598,454,1],[648,456,-1],[500,492,1],[560,492,-1],[690,486,-1],[470,440,1],[712,446,-1],[530,512,1]];
-   if(n>=3){ents.push({k:'itable',x:530,y:488});rects.push([512,482,548,496]);}if(n>=5){ents.push({k:'itable',x:690,y:470,small:1});rects.push([676,464,704,478]);}
-   for(let i=0;i<n;i++){const [x,y,f]=spots[i];ents.push({k:'patron',x,y,face:f,n:i});}}
+  ents.push({k:'npc',id:'aelira',x:168,y:944,solidR:12,face:-1},{k:'npc',id:'vivienne',x:520,y:1300,solidR:12,face:1});
   ents.push({k:'smoke',x:TOWN.smithy.x+49,y:TOWN.smithy.y-10},{k:'smoke',x:TOWN.house.x+159,y:TOWN.house.y-10},{k:'smoke',x:TOWN.inn.x+39,y:TOWN.inn.y-10},{k:'smoke',x:TOWN.boutique.x+179,y:TOWN.boutique.y-10});
-  const trig=[{r:T.gate,fn:()=>openGate()},{r:T.door,fn:()=>enterHouse()}];
+  const trig=[{r:T.gate,fn:()=>openGate()},{r:T.door,fn:()=>enterHouse()},{r:[570,398,608,416],fn:()=>enterInn()}];
   return {kind:'town',w:T.w,h:T.h,rects,ents,trig,bg:'#6c934c',layerFn:drawTownLayer,lights:ents.filter(e=>e.k==='lamp'||e.k==='forgefire')};
 }
 
@@ -2481,7 +2491,7 @@ function drawEnt(c,e,t){
   switch(e.k){
     case 'patron':c.restore();drawPatron(c,e,t);return;
     case 'crowd':c.restore();drawCrowd(c,e,t);return;
-    case 'stallk':c.restore();drawCrowd(c,{x:e.x,y:e.y,v:e.v,u:.3,f:1},0);return;
+    case 'stallk':c.restore();drawCrowd(c,e,t);return;
     case 'campfire':drawCampfire(c,t);break;
     case 'itable':{const w=e.small?14:18;c.fillStyle='rgba(0,0,0,.2)';ell(c,2,8,w+4,7);c.fill();c.fillStyle='#8a5a34';ell(c,0,0,w+2,10);c.fill();c.fillStyle='#a87448';ell(c,0,-2,w,8);c.fill();c.fillStyle='#d8a040';ell(c,-6,-3,3,3);c.fill();c.fillStyle='#e8dcc8';ell(c,6,-2,4,3);c.fill();break;}
     case 'tree':{const s=treeSprite(e.v);c.drawImage(s,-48,-102,96,110);break;}
@@ -2563,6 +2573,7 @@ function worldIsland(){
   if(screen!=='world'||!AREA)return;renderHud();
   if(AREA.kind==='town')setIslandBase(`${ic('flag',14)} ${TOWN_NAME} · Best floor ${S.bestFloor}`);
   else if(AREA.kind==='house')setIslandBase(`${ic('moon',14)} Home`);
+  else if(AREA.kind==='inn')setIslandBase(`${ic('heart',14)} The Last Lantern`);
   else if(AREA.kind==='camp')setIslandBase(`${ic('fire',14)} The Lantern Camp · Depth 5`);
   else if(AREA.castle){const st=hs();setIslandBase(`Depth ${AREA.f} · ${ic('heart',13)} ${Math.ceil(Math.min(RUN?RUN.hp:st.hp,st.hp))}/${st.hp}`);}
   else{const st=hs();setIslandBase(`Floor ${AREA.f} · ${ic('heart',13)} ${Math.ceil(Math.min(RUN?RUN.hp:st.hp,st.hp))}/${st.hp}`);}
@@ -2643,13 +2654,13 @@ function drawWorld(now,dt,t){
     const v=cx.createRadialGradient(W/2,H*.55,Math.min(W,H)*.45,W/2,H*.55,Math.max(W,H)*.8);v.addColorStop(0,'rgba(60,30,10,0)');v.addColorStop(1,'rgba(60,30,10,.22)');cx.fillStyle=v;cx.fillRect(0,0,W,H);
     drawMotes(t,'#fff2c8',dt);
   }else{
-    const dark=A.kind==='house'?.42:A.kind==='camp'?.5:.9;
+    const dark=A.outdoor?ruinSky(A.f).dark:A.kind==='house'||A.kind==='inn'?.42:A.kind==='camp'?.5:.9;
     const lw=Math.ceil(W/2),lh=Math.ceil(H/2);if(LC.width!==lw||LC.height!==lh){LC.width=lw;LC.height=lh;}
-    lcx.globalCompositeOperation='source-over';lcx.clearRect(0,0,lw,lh);lcx.fillStyle=A.kind==='house'||A.kind==='camp'?`rgba(20,8,2,${dark})`:`rgba(3,2,4,${dark})`;lcx.fillRect(0,0,lw,lh);
+    lcx.globalCompositeOperation='source-over';lcx.clearRect(0,0,lw,lh);lcx.fillStyle=A.kind==='house'||A.kind==='inn'||A.kind==='camp'?`rgba(20,8,2,${dark})`:`rgba(3,2,4,${dark})`;lcx.fillRect(0,0,lw,lh);
     lcx.globalCompositeOperation='destination-out';
     const hole=(x,y,r,a=1)=>{r*=Z;const g=lcx.createRadialGradient(x/2,y/2,0,x/2,y/2,r/2);g.addColorStop(0,`rgba(0,0,0,${a})`);g.addColorStop(.55,`rgba(0,0,0,${a*.7})`);g.addColorStop(1,'rgba(0,0,0,0)');lcx.fillStyle=g;lcx.fillRect((x-r)/2,(y-r)/2,r,r);};
     const fl=Math.sin(t*7)*4+Math.sin(t*13)*2;
-    if(A.kind==='floor'){hole(SX(HERO.x),SY(HERO.y-16),170+fl);A.lights.forEach(L=>hole(SX(L.x),SY(L.y),L.r+fl*.5,.85));
+    if(A.kind==='floor'){hole(SX(HERO.x),SY(HERO.y-16),A.outdoor?260:170+fl);A.lights.forEach(L=>hole(SX(L.x),SY(L.y),L.r+fl*.5,.85));
       hole(SX((A.exit.x0+A.exit.x1)/2),SY(A.exit.y1-20),110,A.sealed?.6:.9);
       A.ents.forEach(m=>{if(A.seen&&!seenAt(A,m.x,m.y))return;if(m.k==='chest'&&!m.open)hole(SX(m.x),SY(m.y-8),60,.5);if(m.k==='mon'&&!m.dead)hole(SX(m.x),SY(m.y-14),m.e.boss?120:84,.62);
         if(m.k==='shrine'&&!m.used)hole(SX(m.x),SY(m.y-20),90,.7);if(m.k==='key'&&!m.dead)hole(SX(m.x),SY(m.y-8),50,.55);if(m.k==='lore'&&!m.read)hole(SX(m.x),SY(m.y-8),50,.45);if(m.k==='vent')hole(SX(m.x),SY(m.y),46,.4);});}
@@ -2657,13 +2668,14 @@ function drawWorld(now,dt,t){
     cx.drawImage(LC,0,0,W,H);
     cx.globalCompositeOperation='lighter';
     const glow=(x,y,r,col)=>{r*=Z;cx.fillStyle=rg(cx,x,y,r,col,'rgba(0,0,0,0)');cx.fillRect(x-r,y-r,r*2,r*2);};
-    if(A.kind==='floor'){A.lights.forEach(L=>glow(SX(L.x),SY(L.y-4),34+fl,'rgba(255,120,40,.35)'));glow(SX(HERO.x),SY(HERO.y-20),60,'rgba(255,140,60,.06)');glow(SX(HERO.x),SY(HERO.y-12),72,'rgba(150,195,255,.30)');
+    if(A.kind==='floor'){A.lights.forEach(L=>glow(SX(L.x),SY(L.y-4),34+fl,'rgba(255,120,40,.35)'));if(!A.outdoor){glow(SX(HERO.x),SY(HERO.y-20),60,'rgba(255,140,60,.06)');glow(SX(HERO.x),SY(HERO.y-12),72,'rgba(150,195,255,.30)');}
       A.ents.forEach(m=>{if(A.seen&&!seenAt(A,m.x,m.y))return;if(m.k==='mon'&&!m.dead)glow(SX(m.x),SY(m.y-4),m.e.boss?60:40,'rgba(255,110,50,.16)');if(m.k==='shrine'&&!m.used)glow(SX(m.x),SY(m.y-26),44,'rgba(255,190,110,.25)');if(m.k==='vent')glow(SX(m.x),SY(m.y),30,'rgba(255,100,40,.18)');});
       if(!A.sealed)glow(SX((A.exit.x0+A.exit.x1)/2),SY(A.exit.y0+20),90,'rgba(255,190,110,.25)');}
     else if(A.kind==='camp'){A.lights.forEach(L=>glow(SX(L.x),SY(L.y-6),(L.r||80)*.55+fl,'rgba(255,150,60,.26)'));}
+    else if(A.kind==='inn'){glow(SX(340),SY(80),150+fl,'rgba(255,140,50,.24)');glow(SX(200),SY(300),90,'rgba(255,170,80,.10)');}
     else{glow(SX(177),SY(80),150+fl,'rgba(255,140,50,.22)');glow(SX(312),SY(330),60,'rgba(255,160,70,.12)');}
     cx.globalCompositeOperation='source-over';
-    if(A.kind==='floor'){const v=cx.createRadialGradient(W/2,H/2,Math.min(W,H)*.3,W/2,H/2,Math.max(W,H)*.7);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,'rgba(0,0,0,.5)');cx.fillStyle=v;cx.fillRect(0,0,W,H);if(A.castle){cx.fillStyle=A.f>5?'rgba(20,70,70,.16)':'rgba(30,50,110,.17)';cx.fillRect(0,0,W,H);}drawMotes(t,biomeOf(A.f).mote,dt);}
+    if(A.kind==='floor'){const v=cx.createRadialGradient(W/2,H/2,Math.min(W,H)*.3,W/2,H/2,Math.max(W,H)*.7);v.addColorStop(0,'rgba(0,0,0,0)');v.addColorStop(1,A.outdoor?'rgba(0,0,0,.22)':'rgba(0,0,0,.5)');cx.fillStyle=v;cx.fillRect(0,0,W,H);if(A.outdoor){const sk=ruinSky(A.f);cx.fillStyle=sk.tint;cx.fillRect(0,0,W,H);cx.fillStyle=lg(cx,0,0,0,H*.4,`rgba(${sk.k>.5?'255,150,110':'200,225,255'},${.10+sk.k*.08})`,'rgba(0,0,0,0)');cx.fillRect(0,0,W,H*.4);}else if(A.castle){cx.fillStyle=A.f>5?'rgba(20,70,70,.16)':'rgba(30,50,110,.17)';cx.fillRect(0,0,W,H);}drawMotes(t,A.outdoor?'#f4f0c8':biomeOf(A.f).mote,dt);}
   }
 }
 
@@ -2776,7 +2788,8 @@ function buildFog(A,old){const S=8,w=(FC+1)*S,h=(FR+1)*S;const m=document.create
   const o=old&&old.width===w?old:document.createElement('canvas');o.width=w;o.height=h;const c=o.getContext('2d');c.clearRect(0,0,w,h);c.imageSmoothingEnabled=true;
   /* mask pixel (c+1,r+1) is the centre of tile (c,r); drawing it scaled lands that centre at world (c+.5)*WT, with the canvas offset by -WT/2 at draw time */
   c.drawImage(m,.5,.5,FC+1,FR+1,0,0,w,h);
-  c.globalCompositeOperation='source-in';c.fillStyle='#0e0b11';c.fillRect(0,0,w,h);
+  c.globalCompositeOperation='source-in';c.fillStyle=A.outdoor?'rgba(34,46,32,.62)':'#0e0b11';c.fillRect(0,0,w,h);
+  if(A.outdoor){c.globalCompositeOperation='source-over';return o;}
   c.globalCompositeOperation='source-atop';c.strokeStyle='rgba(150,130,175,.10)';c.lineWidth=1;
   for(let k=-h;k<w;k+=6){c.beginPath();c.moveTo(k,0);c.lineTo(k+h,h);c.stroke();c.beginPath();c.moveTo(k+h,0);c.lineTo(k,h);c.stroke();}
   c.globalCompositeOperation='source-over';return o;}
@@ -3061,7 +3074,7 @@ function nextScene(id){const i=(S.scn&&S.scn[id])||0;if(i>=3||!SCENES[id])return
 function folkTalk0(id,base){const i=nextScene(id);
   if(i==null){base();return;}
   const sc=SCENES[id][i];
-  playScene({npc:id,por:sc.night&&(id==='maid'||id==='liraen')?(id==='maid'?'maid_night':'liraen_night'):id==='maid'?maidPor():id==='liraen'?liraenPor():id,story:i+1,lines:[{s:'nar',t:sc.title+' · '+sc.where}].concat(sc.lines),onEnd:()=>{S.scn[id]=i+1;talkAff(id);save();KATel.pick('scene',id,{n:i+1});
+  playScene({npc:id,por:sc.night&&(id==='maid'||id==='liraen')?(id==='maid'?'maid_night':'liraen_night'):id==='maid'?maidPor():id==='liraen'?liraenPor():id,story:i+1,lines:[{s:'nar',t:sc.title+' · '+sc.where}].concat(sc.lines),onEnd:()=>{S.scn[id]=i+1;memRec('story:'+id+':'+i);talkAff(id);save();KATel.pick('scene',id,{n:i+1});
     showIsland(`${ic('heart',16)} ${NPCS[id].name} · ${sc.title}`,'#ffb0c8',{key:'shop'});if(id!=='maid')openFolk(id);}});}
 const N=(t)=>({s:'nar',t}),Hh=(t)=>({s:'hero',t}),Nn=(t)=>({s:'npc',t});
 const SCENES={
@@ -3120,9 +3133,9 @@ function genFloor(f,seed){
 }
 function genFloorTry(f,R,force){
   const g=[];for(let r=0;r<FR;r++)g.push(new Array(FC).fill('#'));
-  const rooms=[],want=f<=2?7:8;
-  for(let a=0;a<500&&rooms.length<want;a++){const w=5+Math.floor(R()*5),h=4+Math.floor(R()*4),x=2+Math.floor(R()*(FC-w-4)),y=3+Math.floor(R()*(FR-h-5));
-    if(rooms.some(o=>x<o.x+o.w+3&&x+w+3>o.x&&y<o.y+o.h+3&&y+h+3>o.y))continue;rooms.push({x,y,w,h,cx:x+(w>>1),cy:y+(h>>1),id:rooms.length});}
+  const OUT=GEN_OUT,rooms=[],want=OUT?6:f<=2?7:8,gap=OUT?2:3;/* v1.8.1 outdoor ruins: wide courtyards, short gaps */
+  for(let a=0;a<500&&rooms.length<want;a++){const w=OUT?7+Math.floor(R()*6):5+Math.floor(R()*5),h=OUT?6+Math.floor(R()*4):4+Math.floor(R()*4),x=2+Math.floor(R()*(FC-w-4)),y=3+Math.floor(R()*(FR-h-5));
+    if(rooms.some(o=>x<o.x+o.w+gap&&x+w+gap>o.x&&y<o.y+o.h+gap&&y+h+gap>o.y))continue;rooms.push({x,y,w,h,cx:x+(w>>1),cy:y+(h>>1),id:rooms.length});}
   if(rooms.length<5&&!force)return null;
   rooms.forEach(o=>{for(let y=o.y;y<o.y+o.h;y++)for(let x=o.x;x<o.x+o.w;x++)g[y][x]='.';});
   /* minimum spanning tree + a couple of loops */
@@ -3131,9 +3144,15 @@ function genFloorTry(f,R,force){
   for(let k=0;k<2;k++){const a=Math.floor(R()*rooms.length),b=Math.floor(R()*rooms.length);if(a!==b&&md(rooms[a],rooms[b])<26)edges.push({a,b});}
   const cut=(x,y)=>{if(x>0&&y>0&&x<FC-1&&y<FR-1)g[y][x]='.';};
   edges.forEach(({a,b})=>{const A0=rooms[a],B0=rooms[b];let x=A0.cx,y=A0.cy;const hf=R()<.5;
-    const hseg=(tx)=>{while(x!==tx){cut(x,y);cut(x,y+1);x+=Math.sign(tx-x);}cut(x,y);cut(x,y+1);};
-    const vseg=(ty)=>{while(y!==ty){cut(x,y);cut(x+1,y);y+=Math.sign(ty-y);}cut(x,y);cut(x+1,y);};
+    const hseg=(tx)=>{while(x!==tx){cut(x,y);cut(x,y+1);if(OUT)cut(x,y-1);x+=Math.sign(tx-x);}cut(x,y);cut(x,y+1);if(OUT)cut(x,y-1);};
+    const vseg=(ty)=>{while(y!==ty){cut(x,y);cut(x+1,y);if(OUT)cut(x-1,y);y+=Math.sign(ty-y);}cut(x,y);cut(x+1,y);if(OUT)cut(x-1,y);};
     if(hf){hseg(B0.cx);vseg(B0.cy);}else{vseg(B0.cy);hseg(B0.cx);}});
+  /* outdoor ruins: breach thin curtain walls between open ground (broken masonry, not corridors) */
+  if(OUT){for(let y=2;y<FR-2;y++)for(let x=2;x<FC-2;x++){if(g[y][x]!=='#')continue;const h2=g[y][x-1]!=='#'&&g[y][x+1]!=='#',v2=g[y-1][x]!=='#'&&g[y+1][x]!=='#';
+    if((h2||v2)&&R()<.45)g[y][x]='.';else if(g[y][x+1]==='#'&&g[y][x-1]!=='#'&&g[y][x+2]&&g[y][x+2]!=='#'&&R()<.3){g[y][x]='.';g[y][x+1]='.';}
+    else if(g[y+1][x]==='#'&&g[y-1][x]!=='#'&&g[y+2]&&g[y+2][x]!=='#'&&R()<.3){g[y][x]='.';g[y+1][x]='.';}}
+    /* fallen masonry and pillar stumps inside the big courtyards: cover, not corridors */
+    rooms.forEach(o=>{if(o.w<8||o.h<7)return;const n=1+Math.floor(R()*2);for(let k=0;k<n;k++){const x=o.x+2+Math.floor(R()*(o.w-4)),y=o.y+2+Math.floor(R()*(o.h-4));if(Math.abs(x-o.cx)<2&&Math.abs(y-o.cy)<2)continue;g[y][x]='#';}});}
   /* start (lowest room) and stairs (farthest walk) */
   const start=rooms.reduce((m,o)=>o.cy>m.cy?o:m,rooms[0]);
   const dist=bfsTiles(g,start.cx,start.cy,()=>false);
@@ -3188,7 +3207,8 @@ function genFloorTry(f,R,force){
   A.ents.push({k:'seal',x:(A.exit.x0+A.exit.x1)/2,y:A.exit.y1-2});
   A.trig.push({r:[A.exit.x0,A.exit.y0,A.exit.x1,A.exit.y1+8],fn:()=>stairsTouch(A),always:1});
   /* sconces on wall faces */
-  g.forEach((row,r)=>row.forEach((ch,c)=>{if(ch==='#'&&g[r+1]&&g[r+1][c]==='.'&&R()<.12)A.lights.push({x:c*WT+WT/2,y:r*WT+WT-8,r:84,sconce:1});}));
+  if(!OUT)g.forEach((row,r)=>row.forEach((ch,c)=>{if(ch==='#'&&g[r+1]&&g[r+1][c]==='.'&&R()<.12)A.lights.push({x:c*WT+WT/2,y:r*WT+WT-8,r:84,sconce:1});}));
+  A.outdoor=OUT;
   A.layerFn=c=>drawFloorLayer(c,A);
   A.guardBoss=A.boss;
   const v=validateFloor(A);A.ok=v.ok;A.valid=v;
@@ -3220,18 +3240,19 @@ function mkPack(A,x,y,room,kind){
   const pack=makePack(A.f,kind);
   return {k:'mon',x,y,hx:x,hy:y,room:room.id,pack,e:pack[0],fi:kind==='mob'?1:FIGHTS,guard:kind!=='mob'?1:0,boss:kind==='boss',face:-1,tx:x,ty:y,wt:0,solidR:0,ph:Math.random()*6,look:Math.PI/2,alert:false};
 }
-function buildFloor(f){const cs=!!(RUN&&RUN.dungeon==='castle');const seed=((RUN&&RUN.seed)||12345)+f*7919+(cs?99991:0);const A=genFloor(f,seed);A.castle=cs;return A;}
+let GEN_OUT=false;
+function buildFloor(f){const cs=!!(RUN&&RUN.dungeon==='castle');const seed=((RUN&&RUN.seed)||12345)+f*7919+(cs?99991:0);GEN_OUT=cs&&f<=5;let A;try{A=genFloor(f,seed);}finally{GEN_OUT=false;}A.castle=cs;A.outdoor=cs&&f<=5;return A;}
 /* line of sight across floor tiles (world px) */
 function rayClear(A,x0,y0,x1,y1){const d=Math.hypot(x1-x0,y1-y0),n=Math.ceil(d/10);for(let i=1;i<n;i++){const u=i/n,ch=tileAt(A,x0+(x1-x0)*u,y0+(y1-y0)*u);if(ch==='#'||ch==='s'||ch==='D')return false;}return true;}
 let lastFogT=-1;
 function revealFog(A,force){
-  const hx=Math.floor(HERO.x/WT),hy=Math.floor(HERO.y/WT),k=hy*FC+hx;if(!force&&k===lastFogT)return;lastFogT=k;const Rr=6;
+  const hx=Math.floor(HERO.x/WT),hy=Math.floor(HERO.y/WT),k=hy*FC+hx;if(!force&&k===lastFogT)return;lastFogT=k;const Rr=A.outdoor?9:6;
   for(let dy=-Rr;dy<=Rr;dy++)for(let dx=-Rr;dx<=Rr;dx++){if(dx*dx+dy*dy>Rr*Rr+1)continue;const x=hx+dx,y=hy+dy;if(x<0||y<0||x>=FC||y>=FR)continue;if(A.seen[y*FC+x])continue;
     if(rayClear(A,HERO.x,HERO.y,x*WT+WT/2-dx*6,y*WT+WT/2-dy*6)){A.seen[y*FC+x]=1;A.fogV=(A.fogV||0)+1;}}
 }
 function seenAt(A,x,y){if(!A.seen)return true;const c=Math.floor(x/WT),r=Math.floor(y/WT);if(c<0||r<0||c>=FC||r>=FR)return false;return !!A.seen[r*FC+c];}
 function relayer(A){if(!A.layer)return;const s=A.layer.width/A.w;const c=A.layer.getContext('2d');c.setTransform(s,0,0,s,0,0);c.clearRect(0,0,A.w,A.h);A.layerFn(c);}
-function drawFloorLayer(c,A){
+function drawFloorLayer(c,A){if(A.outdoor)return drawRuinsLayer(c,A);
   const bi=biomeOf(A.f),R=mul32(A.f*131),g=A.grid,rows=g.length,cols=g[0].length;
   const wall=ch=>ch==='#'||ch==='s';
   c.fillStyle='#050405';c.fillRect(0,0,A.w,A.h);
@@ -5205,65 +5226,211 @@ function castleDecor(c,A){const R=mul32(A.f*977),g=A.grid,wall=ch=>ch==='#'||ch=
 function growthScore(){const towers=Math.floor((S.bossBest||0)/5),dep=Math.floor((S.descent||0)/3),inv=Object.keys(S.invest||{}).length;return towers*2+dep+inv;}
 function growthTier(){return Math.max(0,Math.min(5,Math.floor(growthScore()/2)));}
 const SOUTH_Y=1380,TOWN_H0=TOWN.h;
-const LOTS=[{x:30,y:1400,w:140,h:104},{x:178,y:1400,w:132,h:104},{x:452,y:1400,w:140,h:104},{x:600,y:1400,w:140,h:104},
-  {x:30,y:1610,w:140,h:104},{x:178,y:1610,w:132,h:104},{x:452,y:1610,w:140,h:104},{x:600,y:1610,w:140,h:104}];
 const HOMES=[{id:'pip',lot:0,name:'Pip\'s',roof:'#d89a3a',wall:'#f4e8cc',tier:1},{id:'aelira',lot:1,name:'Aelira\'s',roof:'#5f9a86',wall:'#f4ecdc',tier:1},
   {id:'marla',lot:2,name:'Marla\'s',roof:'#a0482a',wall:'#efdcb8',tier:2},{id:'vivienne',lot:3,name:'Vivienne\'s',roof:'#9a72b4',wall:'#f6e8dc',tier:2},
   {id:'liraen',lot:4,name:'Liraen\'s',roof:'#4a4a7a',wall:'#e6e0f0',tier:3},{id:'maid',lot:5,name:'Sylwen\'s',roof:'#6a8ab0',wall:'#eef2f6',tier:3}];
 const NEW_SHOPS=[{id:'bakery',lot:6,name:'Bakery',sign:'🥖',roof:'#c87a3a',wall:'#f6e2c0',tier:1},{id:'chandler',lot:7,name:'Chandler',sign:'🕯',roof:'#7a6a4a',wall:'#e8dcc4',tier:2}];
 function homeOpen(h){return growthTier()>=h.tier&&stageOf(h.id)>=1;}
-const CROWD_COL=[['#7a3a2a','#e8c8a0'],['#2f5a3a','#f0d0b0'],['#3a4a7a','#e0b890'],['#8a6a3a','#f4dcc4'],['#5a2a5a','#d8b090'],['#4a4a4a','#f0d4b8'],['#a85a2a','#e8c098'],['#2a5a6a','#f6e0c8']];
-const CSPR={};
-function crowdSprite(v){if(CSPR[v])return CSPR[v];const s=2,cv=document.createElement('canvas');cv.width=24*s;cv.height=46*s;const c=cv.getContext('2d');c.scale(s,s);const [cl,sk]=CROWD_COL[v%8],kid=v>=16;
-  c.translate(12,44);if(kid)c.scale(.72,.72);
-  c.fillStyle='rgba(0,0,0,.25)';ell(c,0,0,8,2.6);c.fill();c.fillStyle='#2a2018';c.fillRect(-4,-12,3,11);c.fillRect(1,-12,3,11);
-  c.fillStyle=cl;c.beginPath();c.moveTo(-6,-30);c.lineTo(6,-30);c.lineTo(v%3===0?9:7,-10);c.lineTo(v%3===0?-9:-7,-10);c.closePath();c.fill();
-  c.fillStyle='rgba(0,0,0,.18)';c.fillRect(-6,-20,12,2);c.fillStyle=sk;ell(c,0,-35,5,5.5);c.fill();
-  c.fillStyle=['#3a2414','#e8c870','#6a3a1a','#1a1a1a','#a0482a','#c8c0b0'][v%6];ell(c,0,-38,5.4,3.4);c.fill();if(v%4===1){c.fillRect(-5,-38,2,9);c.fillRect(3,-38,2,9);}
-  if(v%5===2){c.fillStyle='#8a6a3a';rr(c,4,-24,7,6,1.5);c.fill();}
-  return CSPR[v]=cv;}
-const CROWD_PATHS=[[380,240,380,1360],[350,600,150,600],[380,700,600,700],[200,560,200,880],[380,1370,380,1780],[60,1560,700,1560],[440,1040,440,1300],[300,640,300,980],[520,620,690,620],[150,980,330,980]];
-function crowdN(){const t=growthTier();return [0,10,22,38,58,76][t];}
-function festivalOn(){return growthTier()>=4&&(((S.story.visits||0)%3===0)||[0,6].includes(new Date().getDay()));}
-function growTown(A){const tier=growthTier();A.h=TOWN.h;A.growth=tier;
-  const R=mul32(4242+tier);
-  /* crowds walk the roads; cheap cached sprites, no per-frame allocation */
-  const n=crowdN();A.crowd=[];for(let i=0;i<n;i++){const p=CROWD_PATHS[i%CROWD_PATHS.length];const o={k:'crowd',v:Math.floor(R()*24),p,u:R(),sp:.012+R()*.02,off:(R()-.5)*30,x:p[0],y:p[1]};A.crowd.push(o);A.ents.push(o);}
-  /* stall keepers and extra stalls */
-  const st=tier>=3||invested('stalls');A.stalls=[];if(st){const sp=[[230,470],[470,560],[250,720],[470,780],[220,1160],[470,1490],[230,1490]].slice(0,tier>=5?7:tier>=4?5:3+(invested('stalls')?1:0));
-    sp.forEach(([x,y],i)=>{A.stalls.push({x,y,col:['#c8402e','#3a7a9a','#e0a830','#7a4a9a','#4a9a5a','#c86a2a','#2a6a8a'][i]});A.rects.push([x,y+30,x+82,y+52]);A.ents.push({k:'stallk',x:x+40,y:y+28,v:i*3+5});});}
-  /* new houses and the women's own homes in the south quarter */
-  A.lots=LOTS.map((L,i)=>{const h=HOMES.find(q=>q.lot===i),s=NEW_SHOPS.find(q=>q.lot===i);
-    if(h&&homeOpen(h))return Object.assign({kind:'home'},L,h);if(s&&tier>=s.tier)return Object.assign({kind:'shop'},L,s);return Object.assign({kind:tier>=1?'frame':'plot'},L);});
-  A.lots.forEach(L=>{if(L.kind==='home'||L.kind==='shop'||L.kind==='frame')A.rects.push([L.x-4,L.y+8,L.x+L.w+4,L.y+L.h]);
-    if(L.kind==='home')A.trig.push({r:[L.x+L.w/2-18,L.y+L.h,L.x+L.w/2+18,L.y+L.h+14],fn:()=>visitHome(L.id)});});
-  const cot=[[60,1740],[200,1745],[520,1740],[660,1745]].slice(0,Math.max(0,tier-1));A.cottages=cot;cot.forEach(([x,y])=>A.rects.push([x-30,y-26,x+30,y+10]));
-  A.festival=festivalOn();
-  const base=A.layerFn;A.layerFn=c=>{base(c);drawGrowth(c,A);};
-  A.tick=t=>{for(const o of A.crowd){const p=o.p,u=(o.u+t*o.sp)%2,q=u<1?u:2-u;o.x=p[0]+(p[2]-p[0])*q+(p[1]===p[3]?0:o.off*.5);o.y=p[1]+(p[3]-p[1])*q+(p[1]===p[3]?o.off*.4:0);o.f=(u<1?1:-1)*(p[2]>=p[0]?1:-1);}};
-  return A;}
-function drawGrowth(c,A){const R=mul32(99),w=TOWN.w;
-  /* south quarter ground + roads */
-  c.fillStyle='#7aa256';c.fillRect(0,TOWN_H0-40,w,TOWN.h-TOWN_H0+40);
-  for(let i=0;i<120;i++){c.fillStyle=R()<.5?'rgba(255,255,190,.07)':'rgba(30,70,20,.08)';ell(c,R()*w,TOWN_H0-30+R()*(TOWN.h-TOWN_H0),10+R()*30,6+R()*14);c.fill();}
-  cobbleClip(c,()=>{c.beginPath();c.rect(320,TOWN_H0-60,120,TOWN.h-TOWN_H0+60);if(A.growth>=1)c.rect(20,1530,720,56);},R);
-  A.lots.forEach(L=>{if(L.kind==='plot'){c.strokeStyle='rgba(90,60,30,.6)';c.setLineDash([6,5]);c.lineWidth=2;c.strokeRect(L.x+6,L.y+20,L.w-12,L.h-24);c.setLineDash([]);c.fillStyle='#8a6a3a';c.fillRect(L.x+10,L.y+14,3,14);c.fillStyle='#e8dcc0';c.fillRect(L.x+6,L.y+12,24,8);}
-    else if(L.kind==='frame'){c.fillStyle='#a88a5a';c.fillRect(L.x+8,L.y+40,L.w-16,6);for(let i=0;i<5;i++)c.fillRect(L.x+10+i*(L.w-24)/4,L.y+30,5,L.h-34);c.strokeStyle='#8a6a3a';c.lineWidth=3;c.beginPath();c.moveTo(L.x+8,L.y+40);c.lineTo(L.x+L.w/2,L.y+10);c.lineTo(L.x+L.w-8,L.y+40);c.stroke();}
-    else{bldg(c,{x:L.x,y:L.y,w:L.w,h:L.h},{roof:L.roof,roofLight:shade(L.roof,1.25),roofDark:shade(L.roof,.65),wall:L.wall,timber:'#6b4a30',windows:[14,L.w-36],door:L.w/2-12,chimney:L.w-30,sign:L.kind==='shop'?[L.w/2-14,L.sign]:null});
-      c.fillStyle='rgba(30,20,10,.75)';rr(c,L.x+L.w/2-44,L.y+L.h+6,88,16,6);c.fill();c.fillStyle='#f6e6c0';c.font='700 10px system-ui';c.textAlign='center';c.fillText(L.kind==='home'?L.name+' home':L.name,L.x+L.w/2,L.y+L.h+18);}});
-  (A.cottages||[]).forEach(([x,y])=>bldg(c,{x:x-30,y:y-50,w:60,h:56},{roof:'#8a5a3a',roofLight:'#b07a50',roofDark:'#5a3a22',wall:'#efe2c8',windows:[8],door:30,wallH:26}));
-  (A.stalls||[]).forEach(({x,y,col})=>{c.fillStyle='rgba(40,30,10,.25)';c.fillRect(x+6,y+46,76,10);c.fillStyle='#7a5434';c.fillRect(x+4,y+16,4,36);c.fillRect(x+74,y+16,4,36);
-    c.fillStyle='#9a6a40';rr(c,x,y+30,82,20,3);c.fill();for(let i=0;i<5;i++){c.fillStyle=['#e05a3a','#f2c94c','#8ac04a','#e08a3a','#c84a6a'][(i+x)%5];ell(c,x+12+i*14,y+32,5,4);c.fill();}
-    for(let i=0;i<6;i++){c.fillStyle=i%2?'#f4ead8':col;c.beginPath();c.moveTo(x-4+i*15,y);c.lineTo(x+11+i*15,y);c.lineTo(x+11+i*15,y+20);c.quadraticCurveTo(x+3.5+i*15,y+26,x-4+i*15,y+20);c.closePath();c.fill();}});
-  if(A.festival){for(const [y,x0,x1] of [[330,300,460],[560,250,510],[980,300,460],[1520,40,720]]){c.strokeStyle='rgba(60,40,20,.7)';c.lineWidth=1.2;c.beginPath();c.moveTo(x0,y);c.quadraticCurveTo((x0+x1)/2,y+24,x1,y);c.stroke();
-      for(let x=x0+10;x<x1;x+=16){const yy=y+24*(1-Math.pow((x-(x0+x1)/2)/((x1-x0)/2),2))*0.5+2;c.fillStyle=['#e05a6a','#f2c94c','#5ab0e0','#8ac04a','#c86ad8'][Math.floor(x/16)%5];c.beginPath();c.moveTo(x-5,yy);c.lineTo(x+5,yy);c.lineTo(x,yy+10);c.closePath();c.fill();}}}
-}
-function drawCrowd(c,e,t){const s=crowdSprite(e.v);c.save();c.translate(e.x,e.y);if(e.f<0)c.scale(-1,1);const b=Math.abs(Math.sin(t*8+e.u*20))*1.4;c.drawImage(s,-12,-44-b,24,46);c.restore();}
 function visitHome(id){if(worldFrozen()||DLG)return;const st=stageOf(id),nm=NPCS[id].name;
   if(st<2){showIsland(`${ic('heart',14)} ${nm}'s home · she'd have to know you better first`,'#f0d7a0',{key:'home'});return;}
   openNpcScene({npc:id,loc:id+'_home',act:homeAct(id),lines:HOME_LINES[id][Math.min(1,st-2)],onEnd:()=>{worldLock=performance.now()+800;}});}
-TOWN.h=1820;
 function buildTown(){return growTown(buildTown0());}
+
+/* --- v1.8.1 Castle Ruins depths 1-5 are OUTDOORS: open courtyards under the sky, broken curtain walls, crumbling towers, ivy, grass and rubble --- */
+function ruinSky(f){/* day (Depth 1) to dusk (Depth 5) */const k=Math.max(0,Math.min(1,(f-1)/4));return {k,dark:.04+k*.24,tint:k<.5?`rgba(255,240,200,${.05+k*.06})`:`rgba(255,${Math.round(170-k*40)},${Math.round(110-k*30)},${.05+k*.07})`};}
+function drawRuinsLayer(c,A){
+  const R=mul32(A.f*733+17),g=A.grid,rows=g.length,cols=g[0].length,W=WT;
+  const isW=(r,q)=>{const ch=g[r]&&g[r][q];return ch===undefined||ch==='#'||ch==='s';},open=(r,q)=>!isW(r,q);
+  const inRoom=(r,q)=>A.rooms.some(o=>q>=o.x&&q<o.x+o.w&&r>=o.y&&r<o.y+o.h);
+  /* wild ground beyond the walls: thick briar and fallen masonry (impassable) */
+  c.fillStyle='#2e4228';c.fillRect(0,0,A.w,A.h);
+  for(let i=0;i<cols*rows*.9;i++){const x=R()*A.w,y=R()*A.h;c.fillStyle=['#26381f','#35502c','#3e5a32','#2a3d24'][Math.floor(R()*4)];ell(c,x,y,10+R()*16,7+R()*10);c.fill();}
+  for(let i=0;i<cols*rows*.08;i++){const x=R()*A.w,y=R()*A.h;c.fillStyle='rgba(120,116,104,.55)';rr(c,x,y,8+R()*12,6+R()*6,2);c.fill();}
+  /* ground: courtyard flagstones with grass in the joints; paths are trodden earth and broken setts */
+  for(let r=0;r<rows;r++)for(let q=0;q<cols;q++){if(isW(r,q))continue;const x=q*W,y=r*W,room=inRoom(r,q);
+    if(room){c.fillStyle=['#8e8a7c','#858173','#96917f','#8a8678'][Math.floor(R()*4)];c.fillRect(x,y,W,W);
+      c.fillStyle='rgba(60,80,40,.55)';c.fillRect(x,y+15,W,1.6);c.fillRect(x+((r%2)?9:23),y,1.6,15);c.fillRect(x+((r%2)?23:9),y+16,1.6,16);c.fillRect(x,y,W,1);
+      c.fillStyle='rgba(255,255,240,.06)';c.fillRect(x+1,y+1,W-2,2);
+      if(R()<.32){c.fillStyle=['#5f7f45','#6f8f4e','#557a3e'][Math.floor(R()*3)];ell(c,x+R()*W,y+R()*W,6+R()*12,4+R()*7);c.fill();}}
+    else{c.fillStyle=['#7a6a50','#72624a','#806e52'][Math.floor(R()*3)];c.fillRect(x,y,W,W);if(R()<.5){c.fillStyle='rgba(150,140,120,.6)';rr(c,x+R()*20,y+R()*22,9,7,2);c.fill();}
+      if(R()<.4){c.fillStyle='#5f7f45';ell(c,x+R()*W,y+R()*W,5+R()*8,3+R()*5);c.fill();}}
+    if(R()<.10){c.fillStyle='#6a665c';rr(c,x+4+R()*16,y+6+R()*14,6+R()*6,5+R()*3,2);c.fill();c.fillStyle='rgba(255,255,255,.12)';c.fillRect(x+6+R()*14,y+8+R()*12,4,1.5);}
+    if(R()<.05){for(let k=0;k<4;k++){c.fillStyle=['#e8e0f0','#f2d860','#d86a8a'][k%3];ell(c,x+6+R()*20,y+6+R()*20,1.8,1.8);c.fill();}}
+    if(R()<.035){c.fillStyle='rgba(110,8,10,.45)';ell(c,x+R()*W,y+R()*W,4+R()*7,2+R()*4);c.fill();}
+    if(g[r][q]==='X'){c.fillStyle='#3a3630';c.fillRect(x,y,W,W);for(let s=0;s<4;s++){c.fillStyle=`rgba(200,190,170,${.5-s*.1})`;c.fillRect(x+2,y+s*8,W-4,6);c.fillStyle='rgba(0,0,0,.5)';c.fillRect(x+2,y+s*8+6,W-4,2);}}
+    if(isW(r-1,q)){c.fillStyle=lg(c,0,y,0,y+10,'rgba(20,24,16,.45)','rgba(0,0,0,0)');c.fillRect(x,y,W,10);}}
+  /* curtain walls: only where they face open ground; low, broken, crenellated, ivy-hung */
+  const towers=[];
+  for(let r=0;r<rows;r++)for(let q=0;q<cols;q++){if(!isW(r,q))continue;const x=q*W,y=r*W;
+    const face=open(r+1,q),edge=face||open(r-1,q)||open(r,q-1)||open(r,q+1)||open(r+1,q+1)||open(r+1,q-1)||open(r-1,q+1)||open(r-1,q-1);if(!edge)continue;
+    const broken=R()<.28,top=broken?y+6+R()*8:y+2;
+    c.fillStyle='#6e695f';c.fillRect(x,top,W,W-(top-y));
+    c.fillStyle='#a49e90';c.fillRect(x,top,W,8);c.fillStyle='rgba(255,255,240,.12)';c.fillRect(x,top,W,2);
+    if(!broken&&face){c.fillStyle='#6e695f';for(let k=0;k<2;k++)c.fillRect(x+3+k*16,top-6,10,7);c.fillStyle='#b4ae9f';for(let k=0;k<2;k++)c.fillRect(x+3+k*16,top-6,10,2);}
+    if(broken){c.fillStyle='#a49e90';c.beginPath();c.moveTo(x,top+2);for(let k=0;k<=4;k++)c.lineTo(x+k*8,top-(R()*6));c.lineTo(x+W,top+8);c.lineTo(x,top+8);c.closePath();c.fill();}
+    if(face){const fy=top+8;c.fillStyle=lg(c,0,fy,0,y+W,'#7d776b','#58534b');c.fillRect(x,fy,W,y+W-fy);
+      for(let k=0;k<3;k++){const yy=fy+k*8;if(yy>y+W-2)break;c.fillStyle='rgba(30,26,22,.45)';c.fillRect(x,yy,W,1.2);c.fillRect(x+((k%2)?7:21),yy,1.2,8);}
+      if(R()<.4){c.strokeStyle='#4e7a3a';c.lineWidth=2;c.lineCap='round';const ix=x+4+R()*24;c.beginPath();c.moveTo(ix,top+2);c.quadraticCurveTo(ix+R()*8-4,fy+8,ix+R()*6-3,y+W-2);c.stroke();
+        c.fillStyle='#5d8f44';for(let k=0;k<5;k++){ell(c,ix+R()*8-4,top+4+k*((y+W-top)/5),2.6,2);c.fill();}}
+      if(broken&&R()<.6){c.fillStyle='#8a8476';for(let k=0;k<3;k++){rr(c,x+R()*24,y+W+R()*6-2,6+R()*6,5+R()*3,2);c.fill();}}}
+    if(g[r][q]==='s'){c.strokeStyle='rgba(30,26,22,.8)';c.lineWidth=1.4;c.beginPath();c.moveTo(x+8,top+6);c.lineTo(x+13,top+14);c.lineTo(x+10,top+21);c.lineTo(x+16,y+W-2);c.moveTo(x+13,top+14);c.lineTo(x+22,top+17);c.stroke();}
+    /* tower stubs on outer corners of courtyards and at gate openings */
+    const corner=(open(r+1,q+1)&&isW(r+1,q)&&isW(r,q+1))||(open(r+1,q-1)&&isW(r+1,q)&&isW(r,q-1))||(open(r-1,q+1)&&isW(r-1,q)&&isW(r,q+1))||(open(r-1,q-1)&&isW(r-1,q)&&isW(r,q-1));
+    const gate=face&&((open(r+1,q-1)&&isW(r,q-1)===false)||(open(r+1,q+1)&&isW(r,q+1)===false))&&R()<.5;
+    if((corner&&R()<.45)||gate)towers.push([x+W/2,y+W/2,gate]);}
+  towers.forEach(([x,y,gate])=>{const rr2=gate?17:21;c.fillStyle='rgba(20,24,16,.35)';ell(c,x+4,y+rr2*.5+6,rr2+2,rr2*.5);c.fill();
+    c.fillStyle='#6a655b';ell(c,x,y+6,rr2,rr2*.62);c.fill();c.fillStyle=lg(c,0,y-rr2*.62,0,y+rr2*.62,'#b0aa9b','#8a8476');ell(c,x,y,rr2,rr2*.62);c.fill();
+    c.fillStyle='#4a463e';ell(c,x,y,rr2*.62,rr2*.38);c.fill();c.fillStyle='rgba(90,130,60,.6)';ell(c,x-3,y+1,rr2*.4,rr2*.22);c.fill();
+    c.fillStyle='#6e695f';for(let k=0;k<8;k++){if(R()<.3)continue;const a=k/8*6.283;rr(c,x+Math.cos(a)*rr2*.86-3,y+Math.sin(a)*rr2*.54-5,6,6,1.5);c.fill();}});
+  /* torn blue banners and a few fallen statues */
+  const R2=mul32(A.f*977+5);for(let r=1;r<rows-1;r++)for(let q=1;q<cols-1;q++){if(!isW(r,q)||!open(r+1,q))continue;const x=q*W,y=r*W;
+    if(R2()<.06){c.fillStyle='#24365a';c.beginPath();c.moveTo(x+9,y+12);c.lineTo(x+23,y+12);c.lineTo(x+23,y+30);c.lineTo(x+18,y+25);c.lineTo(x+14,y+31);c.lineTo(x+9,y+26);c.closePath();c.fill();c.fillStyle='#c8b070';c.fillRect(x+15,y+15,2,8);c.fillRect(x+12,y+18,8,2);}}
+  A.rooms.forEach(o=>{if(R2()<.5){const x=(o.x+1+Math.floor(R2()*(o.w-2)))*W,y=(o.y+1+Math.floor(R2()*(o.h-2)))*W;c.fillStyle='rgba(20,24,16,.35)';ell(c,x+16,y+24,16,5);c.fill();c.fillStyle='#9a9486';rr(c,x+2,y+14,28,9,4);c.fill();c.fillStyle='#b0aa9b';ell(c,x+28,y+16,5,5);c.fill();c.fillStyle='#5d8f44';ell(c,x+10,y+14,5,3);c.fill();}});}
+/* ---------- v1.8.1 town: villagers in the NPC art style, ground-only crowd routes, a proper market square, the inn interior ---------- */
+/* villagers: same vector style as drawLady/drawBlacksmith (scale .36), cached per variant + walk frame */
+const VG_SKIN=['#f2d6c0','#e8c0a0','#c89a78','#9a6a4a','#f6e0cc','#7a4e34'],VG_HAIR=['#3a2414','#e8c870','#6a3a1a','#1a1416','#a0482a','#c8c0b0','#8a6a3a','#d8d0c0'];
+const VG_CLOTH=[['#7a3a2a','#4a1e14'],['#2f5a3a','#183020'],['#3a4a7a','#1e2844'],['#8a6a3a','#5a4220'],['#5a2a5a','#301430'],['#4a4e56','#2a2d32'],['#a85a2a','#6a3414'],['#2a5a6a','#14343e'],['#6a6a3a','#3e3e1e'],['#8a2a3a','#4a1420']];
+function vgLook(v){const R=mul32(v*7919+13);const f=v%2===0,kid=v%11===5,old=!kid&&v%7===3;
+  return {f,kid,old,skin:VG_SKIN[Math.floor(R()*VG_SKIN.length)],hair:old?'#d8d4cc':VG_HAIR[Math.floor(R()*VG_HAIR.length)],cl:VG_CLOTH[Math.floor(R()*VG_CLOTH.length)],
+    apron:f&&R()<.45?['#f4f1ea','#e8dcc0','#d8c8a8'][Math.floor(R()*3)]:null,bun:f&&R()<.5,hat:!f&&R()<.35?['#5a3a22','#3a3a40','#7a6a4a'][Math.floor(R()*3)]:null,beard:!f&&!kid&&R()<.4,
+    basket:R()<.25,pants:['#3a3024','#2a2a30','#4a3a2a'][Math.floor(R()*3)],belt:'#2a1c12',scarf:f&&R()<.3?['#c8402e','#e0a830','#3a7a9a'][Math.floor(R()*3)]:null};}
+function drawVillager(c,P,ph,walk){/* ph: walk phase 0..1; feet at 0,0 */
+  const sw=walk?Math.sin(ph*6.283):0,bob=walk?Math.abs(Math.cos(ph*6.283))*1.4:Math.sin(ph*6.283)*.5;
+  c.fillStyle='rgba(0,0,0,.32)';ell(c,0,1,18,5);c.fill();c.save();c.translate(0,-bob);
+  if(P.f){/* dress: hem sways with the stride */
+    if(!P.bun){c.fillStyle=P.hair;c.beginPath();c.moveTo(-10,-112);c.quadraticCurveTo(-15,-86,-11,-78);c.lineTo(11,-78);c.quadraticCurveTo(15,-86,10,-112);c.fill();}
+    poly(c,[[-11,-94],[11,-94],[19+sw*2,-4],[-19+sw*2,-4]],lg(c,0,-94,0,-4,P.cl[0],P.cl[1]));
+    if(P.apron)poly(c,[[-7,-80],[7,-80],[11+sw,-12],[-11+sw,-12]],lg(c,0,-80,0,-12,P.apron,shade(P.apron,.86)));
+    c.fillStyle='#1a1416';rr(c,-10+sw*3,-6,8,6,2);c.fill();rr(c,2-sw*3,-6,8,6,2);c.fill();}
+  else{limb(c,-6,-48,-6+sw*7,-6,8,P.pants);limb(c,6,-48,6-sw*7,-6,8,P.pants);c.fillStyle='#1e1612';rr(c,-11+sw*7,-7,10,7,2.5);c.fill();rr(c,1-sw*7,-7,10,7,2.5);c.fill();
+    poly(c,[[-13,-95],[13,-95],[16,-42],[-16,-42]],lg(c,0,-95,0,-42,P.cl[0],P.cl[1]));c.fillStyle=P.belt;rr(c,-16,-52,32,5,1.5);c.fill();c.fillStyle='#c8a050';rr(c,-2,-52,4,5,1);c.fill();}
+  if(P.scarf){c.fillStyle=P.scarf;rr(c,-10,-96,20,6,3);c.fill();}
+  const ar=P.f?P.cl[0]:shade(P.cl[0],.9);limb(c,-12,-90,-15-sw*4,-60,P.f?5.5:6.5,ar);limb(c,12,-90,15+sw*4,-60,P.f?5.5:6.5,ar);
+  c.fillStyle=P.skin;ell(c,-15-sw*4,-58,2.8,2.8);c.fill();ell(c,15+sw*4,-58,2.8,2.8);c.fill();
+  if(P.basket){c.fillStyle='#9a6a3a';rr(c,13+sw*4,-60,12,9,3);c.fill();c.strokeStyle='#6a4422';c.lineWidth=1.4;c.beginPath();c.arc(19+sw*4,-60,5,Math.PI,0);c.stroke();c.fillStyle=['#e05a3a','#8ac04a','#f2c94c'][Math.abs(P.cl[0].charCodeAt(2))%3];ell(c,19+sw*4,-61,3.4,2);c.fill();}
+  c.fillStyle=P.skin;ell(c,0,-106,9,10.5);c.fill();
+  c.fillStyle=P.hair;c.beginPath();c.moveTo(-10,-104);c.quadraticCurveTo(-11,-120,0,-118);c.quadraticCurveTo(11,-120,10,-104);c.quadraticCurveTo(4,-112,-2,-110);c.quadraticCurveTo(-6,-108,-10,-104);c.fill();
+  if(P.bun){ell(c,0,-120,6,5);c.fill();}
+  if(P.beard){c.fillStyle=P.hair;c.beginPath();c.moveTo(-8,-104);c.quadraticCurveTo(-9,-92,0,-90);c.quadraticCurveTo(9,-92,8,-104);c.quadraticCurveTo(0,-98,-8,-104);c.fill();}
+  if(P.hat){c.fillStyle=P.hat;ell(c,0,-114,14,4);c.fill();rr(c,-8,-126,16,12,4);c.fill();c.fillStyle='rgba(0,0,0,.25)';c.fillRect(-8,-117,16,2);}
+  c.fillStyle='#2a2018';ell(c,-3.5,-105,1.2,1.3);c.fill();ell(c,3.5,-105,1.2,1.3);c.fill();
+  c.restore();}
+const VSPR={};
+function villagerSprite(v,fr){const k=v+'_'+fr;if(VSPR[k])return VSPR[k];const s=2,cv=document.createElement('canvas');cv.width=34*s;cv.height=50*s;const c=cv.getContext('2d');c.scale(s,s);
+  const P=vgLook(v);c.translate(17,47);c.scale(.36*(P.kid?.74:1),.36*(P.kid?.74:1));drawVillager(c,P,fr<0?0:fr/4,fr>=0);return VSPR[k]=cv;}
+function drawCrowd(c,e,t){if(e.seated){const s=villagerSprite(e.v,-1);c.save();c.translate(e.x,e.y);c.fillStyle='rgba(0,0,0,.3)';ell(c,0,2,11,3.5);c.fill();c.fillStyle='#4a3020';rr(c,-8,-12,16,12,3);c.fill();if(e.f<0)c.scale(-1,1);
+    const lift=Math.sin(t*1.3+e.u*9)>.7?-1:0;c.drawImage(s,0,0,68,72,-17,-47+12+lift,34,36);c.restore();return;}
+  const walking=!e.idle;const fr=walking?Math.floor((t*7+e.u*4))%4:-1;const s=villagerSprite(e.v,fr);c.save();c.translate(e.x,e.y);if(e.f<0)c.scale(-1,1);
+  const bob=walking?0:Math.sin(t*1.4+e.u*9)*.5;c.drawImage(s,-17,-47+bob,34,50);c.restore();}
+function crowdSprite(v){return villagerSprite(v,-1);}
+
+/* --- town ground: the cobbles walkers may use (same shapes the town layer paints) --- */
+TOWN.h=2000;
+const MKT={y0:1380,y1:1566},STREET_A=[1712,1764],STREET_B=[1912,1964];
+function townCobble(){return [{r:[336,190,88,TOWN.h-190]},{c:[380,610,118]},{r:[424,570,60,70]},{r:[540,640,80,140]},{r:[424,600,196,60]},{r:[150,520,200,60]},{r:[560,400,70,180]},{r:[480,404,210,56]},
+  {r:[110,470,80,70]},{r:[320,1000,120,TOWN.h-1000]},{r:[440,1262,160,40]},{r:[100,900,90,40]},{r:[150,880,40,30]},{r:[130,540,60,240]},
+  {r:[20,MKT.y0,720,MKT.y1-MKT.y0]},{r:[20,STREET_A[0],720,STREET_A[1]-STREET_A[0]]},{r:[20,STREET_B[0],720,STREET_B[1]-STREET_B[0]]}];}
+function onCobble(x,y,sh){for(const s of sh){if(s.r){const [a,b,w,h]=s.r;if(x>=a&&x<=a+w&&y>=b&&y<=b+h)return true;}else{const [cx,cy,r]=s.c;if((x-cx)*(x-cx)+(y-cy)*(y-cy)<=r*r)return true;}}return false;}
+/* south quarter: market square (stalls in two rows facing south, a clear walk in front of each), two streets of homes and shops facing their street */
+const LOTS=[{x:30,y:1590,w:140,h:104},{x:178,y:1590,w:132,h:104},{x:452,y:1590,w:140,h:104},{x:600,y:1590,w:140,h:104},
+  {x:30,y:1790,w:140,h:104},{x:178,y:1790,w:132,h:104},{x:452,y:1790,w:140,h:104},{x:600,y:1790,w:140,h:104}];
+const STALL_SLOTS=[[150,1392],[434,1392],[240,1392],[524,1392],[150,1480],[434,1480],[240,1480],[524,1480]];
+const COTTAGE_SPOTS=[[78,1452],[682,1452],[78,1548],[682,1548]];
+function townFootprints(A){/* everything drawn tall on the ground: buildings (roof to wall foot), stalls, cottages, trees, lamps, well, props */
+  const F=[];['smithy','house','inn','infirmary','boutique'].forEach(k=>{const q=TOWN[k];F.push([q.x-6,q.y-14,q.x+q.w+8,q.y+q.h+8]);});
+  F.push([0,0,TOWN.w,214],[60,470,145,525],[150,630,236,700],[586,462,676,530],[150,656,236,700]);
+  (A.lots||[]).forEach(L=>{if(L.kind!=='plot')F.push([L.x-4,L.y-10,L.x+L.w+4,L.y+L.h+8]);});
+  (A.stalls||[]).forEach(s=>F.push([s.x-8,s.y-4,s.x+90,s.y+58]));(A.cottages||[]).forEach(([x,y])=>F.push([x-36,y-60,x+36,y+10]));
+  A.rects.forEach(r=>{if(r[2]-r[0]<60&&r[3]-r[1]<60)F.push([r[0]-8,r[1]-8,r[2]+8,r[3]+8]);});
+  A.ents.forEach(e=>{if(e.k==='tree')F.push([e.x-26,e.y-30,e.x+26,e.y+12]);if(e.k==='npc')F.push([e.x-16,e.y-12,e.x+16,e.y+12]);if(e.k==='well')F.push([e.x-34,e.y-24,e.x+34,e.y+18]);});
+  return F;}
+const TG=10;
+function townGrid(A){const sh=townCobble(),F=townFootprints(A),cols=Math.ceil(A.w/TG),rows=Math.ceil(A.h/TG),g=new Uint8Array(cols*rows);
+  for(let r=0;r<rows;r++)for(let q=0;q<cols;q++){const x=q*TG+TG/2,y=r*TG+TG/2;let ok=y>222&&onCobble(x,y,sh)&&onCobble(x-6,y,sh)&&onCobble(x+6,y,sh);
+    if(ok)for(const f of F){if(x>=f[0]&&x<=f[2]&&y>=f[1]&&y<=f[3]){ok=false;break;}}g[r*cols+q]=ok?1:0;}
+  return {g,cols,rows,ok:(x,y)=>{const q=Math.floor(x/TG),r=Math.floor(y/TG);return q>=0&&r>=0&&q<cols&&r<rows&&g[r*cols+q]===1;}};}
+function townPath(G,a,b){/* BFS on the walk grid (small grid; cached per town build) */
+  const {g,cols,rows}=G,sx=Math.floor(a[0]/TG),sy=Math.floor(a[1]/TG),tx=Math.floor(b[0]/TG),ty=Math.floor(b[1]/TG);if(!g[sy*cols+sx]||!g[ty*cols+tx])return null;
+  const prev=new Int32Array(cols*rows).fill(-1),q=new Int32Array(cols*rows);let h=0,tl=0;const s=sy*cols+sx,t=ty*cols+tx;q[tl++]=s;prev[s]=s;
+  while(h<tl){const u=q[h++];if(u===t)break;const ux=u%cols,uy=(u-ux)/cols;for(const [dx,dy] of [[1,0],[-1,0],[0,1],[0,-1]]){const nx=ux+dx,ny=uy+dy;if(nx<0||ny<0||nx>=cols||ny>=rows)continue;const v=ny*cols+nx;if(g[v]&&prev[v]<0){prev[v]=u;q[tl++]=v;}}}
+  if(prev[t]<0)return null;const pts=[];for(let u=t;;u=prev[u]){pts.push([(u%cols)*TG+TG/2,Math.floor(u/cols)*TG+TG/2]);if(u===s)break;}pts.reverse();
+  /* keep only the turns */const out=[pts[0]];for(let i=1;i<pts.length-1;i++){const [a0,b0]=pts[i-1],[a1,b1]=pts[i],[a2,b2]=pts[i+1];if((a1-a0)!==(a2-a1)||(b1-b0)!==(b2-b1))out.push(pts[i]);}out.push(pts[pts.length-1]);
+  let L=0;const cum=[0];for(let i=1;i<out.length;i++){L+=Math.hypot(out[i][0]-out[i-1][0],out[i][1]-out[i-1][1]);cum.push(L);}return {pts:out,cum,len:L};}
+const TOWN_ANCH=[[380,240],[350,520],[300,610],[460,610],[380,700],[200,550],[160,700],[588,432],[520,432],[580,620],[580,760],[380,900],[380,1100],[520,1320],[380,1300],
+  [380,1400],[200,1540],[560,1540],[100,1500],[660,1500],[120,1738],[640,1738],[380,1738],[120,1938],[640,1938],[380,1938]];
+function snapWalk(G,x,y){if(G.ok(x,y))return [x,y];for(let r=10;r<=40;r+=10)for(let a=0;a<8;a++){const px=x+Math.cos(a*.785)*r,py=y+Math.sin(a*.785)*r;if(G.ok(px,py))return [px,py];}return null;}
+function townRoutes(A,G,R){const anch=TOWN_ANCH.filter(([x,y])=>y<A.h-10&&(A.growth>=1||y<1370)).map(([x,y])=>snapWalk(G,x,y)).filter(Boolean),routes=[];
+  for(let i=0;i<60&&routes.length<24;i++){const a=anch[Math.floor(R()*anch.length)],b=anch[Math.floor(R()*anch.length)];if(!a||a===b)continue;const p=townPath(G,a,b);if(p&&p.len>120)routes.push(p);}
+  return routes;}
+function routeAt(p,s){const {pts,cum}=p;let i=1;while(i<cum.length-1&&cum[i]<s)i++;const seg=cum[i]-cum[i-1]||1,k=Math.max(0,Math.min(1,(s-cum[i-1])/seg));
+  const a=pts[i-1],b=pts[i];return [a[0]+(b[0]-a[0])*k,a[1]+(b[1]-a[1])*k,b[0]-a[0],b[1]-a[1]];}
+function crowdN(){const t=growthTier();return [0,10,22,38,58,76][t];}
+function festivalOn(){return growthTier()>=4&&(((S.story.visits||0)%3===0)||[0,6].includes(new Date().getDay()));}
+function growTown(A){const tier=growthTier();A.h=TOWN.h;A.growth=tier;const R=mul32(4242+tier);
+  /* lots, cottages and stalls first, so the walk grid knows about them */
+  A.lots=LOTS.map((L,i)=>{const h=HOMES.find(q=>q.lot===i),s=NEW_SHOPS.find(q=>q.lot===i);
+    if(h&&homeOpen(h))return Object.assign({kind:'home'},L,h);if(s&&tier>=s.tier)return Object.assign({kind:'shop'},L,s);return Object.assign({kind:tier>=1?'frame':'plot'},L);});
+  A.lots.forEach(L=>{if(L.kind!=='plot')A.rects.push([L.x-4,L.y+8,L.x+L.w+4,L.y+L.h]);
+    if(L.kind==='home')A.trig.push({r:[L.x+L.w/2-18,L.y+L.h,L.x+L.w/2+18,L.y+L.h+14],fn:()=>visitHome(L.id)});});
+  A.cottages=COTTAGE_SPOTS.slice(0,Math.max(0,tier-1));A.cottages.forEach(([x,y])=>A.rects.push([x-30,y-26,x+30,y+6]));
+  const nSt=tier>=3||invested('stalls')?Math.min(STALL_SLOTS.length,(tier>=5?7:tier>=4?5:3)+(invested('stalls')?1:0)):0;A.stalls=[];
+  STALL_SLOTS.slice(0,nSt).forEach(([x,y],i)=>{A.stalls.push({x,y,col:['#c8402e','#3a7a9a','#e0a830','#7a4a9a','#4a9a5a','#c86a2a','#2a6a8a','#a8473a'][i]});A.rects.push([x,y+30,x+82,y+52]);A.ents.push({k:'stallk',x:x+41,y:y+29,v:i*3+5,idle:1,u:i*.37,f:i%2?-1:1});});
+  A.festival=festivalOn();
+  /* crowd: walkers on ground-only routes, a few loiter at the market and plaza */
+  const G=townGrid(A);A.walk=G;A.routes=townRoutes(A,G,R);A.crowd=[];const n=crowdN();
+  const loiter=[[300,560],[470,560],[330,680],[440,680],[200,1460],[560,1460],[380,1548],[120,1530],[640,1530],[600,700],[180,600],[520,440]].filter(([x,y])=>G.ok(x,y)&&(tier>=1||y<1370));
+  for(let i=0;i<n;i++){const v=(i*5+3)%40;if(i%5===4&&loiter.length){const [x,y]=loiter[i%loiter.length];const o={k:'crowd',v,idle:1,x:x+(R()-.5)*14,y:y+(R()-.5)*8,u:R(),f:R()<.5?1:-1};if(G.ok(o.x,o.y)){A.crowd.push(o);A.ents.push(o);continue;}}
+    if(!A.routes.length)break;const p=A.routes[i%A.routes.length];const o={k:'crowd',v,p,u:R(),sp:22+R()*16,off:(R()-.5)*30,x:p.pts[0][0],y:p.pts[0][1],f:1};A.crowd.push(o);A.ents.push(o);}
+  const base=A.layerFn;A.layerFn=c=>{base(c);drawGrowth(c,A);};
+  A.tick=t=>{for(const o of A.crowd){if(o.idle)continue;const p=o.p,L2=p.len*2,s=(o.u*L2+t*o.sp)%L2,fw=s<p.len,[x,y,dx,dy]=routeAt(p,fw?s:L2-s);/* walk beside the line, never off the ground */const ox=dx?0:o.off,oy=dx?o.off*.6:0;if(G.ok(x+ox,y+oy)){o.x=x+ox;o.y=y+oy;}else{o.x=x;o.y=y;}if(dx)o.f=(dx>0)===fw?1:-1;}};
+  A.tick(0);return A;}
+function drawStall(c,x,y,col){c.fillStyle='rgba(40,30,10,.25)';c.fillRect(x+6,y+46,76,10);c.fillStyle='#7a5434';c.fillRect(x+4,y+16,4,36);c.fillRect(x+74,y+16,4,36);
+  c.fillStyle='#9a6a40';rr(c,x,y+30,82,20,3);c.fill();c.fillStyle='rgba(255,230,190,.18)';c.fillRect(x+2,y+31,78,2);for(let i=0;i<5;i++){c.fillStyle=['#e05a3a','#f2c94c','#8ac04a','#e08a3a','#c84a6a'][(i+x)%5];ell(c,x+12+i*14,y+33,5,4);c.fill();}
+  for(let i=0;i<6;i++){c.fillStyle=i%2?'#f4ead8':col;c.beginPath();c.moveTo(x-4+i*15,y);c.lineTo(x+11+i*15,y);c.lineTo(x+11+i*15,y+20);c.quadraticCurveTo(x+3.5+i*15,y+26,x-4+i*15,y+20);c.closePath();c.fill();}}
+function drawGrowth(c,A){const R=mul32(99),w=TOWN.w;
+  c.fillStyle='#78a054';c.fillRect(0,1362,w,TOWN.h-1362);
+  for(let i=0;i<160;i++){c.fillStyle=R()<.5?'rgba(255,255,190,.07)':'rgba(30,70,20,.08)';ell(c,R()*w,1370+R()*(TOWN.h-1370),10+R()*30,6+R()*14);c.fill();}
+  cobbleClip(c,()=>{c.beginPath();c.rect(320,1340,120,TOWN.h-1340);if(A.growth>=1){c.rect(20,MKT.y0,720,MKT.y1-MKT.y0);c.rect(20,STREET_A[0],720,STREET_A[1]-STREET_A[0]);c.rect(20,STREET_B[0],720,STREET_B[1]-STREET_B[0]);}},R);
+  if(A.growth>=1){c.strokeStyle='rgba(120,96,64,.45)';c.lineWidth=2;c.strokeRect(20,MKT.y0,720,MKT.y1-MKT.y0);}
+  A.lots.forEach(L=>{if(L.kind==='plot'){c.strokeStyle='rgba(90,60,30,.6)';c.setLineDash([6,5]);c.lineWidth=2;c.strokeRect(L.x+6,L.y+20,L.w-12,L.h-24);c.setLineDash([]);c.fillStyle='#8a6a3a';c.fillRect(L.x+10,L.y+14,3,14);c.fillStyle='#e8dcc0';c.fillRect(L.x+6,L.y+12,24,8);}
+    else if(L.kind==='frame'){c.fillStyle='#a88a5a';c.fillRect(L.x+8,L.y+40,L.w-16,6);for(let i=0;i<5;i++)c.fillRect(L.x+10+i*(L.w-24)/4,L.y+30,5,L.h-34);c.strokeStyle='#8a6a3a';c.lineWidth=3;c.beginPath();c.moveTo(L.x+8,L.y+40);c.lineTo(L.x+L.w/2,L.y+10);c.lineTo(L.x+L.w-8,L.y+40);c.stroke();}
+    else{bldg(c,{x:L.x,y:L.y,w:L.w,h:L.h},{roof:L.roof,roofLight:shade(L.roof,1.25),roofDark:shade(L.roof,.65),wall:L.wall,timber:'#6b4a30',windows:[14,L.w-36],door:L.w/2-12,chimney:L.w-30,sign:L.kind==='shop'?[L.w/2-14,L.sign]:null});
+      c.fillStyle='rgba(30,20,10,.75)';rr(c,L.x+L.w/2-44,L.y+L.h+10,88,16,6);c.fill();c.fillStyle='#f6e6c0';c.font='700 10px system-ui';c.textAlign='center';c.fillText(L.kind==='home'?L.name+' home':L.name,L.x+L.w/2,L.y+L.h+22);}});
+  (A.cottages||[]).forEach(([x,y])=>bldg(c,{x:x-30,y:y-50,w:60,h:56},{roof:'#8a5a3a',roofLight:'#b07a50',roofDark:'#5a3a22',wall:'#efe2c8',windows:[8],door:30,wallH:26}));
+  (A.stalls||[]).forEach(({x,y,col})=>drawStall(c,x,y,col));
+  if(A.growth>=1){c.fillStyle='rgba(30,20,10,.75)';rr(c,334,MKT.y0+4,92,18,6);c.fill();c.fillStyle='#f6e6c0';c.font='700 11px system-ui';c.textAlign='center';c.fillText('Market Square',380,MKT.y0+17);}
+  if(A.festival){for(const [y,x0,x1] of [[318,300,460],[1386,40,330],[1386,430,720],[1700,30,740],[1900,30,740]]){c.strokeStyle='rgba(60,40,20,.7)';c.lineWidth=1.2;c.beginPath();c.moveTo(x0,y);c.quadraticCurveTo((x0+x1)/2,y+24,x1,y);c.stroke();
+      for(let x=x0+10;x<x1;x+=16){const yy=y+24*(1-Math.pow((x-(x0+x1)/2)/((x1-x0)/2),2))*0.5+2;c.fillStyle=['#e05a6a','#f2c94c','#5ab0e0','#8ac04a','#c86ad8'][Math.floor(x/16)%5];c.beginPath();c.moveTo(x-5,yy);c.lineTo(x+5,yy);c.lineTo(x,yy+10);c.closePath();c.fill();}}}}
+
+/* --- the Last Lantern, inside: Marla at the bar, Pip on the floor, regulars at the tables --- */
+const INN={w:400,h:520};
+function drawInnLayer(c){const {w,h}=INN,R=mul32(31);
+  c.fillStyle='#120c08';c.fillRect(0,0,w,h);
+  c.fillStyle=lg(c,0,0,0,96,'#4a3020','#6a4630');c.fillRect(12,0,w-24,96);for(let x=12;x<w-12;x+=24){c.fillStyle='rgba(0,0,0,.14)';c.fillRect(x,0,2,96);}
+  for(let s=0;s<2;s++){c.fillStyle='#3a2416';c.fillRect(30,18+s*30,230,5);for(let i=0;i<16;i++){c.fillStyle=['#7a4a20','#3a5a2a','#6a2a2a','#c8a050','#2a4a5a'][(i+s)%5];rr(c,34+i*14,4+s*30+(i%3),8,14-(i%3),2);c.fill();}}
+  for(let y=96;y<h-10;y+=16){for(let x=12;x<w-12;){const pw=40+R()*50;c.fillStyle=R()<.5?'#9a6a42':'#8e6040';c.fillRect(x,y,Math.min(pw,w-12-x),15);c.fillStyle='rgba(255,230,180,.07)';c.fillRect(x,y,Math.min(pw,w-12-x),2);x+=pw+1;}}
+  c.fillStyle='#3a2416';c.fillRect(0,0,12,h);c.fillRect(w-12,0,12,h);c.fillRect(0,h-10,w,10);c.fillStyle='#120c08';c.fillRect(176,h-10,48,10);
+  /* bar counter with taps */
+  c.fillStyle='rgba(0,0,0,.3)';c.fillRect(30,128,240,10);c.fillStyle='#5a3620';rr(c,26,100,248,32,4);c.fill();c.fillStyle='#7a4e30';rr(c,26,98,248,10,3);c.fill();
+  for(let i=0;i<4;i++){c.fillStyle='#c8a050';c.fillRect(70+i*40,88,4,12);c.fillStyle='#8a6a2a';rr(c,66+i*40,84,12,6,2);c.fill();}
+  c.fillStyle='#d8c8a8';rr(c,214,90,10,10,2);c.fill();rr(c,230,92,10,8,2);c.fill();
+  /* hearth on the east wall */
+  c.fillStyle='#6e625a';rr(c,300,8,80,84,6);c.fill();c.fillStyle='#857870';for(let y=12;y<88;y+=10)for(let x=304+((y/10)%2)*6;x<374;x+=12){rr(c,x,y,10,8,2);c.fill();}c.fillStyle='#1a100a';rr(c,318,44,44,40,10);c.fill();
+  /* rug + lantern sign */
+  c.fillStyle='#6a2a2a';rr(c,140,180,130,250,12);c.fill();c.strokeStyle='#d8a85a';c.lineWidth=3;rr(c,148,188,114,234,9);c.stroke();
+  c.fillStyle='rgba(255,210,120,.08)';ell(c,200,300,190,220);c.fill();}
+function buildInn(){const n=patronCount(),T=[[90,250],[310,250],[90,400],[310,400]];
+  const rects=[[0,0,INN.w,96],[0,0,16,INN.h],[INN.w-16,0,INN.w,INN.h],[0,INN.h-12,172,INN.h],[228,INN.h-12,INN.w,INN.h],[22,96,278,134],[296,8,384,96]];
+  const ents=[{k:'npc',id:'marla',x:300,y:150,solidR:12,face:-1},{k:'npc',id:'pip',x:200,y:330,solidR:12,face:1},{k:'hearth',x:340,y:92}];
+  T.forEach(([x,y],i)=>{if(i<Math.max(1,Math.ceil(n/2))||i<2){ents.push({k:'itable',x,y});rects.push([x-24,y-8,x+24,y+10]);}});
+  const seats=[];T.forEach(([x,y])=>{seats.push([x-30,y-2,1],[x+30,y-2,-1]);});
+  for(let i=0;i<n;i++){const [x,y,f]=seats[i];ents.push({k:'crowd',idle:1,seated:1,v:(i*7+2)%40,x,y,f,u:i*.31});}
+  const trig=[{r:[176,INN.h-14,224,INN.h],fn:()=>leaveInn()}];const zoom=clamp((H-topInset())/INN.h,1,1.8);
+  return {kind:'inn',w:INN.w,h:INN.h,zoom,rects,ents,trig,bg:'#0c0806',layerFn:drawInnLayer,lights:[{x:340,y:80,r:220},{x:150,y:110,r:150},{x:200,y:330,r:200},{x:200,y:480,r:110}]};}
+function enterInn(){fadeTo(()=>{enterArea(buildInn(),{x:200,y:476});KATel.pick&&KATel.pick('area','inn');});SFX.tap();}
+function leaveInn(){fadeTo(()=>enterArea(buildTown(),{x:588,y:436}));SFX.tap();}
+/* generated by build.sh: compressed scene assets present at build time */
+const SCENE_SHIP=["scenes/loop_aelira_s0.mp4","scenes/loop_liraen_s0.mp4","scenes/loop_maid_s0.mp4","scenes/loop_marla_s0.mp4","scenes/loop_marla_s2.mp4","scenes/loop_pip_s0.mp4","scenes/loop_vivienne_s0.mp4","scenes/loop_aelira_s0.webp","scenes/loop_liraen_s0.webp","scenes/loop_maid_s0.webp","scenes/loop_marla_s0.webp","scenes/loop_marla_s2.webp","scenes/loop_pip_s0.webp","scenes/loop_vivienne_s0.webp",];
 /* ===================== v1.8 E: relationship stages, shared experiences, full-screen NPC scenes ===================== */
 const STAGE_NAMES=['Stranger','Friend','Close','Devoted'],STAGE_AT=[0,3,6,9];
 function stageOf(id){const a=aff(id);return a>=9?3:a>=6?2:a>=3?1:0;}
@@ -5353,17 +5520,17 @@ function sharedRow(id){const x=SHARED[id];if(!x)return '';const st=stageOf(id),o
 function stageRow(id){const st=stageOf(id),nx=STAGE_AT[st+1];
   return `<div class="stagebar"><span class="stg s${st}">${STAGE_NAMES[st]}</span><span class="stp4">${STAGE_NAMES.map((n,i)=>`<i class="${i<=st?'on':''}"></i>`).join('')}</span><small>${st<3?`${STAGE_NAMES[st+1]} at affinity ${nx}`:'As close as two people get'}</small></div>`;}
 function playShared(id){const x=SHARED[id];if(!x||!sharedReady(id))return;closeSheet('A');
-  openNpcScene({npc:id,loc:x.loc,act:x.act,title:x.name,lines:x.lines,onEnd:()=>{S.story['sh_'+id]=today();const r=x.reward();gainAff(id,1,'shared');save();KATel.pick('shared',id,{st:stageOf(id)});
+  openNpcScene({npc:id,loc:x.loc,act:x.act,title:x.name,lines:x.lines,loop:x.id,onEnd:()=>{S.story['sh_'+id]=today();memRec('shared:'+id);const r=x.reward();gainAff(id,1,'shared');save();KATel.pick('shared',id,{st:stageOf(id)});
     showIsland(`${ic('heart',16)} ${esc(x.name)} · ${esc(r)}`,'#ffb0c8',{key:'shared',hold:2600});}});}
 function sheetFor(id){if(id==='maid')openSylwen();else openFolk(id);}
 /* talking: story scenes first (unchanged), then a one-off stage scene when she warms to you, then every other talk at her stage location */
 function folkTalk(id,base){
   if(nextScene(id)!=null)return folkTalk0(id,base);
   if(!S.stageSeen)S.stageSeen={};const st=stageOf(id),seen=S.stageSeen[id]||0;
-  if(st>seen){S.stageSeen[id]=st;save();openNpcScene({npc:id,stage:st,loc:STAGE_LOC[id][st],act:NPC_ACT[id],title:`${STAGE_NAMES[st]} · ${NPCS[id].name}`,
-    lines:[{s:'nar',t:STAGE_UP[id]}].concat(STAGE_LINES[id][st][0]),onEnd:()=>{talkAff(id);KATel.pick('stage',id,{st});save();sheetFor(id);}});return;}
+  if(st>seen){S.stageSeen[id]=st;for(let k=seen+1;k<=st;k++)memRec('stage:'+id+':'+k);save();openNpcScene({npc:id,stage:st,loc:STAGE_LOC[id][st],act:NPC_ACT[id],title:`${STAGE_NAMES[st]} · ${NPCS[id].name}`,
+    lines:stageUpLines(id,st),onEnd:()=>{talkAff(id);KATel.pick('stage',id,{st});save();sheetFor(id);}});return;}
   const k='stt_'+id;S.story[k]=(S.story[k]||0)+1;
-  if(st>=1&&S.story[k]%2===0){const L=STAGE_LINES[id][st];openNpcScene({npc:id,stage:st,loc:STAGE_LOC[id][st],act:NPC_ACT[id],lines:L[(S.story[k]>>1)%L.length],onEnd:()=>{talkAff(id);save();sheetFor(id);}});return;}
+  if((st>=1||loopFor(id,0))&&S.story[k]%2===0){const L=STAGE_LINES[id][st];openNpcScene({npc:id,stage:st,loc:STAGE_LOC[id][st],act:NPC_ACT[id],lines:L[((S.story[k]>>1)-1+L.length)%L.length],onEnd:()=>{talkAff(id);save();sheetFor(id);}});return;}
   base();}
 function affHead(id){return affHead0(id)+(REL_IDS.includes(id)?stageRow(id)+sharedRow(id):'');}
 
@@ -5393,7 +5560,7 @@ REL_IDS.forEach(id=>{STAGE_LOC[id].forEach((l,s)=>SCENE_ASSETS.push({file:`scene
 /* ---------- the scene engine ---------- */
 let NSC=null;
 const nsRM=()=>matchMedia('(prefers-reduced-motion: reduce)').matches;
-const SCENE_HAVE={};/* filename -> true when an asset ships; nothing is requested otherwise (lazy + no 404s) */
+const SCENE_HAVE={};(typeof SCENE_SHIP!=='undefined'?SCENE_SHIP:[]).forEach(f=>SCENE_HAVE[f]=1);/* filename -> true when an asset ships; nothing is requested otherwise (lazy + no 404s) */
 function nsEl(){let el=$('nscene');if(el)return el;el=document.createElement('div');el.id='nscene';el.setAttribute('role','dialog');el.setAttribute('aria-modal','true');
   el.innerHTML=`<div class="ns-par"><canvas class="ns-bg"></canvas></div><div class="ns-chr"><div class="ns-act"><img class="ns-img" alt="" draggable="false"></div></div><canvas class="ns-fx"></canvas><div class="ns-grad"></div>
     <div class="ns-top"><span class="ns-loc"></span><button class="ns-voice" aria-label="Voice" aria-pressed="false"></button><button class="ns-skip" aria-label="Skip scene">${ic('x',18)}</button></div>
@@ -5402,19 +5569,30 @@ function nsEl(){let el=$('nscene');if(el)return el;el=document.createElement('di
   el.addEventListener('click',ev=>{if(ev.target.closest('.ns-voice')){S.voice=!S.voice;save();nsVoiceBtn();if(!S.voice&&NSC&&NSC.au)NSC.au.pause();return;}if(ev.target.closest('.ns-skip')){closeNpcScene();return;}nsNext();});
   el.addEventListener('pointermove',ev=>{if(!NSC||NSC.rm)return;NSC.px=(ev.clientX/innerWidth-.5);NSC.py=(ev.clientY/innerHeight-.5);});
   return el;}
+/* per-stage loops: loop_<id>_s<stage>, else the nearest lower stage that has shipped, else none (still) */
+function loopFor(id,st){for(let k=Math.min(3,st|0);k>=0;k--){const f=`scenes/loop_${id}_s${k}`;if(SCENE_HAVE[f+'.mp4'])return f;}return null;}
 function nsVoiceBtn(){const b=$('nscene').querySelector('.ns-voice');b.innerHTML=ic(S.voice?'sound':'mute',18);b.setAttribute('aria-pressed',S.voice?'true':'false');b.title=S.voice?'Voice on':'Voice off';}
 function openNpcScene(o){if(NSC)closeNpcScene(true);joyEnd&&joyEnd();
   const el=nsEl(),id=o.npc,st=o.stage!=null?o.stage:stageOf(id),loc=LOCS[o.loc]||LOCS.inn_bar,act=o.act||NPC_ACT[id]||'dust',rm=nsRM();
   NSC={o,id,st,loc,lk:o.loc,act,rm,i:-1,t0:performance.now(),px:0,py:0,ft:[],lite:!!S.sceneLite,parts:[],raf:0};
   el.className='on k-'+loc.kind+' act-'+act+(rm?' rm':'');el.style.setProperty('--acc',loc.pal[2]);
-  el.querySelector('.ns-loc').textContent=(o.title?o.title+' · ':'')+loc.name;nsVoiceBtn();
+  el.querySelector('.ns-loc').textContent=(o.memory?'Memory · ':'')+(o.title?o.title+' · ':'')+loc.name;el.classList.toggle('mem',!!o.memory);nsVoiceBtn();
   /* background: shipped art if present, else painted once */
   const bgf=`scenes/bg_${o.loc}.webp`,bg=el.querySelector('.ns-bg');paintLoc(bg,loc,o.loc);if(SCENE_HAVE[bgf]){const im=new Image();im.decoding='async';im.onload=()=>{const c=bg.getContext('2d');c.drawImage(im,0,0,bg.width,bg.height);};im.src=bgf;}
   /* character: looping video if shipped (muted, playsinline), else the stage portrait (placeholder until Kyle's art lands) + CSS/canvas activity */
   const pf=porFor(id,st,o.variant),img=el.querySelector('.ns-img');img.src=pf.src;img.dataset.ph=pf.placeholder?'1':'';img.alt=NPCS[id]?NPCS[id].name:'';
-  const vf=`scenes/loop_${id}_${o.loop||('s'+st)}`;const old=el.querySelector('video');if(old)old.remove();
-  if(!rm&&SCENE_HAVE[vf+'.mp4']){const v=document.createElement('video');v.muted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('playsinline','');v.preload='metadata';v.poster=vf+'.webp';v.className='ns-vid';
-    v.innerHTML=`<source src="${vf}.webm" type="video/webm"><source src="${vf}.mp4" type="video/mp4">`;v.addEventListener('error',()=>v.remove(),true);el.querySelector('.ns-chr').appendChild(v);}
+  const vv=(id==='maid'||id==='liraen')&&!o.loop?(o.variant||(id==='maid'?(maidNight()?'night':maidOffDuty()?'offduty':''):(liraenNight()?'night':liraenOffDuty()?'offduty':''))):'';
+  const vf=o.loop?`scenes/loop_${id}_${o.loop}`:vv?`scenes/loop_${id}_${vv}`:(loopFor(id,st)||`scenes/loop_${id}_s${st}`);const old=el.querySelector('video');if(old)old.remove();
+  el.classList.remove('vid-on');clearTimeout(NSC.vto);
+  if(!rm&&SCENE_HAVE[vf+'.mp4']){/* the still stays underneath; the loop fades in only once it is actually playing, and is dropped if missing or slow */
+    const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';v.className='ns-vid';
+    if(SCENE_HAVE[vf+'.webp'])v.poster=vf+'.webp';
+    v.innerHTML=(SCENE_HAVE[vf+'.webm']?`<source src="${vf}.webm" type="video/webm">`:'')+`<source src="${vf}.mp4" type="video/mp4">`;
+    const drop=()=>{if(v.isConnected)v.remove();el.classList.remove('vid-on');if(NSC)NSC.vid='fallback';};
+    const srcs=v.querySelectorAll('source');srcs[srcs.length-1].addEventListener('error',drop);v.addEventListener('error',drop);
+    v.addEventListener('playing',()=>{if(!NSC||!v.isConnected)return;clearTimeout(NSC.vto);NSC.vid='playing';el.classList.add('vid-on');},{once:true});
+    NSC.vid='loading';NSC.vto=setTimeout(()=>{if(NSC&&NSC.vid==='loading')drop();},3500);
+    el.querySelector('.ns-chr').appendChild(v);const p=v.play();if(p&&p.catch)p.catch(()=>{});}
   const fx=el.querySelector('.ns-fx'),dpr=Math.min(1.5,DPR||1);fx.width=Math.round(innerWidth*dpr);fx.height=Math.round(innerHeight*dpr);NSC.dpr=dpr;
   nsSeed();document.body.classList.add('ns-on');KATel.pick&&KATel.pick('nscene',id,{loc:o.loc,act,st});
   if(!rm)NSC.raf=requestAnimationFrame(nsFrame);else nsFrame(performance.now());
@@ -5423,7 +5601,7 @@ function nsLine(){const L=NSC.o.lines[NSC.i];const el=$('nscene');const who=L.s=
   el.querySelector('.ns-name').textContent=who||'';el.querySelector('.ns-name').style.display=who?'':'none';el.querySelector('.ns-txt').textContent=L.t;el.querySelector('.ns-dlg').className='ns-dlg s-'+L.s;
   if(NSC.au){NSC.au.pause();NSC.au=null;}if(S.voice&&L.v){try{NSC.au=new Audio(L.v);NSC.au.play().catch(()=>{});}catch(e){}}}
 function nsNext(){if(!NSC)return;NSC.i++;if(NSC.i>=NSC.o.lines.length){closeNpcScene();return;}nsLine();SFX.tap&&NSC.i>0&&SFX.tap();}
-function closeNpcScene(silent){if(!NSC)return;const o=NSC.o;cancelAnimationFrame(NSC.raf);if(NSC.au)NSC.au.pause();const el=$('nscene');el.className='';const v=el.querySelector('video');if(v)v.remove();
+function closeNpcScene(silent){if(!NSC)return;const o=NSC.o;cancelAnimationFrame(NSC.raf);clearTimeout(NSC.vto);if(NSC.au)NSC.au.pause();const el=$('nscene');el.className='';const v=el.querySelector('video');if(v)v.remove();
   document.body.classList.remove('ns-on');NSC=null;if(typeof worldLock!=='undefined')worldLock=performance.now()+600;if(!silent&&o.onEnd)o.onEnd();}
 /* painted fallback backgrounds: gradient sky/wall + a few silhouettes per location; drawn once per open */
 function paintLoc(cv,L,key){const dpr=Math.min(1.5,DPR||1),w=innerWidth,h=innerHeight;cv.width=Math.round(w*1.08*dpr);cv.height=Math.round(h*1.08*dpr);const c=cv.getContext('2d');c.setTransform(dpr,0,0,dpr,0,0);
@@ -5467,6 +5645,226 @@ function nsFrame(now){if(!NSC)return;const el=$('nscene'),fx=el.querySelector('.
   if(!NSC.rm){el.querySelector('.ns-par').style.transform=`translate3d(${(-NSC.px*14-Math.sin(t*.2)*4).toFixed(1)}px,${(-NSC.py*8).toFixed(1)}px,0)`;el.querySelector('.ns-chr').style.transform=`translate3d(${(NSC.px*10).toFixed(1)}px,${(NSC.py*5).toFixed(1)}px,0)`;
     NSC.raf=requestAnimationFrame(nsFrame);}}
 /* v1.8.1: no procedural activity props over the portrait; activity reads through the title, dialogue, ambient FX and (later) video loops */
+/* ---------- v1.8.1 romance: each woman warms with her stage. 0 polite, 1 friendly teasing, 2 openly flirty, 3 devoted and romantic.
+   Romantic and non-explicit throughout: hand-holding, an embrace, a kiss, staying a while. ---------- */
+const _n=t=>({s:'npc',t}),_h=t=>({s:'hero',t}),_x=t=>({s:'nar',t});
+const ROMANCE={
+ marla:{up:[null,
+   [_x("Marla slides a bowl across the bar before you've ordered."),_n("Stew. On the house. Don't look at me like that, it's yesterday's."),_h("It's still warm."),_n("Well. I may have kept it warm. For someone. Eat.")],
+   [_x("After close, Marla doesn't put the chairs up. She pours two cups and sits on the bar instead of behind it."),_n("I've been told I smile more when you're in. Pip says it's unsettling."),_h("I like it."),_n("Course you do. You're the cause."),_x("She looks at you a moment longer than she needs to, then laughs at herself and looks away. Her cheeks are pink, and it isn't the fire.")],
+   [_x("The inn is dark. Marla takes your hand at the foot of the stairs, rough-palmed and warm, and doesn't let go."),_n("I've buried a husband and three climbers and I told myself that was the end of that chapter."),_n("Then you walked in with ash in your hair and paid your tab on time, the menace."),_h("Marla."),_n("Hush. Let an old innkeeper say it once: I want you here. Not as a guest."),_x("She pulls you into an embrace that smells of woodsmoke and bread, and kisses you, brief and sure, like closing a door against the cold.")]],
+  talk:[
+   [[_n("Boots by the fire, not on it. I've lost two pairs of good tongs to fools warming their toes.")],
+    [_n("You're the one climbing the tower. I'll keep a room. I won't keep it long."),_h("Encouraging."),_n("Honest. Different thing.")],
+    [_n("Coin first, then talk. I like you fine, but I like coin longer.")],
+    [_n("Pip's sweet on half the room. Don't take it personal if she's sweet on you too.")],
+    [_n("Stew, bread, the dark ale. That's the menu. The menu is not negotiable.")],
+    [_n("Come back down in one piece. Pieces are terrible tippers.")]],
+   [[_n("You're dripping ash on my floor again. Sit. No, not there. There, where I can keep an eye on you.")],
+    [_n("I saved you the heel of the loaf. Nobody wants the heel. I figured you'd be daft enough to."),_h("I love the heel."),_n("See? Daft.")],
+    [_n("You've got a laugh like a busted bellows. It's not a complaint. Do it again.")],
+    [_n("If you die up there I'm keeping your tab open out of spite. Don't make me.")],
+    [_n("Pip asked if I fancied you. I told her I fancy a quiet night. Then you walked in."),_h("And?"),_n("And it's not quiet, is it.")],
+    [_n("Here. Taste this. Too much thyme? ...No, you're right. It's perfect. Don't tell anyone you were right.")]],
+   [[_n("I put on the good apron. Don't say anything. ...You can say something nice.")],
+    [_x("Marla brushes ash from your collar and leaves her hand there a beat too long."),_n("You'd think a hero would own a brush.")],
+    [_n("You've got kind eyes for someone who hits things for a living. It's very inconvenient.")],
+    [_n("When you're late back, I count the stairs. Thirty-one. I've counted them a lot this month.")],
+    [_n("Sit at the end of the bar. Closer. That's the seat I can see from the kitchen hatch."),_h("Why does that matter?"),_n("Work it out, clever.")],
+    [_x("Your fingers touch over the same cup. She doesn't move hers."),_n("...Your hands are cold. That's all this is. A medical concern.")]],
+   [[_n("Come here. Let me look at you. ...All there. Good. Now kiss me hello like a person who missed me.")],
+    [_n("Stay a while. The stew'll keep and so will the tower.")],
+    [_x("Marla holds your hand under the bar while she takes orders with the other one."),_n("Don't look so pleased. People will talk."),_h("Let them."),_n("...Aye. Let them.")],
+    [_n("I lit the lantern again last night. First time in years. I liked having a reason.")],
+    [_n("When this is all done, you and me, a porch, two chairs. I'll even let you pick the ale.")],
+    [_x("She rests her forehead against yours for a moment by the hearth."),_n("There. That's me, saying the soft thing. Don't make me say it twice.")]]]},
+ pip:{up:[null,
+   [_x("Pip bounces over before you've sat down."),_n("Your stool! I saved it! I had to fight a dwarf. Well, I asked him nicely. Same thing!"),_h("You saved me a seat?"),_n("Every night now. It's tradition. As of today. Don't argue with tradition.")],
+   [_x("Pip finds you in the yard, sits beside you on the step, and goes uncharacteristically quiet."),_n("Can I tell you something silly? I put my hair up differently tonight. To see if you'd notice."),_h("I noticed."),_n("You did?! Oh no. Oh, that's worse. Now I'm blushing. Look away. No, don't."),_x("She bumps her shoulder against yours and leaves it there, warm and fidgety, grinning at the stars.")],
+   [_x("Up in the crooked loft, among the plants, Pip laces her fingers through yours."),_n("I always said I'd leave for the coast the second I could. I've had the money for a month."),_h("Why are you still here?"),_n("You know why. You're why. You're my coast."),_x("She leans in and kisses you, quick and a little clumsy, then laughs into your shoulder and holds on tight.")]],
+  talk:[
+   [[_n("Hi! Hello! Sorry! What can I get you? Don't say water, Marla charges for water.")],
+    [_n("You're the tower one! Everyone's talking about you. Mostly nice things. Mostly.")],
+    [_n("Careful with the third step, it bites. Not literally. Mostly not literally.")],
+    [_n("If you tip, I remember your name. If you don't, I remember your face. Forever."),_h("That's a threat."),_n("It's customer service!")],
+    [_n("I'm Pip. Just Pip. It's short for Pip.")],
+    [_n("Can't stop, the stew's escaping. Wave if you need me! Not like that. Like a person.")]],
+   [[_n("You've got soot on your nose. No, other side. ...Hold still. There. Saved your dignity. That'll be one tip.")],
+    [_n("I told table six you're my favourite customer. Now table six is sulking. Worth it.")],
+    [_n("Guess what I did today. No, guess. ...Wrong! I fell in the cellar. But gracefully.")],
+    [_n("You always look so serious coming down from the tower. I'm making it my job to fix that. Smile. Smile! There it is.")],
+    [_n("Ten coppers says I can carry six mugs at once."),_h("Deal."),_n("...Seven coppers says I can carry five mugs at once.")],
+    [_n("Are you staying for the music tonight? You should. Somebody has to dance badly with me.")]],
+   [[_n("You look nice. I mean you always look nice. I mean, um. Your boots are clean! Hello!")],
+    [_x("Pip ties a ribbon round your wrist and takes her time knotting it."),_n("For luck. And so everyone knows who you belong to. To. Who you belong to the inn. I'm working on the sentence.")],
+    [_n("I keep finding reasons to walk past your table. You've had your mug refilled four times. It's not thirst, is it. It's me.")],
+    [_n("You've got a good face for looking at. That's a compliment. I've been practising it all day and that's the best I've got.")],
+    [_x("She leans on your shoulder while she counts tips, cheeks bright."),_n("Don't move. You're very comfortable. This is entirely professional.")],
+    [_n("If you kept coming back just for me, hypothetically... that'd be fine. Hypothetically lovely.")]],
+   [[_x("Pip runs the length of the room and hugs you, tray and all."),_n("You're back! I made you a pie. It's slightly on fire. I love you. Eat the pie.")],
+    [_n("Stay a while? I'm off in ten. We can sit on the roof and you can tell me the stars' names wrong again.")],
+    [_x("She holds your hand across the table and swings it, very pleased with herself."),_n("Look at us. Disgusting. I love it.")],
+    [_n("I don't need the coast anymore. Well, I want to see it. With you. Can we? Someday?"),_h("Someday."),_n("That's a promise now. I'm writing it on the wall.")],
+    [_n("Marla says I hum when you're here. I hum when I'm happy. Draw your own conclusions!")],
+    [_x("Pip kisses your cheek on her way past with three stews, without spilling one."),_n("Talent!")]]]},
+ aelira:{up:[null,
+   [_x("Aelira finishes a bandage and, instead of dismissing you, pours two cups of tea."),_n("Stay for a cup. You are, I have decided, tolerable company."),_h("High praise."),_n("From me? The highest. I have spent three centuries finding most people intolerable.")],
+   [_x("In the herb beds at dusk, Aelira tucks a sprig of moonwort behind your ear and studies the result."),_n("Hm. It suits you. I am going to think about that for longer than is reasonable."),_h("Is that a diagnosis?"),_n("It is a symptom. Your pulse is up, by the way. So is mine."),_x("Her ears flush faintly pink. She looks away, at the river, and does not stop smiling.")],
+   [_x("At the cottage door, Aelira takes both your hands and turns them over, as if checking for wounds that aren't there."),_n("I stopped learning names a hundred years ago. It hurt too much to lose them."),_n("I learned yours anyway. I say it to myself when you are in the tower."),_h("Aelira."),_n("Yes. Like that. Stay a while. Let me be foolish once in three hundred years."),_x("She draws you into her arms, and kisses you, slow and certain, the way she does everything that matters.")]],
+  talk:[
+   [[_n("Sit. Show me the arm. ...Yes, that is a wound. Congratulations.")],
+    [_n("You humans heal so quickly. And break so quickly. It's exhausting to watch.")],
+    [_n("Drink this. It tastes of bark because it is bark.")],
+    [_n("No, I will not tell you how old I am. Older than the town. Younger than the river.")],
+    [_n("Please do not bleed on the clean linen. I have three clean linens. That is all of them.")],
+    [_n("Rest is also a remedy. No one ever believes me about that one.")]],
+   [[_n("You flinched less this time. Either you're getting braver or my hands are getting gentler. I suspect both.")],
+    [_n("I named a seedling after you. It's stubborn and it keeps leaning toward the light. Accurate.")],
+    [_n("You talk to me as though I'm not ancient and terrifying. It's novel. Keep doing it.")],
+    [_n("The salve works better if I apply it. That is medicine, not an excuse. Mostly medicine.")],
+    [_n("Hold the lamp. Higher. ...You're watching me, not the wound."),_h("Sorry."),_n("Hm. I didn't say stop.")],
+    [_n("I have taught kings to hold a mortar. You are worse at it than any of them. Again.")]],
+   [[_n("You have lovely hands. For someone who uses them so badly. Here. Let me.")],
+    [_x("Aelira's fingertips linger at your wrist long after she's found your pulse."),_n("Elevated. How curious. Mine too. We should both see a healer.")],
+    [_n("I find myself listening for your step on the path. It's a terrible habit for an elf. We're meant to be patient.")],
+    [_n("The elves have a word for the colour of your eyes in lamplight. I'll tell you when I'm braver.")],
+    [_n("Walk me to the river? I could go alone. I've gone alone for a century. I'd rather not, tonight.")],
+    [_x("She tucks a loose strand of your hair back into place without asking."),_n("There. Now you're presentable. Now I can stare properly.")]],
+   [[_x("Aelira leans against you on the bench, head on your shoulder, eyes closed."),_n("Hush. I'm listening to your heart. It's become my favourite sound.")],
+    [_n("Stay a while. The kettle is on, and I've stopped pretending it's for me.")],
+    [_x("She laces her fingers with yours and turns the hand to the lamplight, as if reading it."),_n("A long life line. I checked. I always check now.")],
+    [_n("Three hundred years of tea, and it took a human to make it taste of anything."),_h("That's the nicest thing anyone's said to me."),_n("I have a hundred more. I'll ration them.")],
+    [_x("Aelira kisses your knuckles, then your brow, very gravely, like a blessing."),_n("Go. Climb. Come back to me. That's the whole prescription.")],
+    [_n("When the tower is gone I want to show you the moonwells of my people. All of them. It will take decades. Good.")]]]},
+ vivienne:{up:[null,
+   [_x("Vivienne hands you a parcel wrapped in tissue and tied with silver thread."),_n("A scarf. Your colour. I'd been thinking about what your colour was, and then I couldn't stop."),_h("You made this for me?"),_n("I make things for everyone. I don't usually think about them afterwards.")],
+   [_x("On the rooftop, Vivienne drapes her own coat over your shoulders against the wind and keeps her hands on the lapels."),_n("There. Look at you. You wear things as if you'd forgotten they were on. It's maddening. It's charming."),_h("Which one?"),_n("Both. I'm blushing, aren't I. I never blush. I'm blaming the cold."),_x("She doesn't let go of the lapels, and she doesn't step back.")],
+   [_x("In her tidy townhouse, Vivienne straightens your collar, then simply rests her palms flat against your chest."),_n("I've fitted a thousand coats. I always know exactly where everything should sit."),_n("And then there's you, and I've no idea what to do with my hands."),_h("You could hold mine."),_n("...Yes. That. Stay a while. Let me be untidy for once."),_x("She lifts her face and kisses you, soft and deliberate, a little star drawn at the bottom of a very long letter.")]],
+  talk:[
+   [[_n("Welcome. Do mind the pins. They have opinions.")],
+    [_n("Climbers. Always torn. Always in a hurry. Always 'can you do it by tomorrow'.")],
+    [_n("Hm. Your cuffs are a tragedy. Not a crime, quite. A tragedy.")],
+    [_n("Prices are on the card. The card is not a suggestion.")],
+    [_n("I don't do repairs on things that still have monster in them. Wash it first.")],
+    [_n("Good day. If you need anything, I'll know before you do. It's the job.")]],
+   [[_n("You came back. And you didn't touch the silk. I'm almost impressed.")],
+    [_n("Stand up straight. You're slouching in my good mirror. It's bad for both of you.")],
+    [_n("I kept your measurements. Purely professional. In a special notebook. With a ribbon on it."),_h("Is that professional?"),_n("It's organised. Hush.")],
+    [_n("Someone asked if you were my apprentice. I said no, you're my mannequin. Hold still.")],
+    [_n("You've got a pin in your sleeve. Mine, I assume. Keep it. Bring it back when it's earned interest.")],
+    [_n("That colour's wrong on you. This one. ...Oh. Yes. Well. Never wear anything else in my presence.")]],
+   [[_n("Arms up. Turn. Slower. ...I'm checking the seam. I'm absolutely checking the seam.")],
+    [_x("Vivienne measures your shoulders twice, and the second time she isn't looking at the tape."),_n("Numbers can be wrong. One must be thorough.")],
+    [_n("You look devastating in charcoal. I'm telling you as a professional. And as a woman with eyes.")],
+    [_n("I drew you in my sketchbook. Only the coat. And the hands. And, fine, the face. The coat is very good.")],
+    [_n("If you keep smiling at me like that, I'll have to charge you for the fitting. In dinners."),_h("How many?"),_n("I'll keep a tab. A long one.")],
+    [_x("She fixes your collar, then lets her fingertips trail down your lapel."),_n("Perfect. Don't move. I want to remember it exactly.")]],
+   [[_x("Vivienne meets you at the door, takes your face in both hands, and kisses you hello."),_n("There. Now I can concentrate on hemming.")],
+    [_n("Stay a while. I've made too much tea and I want someone to watch me fuss over the cups.")],
+    [_x("She walks beside you through the market with her arm through yours, chin high."),_n("Let them stare. We're the best-dressed couple in Cinderholt. Obviously.")],
+    [_n("I sewed a star inside your coat, over the heart. Nobody will see it. That's rather the point.")],
+    [_n("I used to think I'd only ever love beautiful things. I was right, of course. I just didn't know it'd be you.")],
+    [_x("Vivienne rests against your shoulder on the window seat, shoes off, utterly untidy."),_n("Don't tell anyone I can relax. It'd ruin my reputation.")]]]},
+ maid:{up:[null,
+   [_x("Sylwen sets a second cup beside yours, then hesitates, and sits down to drink it with you."),_n("I hope that's permitted. I didn't ask the house. I asked myself."),_h("Stay."),_n("...Thank you. I believe I will.")],
+   [_x("On the roof, Sylwen wraps her shawl around both your shoulders instead of just hers."),_n("It's a very large shawl. That's the only reason."),_h("Of course."),_n("And you were cold. And I wanted to sit closer. Those are also reasons. I find there are a great many reasons tonight."),_x("Her cheeks are warm when her face brushes yours. She doesn't apologise for it.")],
+   [_x("In her plain room, Sylwen takes your hand and simply holds it in her lap, looking at it, as though it's something precious left in her care."),_n("I served this house for years without ever being anyone's. I didn't mind. I thought I didn't."),_n("Then you came, and you thanked me for the tea. Every time. Nobody thanks the tea."),_h("I'll thank it forever."),_n("Stay a while, then. Not as the master. As mine."),_x("She leans in and kisses you, gentle and certain, and for once she doesn't straighten anything afterwards.")]],
+  talk:[
+   [[_n("Your room is made up. The towels are on the left. The other left.")],
+    [_n("Supper is at eight. If you're late, it will be at eight and cold.")],
+    [_n("The house has stood for two hundred years. Please don't break it in one.")],
+    [_n("I'll mend that. No, you don't need to thank me. It's my duty.")],
+    [_n("Master. ...Sir. ...I'm still deciding what to call you.")],
+    [_n("Wipe your boots. Both of them. I did say both.")]],
+   [[_n("I made the scones you liked. I'm not saying I noticed you liked them. I'm saying there are scones.")],
+    [_n("You hum when you're thinking. It's off key. I've grown used to it. That's all.")],
+    [_n("If you peel, I'll talk. That's the bargain. ...You're peeling very slowly. Is that so I'll keep talking?")],
+    [_n("Liraen says I smile when you come in. Liraen is mistaken. Liraen is frequently mistaken."),_h("You're smiling now."),_n("That's an entirely separate smile.")],
+    [_n("I put a sprig of lavender under your pillow. For sleep. It's practical. Lavender is very practical.")],
+    [_n("You may call me Sylwen. Only you. Only when the house is quiet.")]],
+   [[_x("Sylwen fixes your collar and lets her hand rest on your chest a moment."),_n("There's a thread. ...There isn't. I wanted an excuse.")],
+    [_n("I find myself setting your place before you've arrived. Then waiting by the door. It's undignified. I don't mind.")],
+    [_n("You look well tonight. That's a professional assessment. My hands are only shaking because the teapot is heavy.")],
+    [_n("The roof again? I'll bring the big shawl. We'll have to sit close. It's a very practical arrangement."),_h("Very practical."),_n("I'm glad we agree.")],
+    [_n("Your hair's grown. I like it. I don't know why I said that out loud. Pretend I didn't.")],
+    [_x("She lingers in the doorway after saying goodnight."),_n("...Goodnight. Again. I'm going. I'm going now. ...Goodnight.")]],
+   [[_x("Sylwen meets you in the hall and holds you, quietly, her cheek against your shoulder."),_n("Welcome home. I've waited all day to say that properly.")],
+    [_n("Stay a while. The house can keep itself for one evening. I've taught it well.")],
+    [_x("She holds your hand on the walk upstairs, the way she once held a candle: carefully, so it won't go out.")],
+    [_n("I don't need to be the maid with you. I'm just me. It's strange, being just me. It's lovely.")],
+    [_x("Sylwen kisses you once, softly, then straightens your collar out of habit and laughs at herself."),_n("Some things never change.")],
+    [_n("When the tower falls, I'd like a little garden. Two chairs. Yours on the left. The other left.")]]]},
+ liraen:{up:[null,
+   [_x("Liraen hands you a lantern at the door without a word, then falls into step beside you."),_n("You walk the wall with me tonight. I've decided. You can complain on the way."),_h("I won't complain."),_n("Pity. I was going to enjoy ignoring it.")],
+   [_x("At the top of the watch tower, Liraen leans on the sill beside you, closer than the sill requires."),_n("I don't let people this close. It's a professional rule."),_h("And me?"),_n("You walked past the rule. Like it wasn't locked. I keep checking it, and it isn't."),_x("She bumps your shoulder with hers, eyes on the valley. The tips of her ears have gone pink. She'll deny it.")],
+   [_x("In her small cottage, Liraen sets her ring of keys on the table, the first time you've seen her without them."),_n("Every door in that house, I hold the key. I've never given anyone one to me."),_n("So. Here."),_x("She presses something into your palm. It's not a key. It's her hand."),_n("Stay a while. I'll check the lock once. Just once. Then I'm not leaving this chair."),_x("She pulls you into her arms and kisses you, fierce and brief, and then holds on as if you might be lost on floor eleven.")]],
+  talk:[
+   [[_n("Name. Business. ...Fine. Don't touch the silver.")],
+    [_n("I check every lock twice. Don't take it personally. I'd check you twice too.")],
+    [_n("The master's guests don't wander. The master's guests have a very good sense of direction.")],
+    [_n("I've worked worse houses. This one, at least, the ghosts pay rent.")],
+    [_n("Mind the third stair. It squeaks. I like that it squeaks.")],
+    [_n("Lamp's trimmed. Ledger's balanced. You're late. Two out of three.")]],
+   [[_n("You came back in one piece. Good. Less paperwork.")],
+    [_n("I left the side door on the latch. In case you're late. Don't make a habit of it. Make it a small habit.")],
+    [_n("You scrubbed the step without being asked. Suspicious. Admirable. Mostly suspicious.")],
+    [_n("Sylwen says I'm softer with you. Sylwen should mind her teapot."),_h("Are you?"),_n("Marginally. Don't push it.")],
+    [_n("I counted the lights in the valley last night. There were four. One of them was your window.")],
+    [_n("Walk the wall with me. You're decent company for someone who talks to swords.")]],
+   [[_n("You've a scar on your jaw I haven't catalogued. Hold still. ...For the ledger.")],
+    [_x("Liraen hands you the lantern and her fingers stay on the handle with yours."),_n("It's heavy. I'm helping.")],
+    [_n("I keep finding excuses to be in whatever room you're in. I'm out of excuses. I've started making up new rooms.")],
+    [_n("You look good in the lamplight. It's a fact. I deal in facts. I've been dealing in that one all evening.")],
+    [_n("If anyone hurt you up there, give me a name. I'll lock them somewhere and forget the key."),_h("That's sweet."),_n("It's procedure. Sweet procedure.")],
+    [_x("She leans against the doorframe and watches you a moment too long."),_n("...What. I'm guarding. I'm guarding you specifically.")]],
+   [[_x("Liraen catches your hand at the gate and holds it the whole length of the wall.")],
+    [_n("Stay a while. Lamp's out, lock's checked. Once. I'm proud of me.")],
+    [_x("She pulls you close in the dark hall, forehead to yours, and breathes out like she's been holding it for years."),_n("There. Home. That's all I wanted.")],
+    [_n("I cut you a second key. To my cottage. Don't lose it on floor eleven. Don't lose yourself either.")],
+    [_x("Liraen kisses you at the foot of the stairs, quick and certain, then tucks the keys back on her belt."),_n("Now go to sleep. I'll be on the wall. Not long. I'll come back.")],
+    [_n("I used to keep the key that opens nothing so something would stay locked. I don't need it anymore. You're the thing that stays.")]]]}};
+/* stage-up scene lines (used live and by Memories replays) */
+const STAGE_UP_N={
+ marla:[null,null,"Marla has started keeping the good cup behind the bar for you.","Marla no longer pretends the lantern in her window is for anyone else."],
+ pip:[null,null,"Pip blushes every time you catch her looking. She looks a lot.","Pip stops talking about the coast as somewhere she's going alone."],
+ aelira:[null,null,"Aelira checks your pulse more often than any wound requires.","Aelira has learned your name by heart, and says it like a promise."],
+ vivienne:[null,null,"Vivienne keeps a notebook of your measurements, tied with ribbon.","Vivienne leaves her house a little untidy now, and doesn't mind."],
+ maid:[null,null,"Sylwen sits closer each evening and calls it practical.","Sylwen lets her hair down when it's only the two of you."],
+ liraen:[null,null,"Liraen leaves the side door on the latch, just for you.","Liraen has stopped checking the lock twice."]};
+function stageUpNar(id,st){const a=STAGE_UP_N[id];return (a&&a[st])||STAGE_UP[id];}
+function stageUpLines(id,st){const R2=ROMANCE[id],up=R2&&R2.up[st];return [{s:'nar',t:stageUpNar(id,st)}].concat(up||STAGE_LINES[id][st][0]);}
+/* the stage pools grow: the original location line first, then the new ones */
+REL_IDS.forEach(id=>{const R2=ROMANCE[id];if(!R2)return;for(let st=0;st<4;st++)STAGE_LINES[id][st]=STAGE_LINES[id][st].concat(R2.talk[st]);});
+ICONS.play='<path d="M8 5.5v13l10.5-6.5z"/>';ICONS.book='<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>';
+/* ---------- v1.8.1 Memories: every story, stage-up and shared experience you have seen, replayable without rewards ---------- */
+function memRec(k){if(!S.mem||typeof S.mem!=='object')S.mem={};if(S.mem[k])return;S.mem[k]={t:Date.now(),c:(S.tot&&S.tot.climbs)||0};try{KATel.pick('memory_new',k);}catch(e){}}
+/* backfill from older save flags (story scenes S.scn, stage-ups S.stageSeen, shared S.story.sh_*); marked b:1 = before Memories existed */
+function memBackfill(s){s=s||S;if(!s)return;if(!s.mem||typeof s.mem!=='object')s.mem={};const m=s.mem,put=k=>{if(!m[k])m[k]={t:0,c:0,b:1};};
+  REL_IDS.forEach(id=>{const n=Math.min(3,(s.scn&&s.scn[id])||0);for(let i=0;i<n;i++)put('story:'+id+':'+i);
+    const st=Math.min(3,(s.stageSeen&&s.stageSeen[id])||0);for(let k=1;k<=st;k++)put('stage:'+id+':'+k);
+    if(s.story&&s.story['sh_'+id])put('shared:'+id);});}
+/* the full catalogue, in the order she reveals it: story 1, Friend, shared, story 2, Close, story 3, Devoted */
+function memList(id){const out=[],sc=SCENES[id]||[],x=SHARED[id];
+  const st=i=>({k:'story:'+id+':'+i,kind:'Story',title:sc[i].title,where:sc[i].where,hint:i===0?`Affinity ${SCENE_REQ[i].a}`:`Affinity ${SCENE_REQ[i].a} · clear floor ${SCENE_REQ[i].f}`});
+  const sg=k=>({k:'stage:'+id+':'+k,kind:'Stage',title:STAGE_NAMES[k],where:LOCS[STAGE_LOC[id][k]].name,hint:`Become ${STAGE_NAMES[k].toLowerCase()} · affinity ${STAGE_AT[k]}`});
+  if(sc[0])out.push(st(0));out.push(sg(1));if(x)out.push({k:'shared:'+id,kind:'Shared',title:x.name,where:LOCS[x.loc].name,hint:'Shared experience · unlocks as friends'});
+  if(sc[1])out.push(st(1));out.push(sg(2));if(sc[2])out.push(st(2));out.push(sg(3));return out;}
+function memCount(){memBackfill();let n=0,t=0;REL_IDS.forEach(id=>memList(id).forEach(e=>{t++;if(S.mem&&S.mem[e.k])n++;}));return {n,t};}
+const MEM_MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+function memWhen(r){if(!r)return '';if(r.b||!r.t)return 'Before Memories began';const d=new Date(r.t);return `${MEM_MON[d.getMonth()]} ${d.getDate()} · after climb ${r.c}`;}
+function memThumb(id,known){const k=id==='maid'?'maid':id==='liraen'?'liraen':id;return `<span class="mem-th${known?'':' sil'}"><img src="portraits/${PFILE[k]||k}.webp" alt="" loading="lazy" decoding="async"></span>`;}
+function openMemories(){memBackfill();const c=memCount();
+  const groups=REL_IDS.map(id=>{const L=memList(id),seen=L.filter(e=>S.mem[e.k]).length,met=seen>0||aff(id)>0,nm=met?NPCS[id].name:'???';
+    const rows=L.map(e=>{const r=S.mem[e.k];if(!r)return `<div class="mem-row locked" aria-label="Locked memory"><span class="mem-k">${e.kind}</span><span class="mem-tx"><b>???</b><small>${met?esc(e.hint):'Not yet met'}</small></span><span class="mem-lk">${ic('lock',14,2.4)}</span></div>`;
+      return `<div class="mem-row"><span class="mem-k k-${e.kind.toLowerCase()}">${e.kind}</span><span class="mem-tx"><b>${esc(e.title)}</b><small>${esc(e.where)} · ${esc(memWhen(r))}</small></span><button class="btn small tint mem-play" data-act="memplay" data-k="${e.k}" aria-label="Replay ${esc(e.title)}">${ic('play',14,2.4)}Replay</button></div>`;}).join('');
+    return `<section class="mem-g"><div class="mem-gh">${memThumb(id,met)}<div><b>${esc(nm)}</b><small>${met?STAGE_NAMES[stageOf(id)]+' · ':''}${seen}/${L.length} remembered</small></div></div>${rows}</section>`;}).join('');
+  openSheet('A',head('Memories',`${c.n} of ${c.t} remembered`)+`<div class="sh-body mem-body"><p class="note">Scenes you have shared, kept to revisit. Replays are for remembering: no affinity, gold or perks.</p>${groups}</div>`,{kind:'memories'});
+  try{KATel.pick('memories','open',{n:c.n});}catch(e){}}
+/* replay: same dialogue and scene layers, no onEnd rewards, back to the album afterwards */
+function memReplay(k){if(!S.mem||!S.mem[k])return;const [kind,id,a]=k.split(':'),i=+a,back=()=>{setTimeout(openMemories,60);};closeSheet('A');try{KATel.pick('memory_replay',k);}catch(e){}
+  if(kind==='story'){const sc=SCENES[id][i];playScene({npc:id,memory:1,por:sc.night&&(id==='maid'||id==='liraen')?(id==='maid'?'maid_night':'liraen_night'):id==='maid'?maidPor():id==='liraen'?liraenPor():id,lines:[{s:'nar',t:'Memory · '+sc.title+' · '+sc.where}].concat(sc.lines),onEnd:back});return;}
+  if(kind==='stage'){openNpcScene({npc:id,stage:i,loc:STAGE_LOC[id][i],act:NPC_ACT[id],memory:1,title:`${STAGE_NAMES[i]} · ${NPCS[id].name}`,lines:stageUpLines(id,i),onEnd:back});return;}
+  if(kind==='shared'){const x=SHARED[id];openNpcScene({npc:id,loc:x.loc,act:x.act,title:x.name,memory:1,lines:x.lines,loop:x.id,onEnd:back});}}
 /* ---------- Input ---------- */
 document.addEventListener('click',ev=>{
   {const x=$('eNoteX');if(x&&x.classList.contains('on')){x.classList.remove('on');if(ev.target.closest('#eNote'))return;}
@@ -5488,6 +5886,8 @@ document.addEventListener('click',ev=>{
     case 'tree':SFX.tap();openTree();break;
     case 'forge':SFX.tap();if(screen==='world'&&AREA&&AREA.kind==='floor'){showIsland(`${ic('hammer',16)} The forge is back in town`,'#e0a070',{key:'deny'});break;}openForge();break;
     case 'settings':SFX.tap();openSettings();break;
+    case 'memories':SFX.tap();closeSheet('A');openMemories();break;
+    case 'memplay':SFX.tap();memReplay(b.dataset.k);break;
     case 'close':{const lv=sh&&sh.id==='sheetB'?'B':'A';closeSheet(lv);break;}
     case 'mute':muted=!muted;try{localStorage.setItem(MUTE_KEY,muted?'1':'0');}catch(e){}renderMute();if(SH.A.kind==='settings'&&SH.A.open)openSettings();if(!muted)SFX.tap();break;
     case 'stat':if(S.statPts>0){S.statPts--;S.stats[b.dataset.k]++;save();SFX.tap();openGear(true);}break;
@@ -5591,7 +5991,7 @@ window.addEventListener('pagehide',()=>save(true));
 setInterval(()=>{if(S)save(true);},30000);
 load();resize();renderTitle();if(S)prefetchPor(S.cls);
 requestAnimationFrame(frame);
-window.__LS={get S(){return S},drawWorld,get RUNV(){return RUN},get NSC(){return NSC},stageOf,STAGE_LOC,LOCS,SHARED,STAGE_POR,SCENE_ASSETS,ART_HAVE,SCENE_HAVE,porFor,openNpcScene,closeNpcScene,nsNext,playShared,sharedReady,folkTalk,growthTier,growthScore,crowdN,festivalOn,LOTS,HOMES,visitHome,startDescent,descendStairs,enterCamp,castlePack,CASTLE_MON,CASTLE_BOSSES,campBuy,openQuarter,inCastle,castleUnlocked,descentHtml,biomeOf,TOWN,skillCd,drawHero,HERO,JOY,KATel,updateWorld,disc,drillTab,artsBlock,ledgerHtml,get AREA(){return AREA},get RUNB(){return RUNB},RUN_MULT,MTYPE,DT_MULT,dtOf,dtMult,mtypeOf,ARTS,PROF_XP,profLv,profXp,profGain,curSty,artSkill,artSpec,artTargets,previewArt,doArt,counterMult,counterOf,v18Pack,swarmTick,V18_MONSTERS,trainCost,trainProf,temperCost,temperItem,INVEST,invest,investEff,telSkill,telFlush,weaponLook,weaponIconURL,itemIconHtml,heroLook,drawHeroR,drawHeroClassic,runSync,makeEnemy,makePack,heroAtkMods,battleSkill,gSpec,previewAction,get B(){return B},get RUN(){return RUN},get busy(){return busy},get PST(){return PST},selectAction,execAction,ACTS,approachNode,bestAttackTile,guardTiles,tapWorld,get DLGO(){return DLG},nextLine,endScene,tapTile,moveHero,undoMove,waitTurn,useTonic,blink,canBlink,aiChoose,aiTurn,simFight,startFight,makePack,gSpec,targetsFor,previewAction,areaTiles,reach,planAll,threatMap,flankOf,inCover,los,genArena,genFloor,validateFloor,buildFloor,heroMove,openShrine,takeBlessing,talkFolk,openFolk,buyShop,wearOutfit,takeGift,applyPerks,OUTFITS,FOLK,NPCS,LADY,openBoutique,openLiraen,buildTown,renderBattle,telegraphMap,breathStop,intentHtml,INT_IC,AREA_T,liraenOffDuty,liraenPor,maidOffDuty,maidPor,maidNight,liraenNight,nightVisit,lateHour,NIGHT_CLOCK,MAID_NIGHT,LIRAEN_NIGHT,LIRAEN_OFF,gainAff,aff,talkAff,nextScene,folkTalk,SCENES,SCENE_REQ,townTier,patronCount,giveGift,openSylwen,takeSupper,GOSSIP,SHOPS,lockPlan,foeAct,doIntent,BOSS_T,boardOpen,talkTo,goTown,enterHouse,leaveHouse,townNews,lirGift,buildHouse,TOWN,readLore,LORE,BLESS,rollIntent,enemyTurn,win,lose,returnToFloor,climbStairs,drawMiniMap,openChest,skillCost,startClimb,endRun,goHub,hs,gearPower,itemPower,equip,salvage,upCost,newSave,save,show,renderHub,openGear,openTree,openForge,openVictory,closeSheet,SH,WSTYLES,styleOf,defaultStyle,makeItem,migrate,battleSkill,makeEnemy,hitFoe,knockback,openItem,bootFight,
+window.__LS={ROMANCE,townFootprints,townCobble,onCobble,leaveInn,ruinSky,STAGE_LOC,stageOf,festivalOn,stageUpLines,drawEnt,growTown,enterInn,buildInn,townGrid,villagerSprite,loopFor,SCENE_SHIP,memRec,memBackfill,memList,memCount,openMemories,memReplay,openSettings,SCENES,STAGE_LINES,STAGE_UP,playShared,folkTalk,get S(){return S},drawWorld,get RUNV(){return RUN},get NSC(){return NSC},stageOf,STAGE_LOC,LOCS,SHARED,STAGE_POR,SCENE_ASSETS,ART_HAVE,SCENE_HAVE,porFor,openNpcScene,closeNpcScene,nsNext,playShared,sharedReady,folkTalk,growthTier,growthScore,crowdN,festivalOn,LOTS,HOMES,visitHome,startDescent,descendStairs,enterCamp,castlePack,CASTLE_MON,CASTLE_BOSSES,campBuy,openQuarter,inCastle,castleUnlocked,descentHtml,biomeOf,TOWN,skillCd,drawHero,HERO,JOY,KATel,updateWorld,disc,drillTab,artsBlock,ledgerHtml,get AREA(){return AREA},get RUNB(){return RUNB},RUN_MULT,MTYPE,DT_MULT,dtOf,dtMult,mtypeOf,ARTS,PROF_XP,profLv,profXp,profGain,curSty,artSkill,artSpec,artTargets,previewArt,doArt,counterMult,counterOf,v18Pack,swarmTick,V18_MONSTERS,trainCost,trainProf,temperCost,temperItem,INVEST,invest,investEff,telSkill,telFlush,weaponLook,weaponIconURL,itemIconHtml,heroLook,drawHeroR,drawHeroClassic,runSync,makeEnemy,makePack,heroAtkMods,battleSkill,gSpec,previewAction,get B(){return B},get RUN(){return RUN},get busy(){return busy},get PST(){return PST},selectAction,execAction,ACTS,approachNode,bestAttackTile,guardTiles,tapWorld,get DLGO(){return DLG},nextLine,endScene,tapTile,moveHero,undoMove,waitTurn,useTonic,blink,canBlink,aiChoose,aiTurn,simFight,startFight,makePack,gSpec,targetsFor,previewAction,areaTiles,reach,planAll,threatMap,flankOf,inCover,los,genArena,genFloor,validateFloor,buildFloor,heroMove,openShrine,takeBlessing,talkFolk,openFolk,buyShop,wearOutfit,takeGift,applyPerks,OUTFITS,FOLK,NPCS,LADY,openBoutique,openLiraen,buildTown,renderBattle,telegraphMap,breathStop,intentHtml,INT_IC,AREA_T,liraenOffDuty,liraenPor,maidOffDuty,maidPor,maidNight,liraenNight,nightVisit,lateHour,NIGHT_CLOCK,MAID_NIGHT,LIRAEN_NIGHT,LIRAEN_OFF,gainAff,aff,talkAff,nextScene,folkTalk,SCENES,SCENE_REQ,townTier,patronCount,giveGift,openSylwen,takeSupper,GOSSIP,SHOPS,lockPlan,foeAct,doIntent,BOSS_T,boardOpen,talkTo,goTown,enterHouse,leaveHouse,townNews,lirGift,buildHouse,TOWN,readLore,LORE,BLESS,rollIntent,enemyTurn,win,lose,returnToFloor,climbStairs,drawMiniMap,openChest,skillCost,startClimb,endRun,goHub,hs,gearPower,itemPower,equip,salvage,upCost,newSave,save,show,renderHub,openGear,openTree,openForge,openVictory,closeSheet,SH,WSTYLES,styleOf,defaultStyle,makeItem,migrate,battleSkill,makeEnemy,hitFoe,knockback,openItem,bootFight,
   get screen(){return screen},get AREA(){return AREA},HERO,JOY,CAM,talkTo,bumpMonster,enterFloor,goTown,enterHouse,openMap,openGate,get DLG(){return DLG},TUNE,checkpoints,get FAST(){return FAST},GC,GR,BOSS_T,ELITE_T,MONSTERS,BOSSES,computeIdle,openIdle,KATel,CLASSES};
 })();
 </script>
