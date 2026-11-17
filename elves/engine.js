@@ -1467,8 +1467,12 @@
     $('mapSettings').addEventListener('click', openSettings);
     $('mapTitle').addEventListener('click', function () { autosave(); showTitle(); });
     $('btnAdvance').addEventListener('click', function (e) { e.stopPropagation(); advance(); });
-    $('box').addEventListener('click', function (e) {
-      if (e.target.closest('button')) return;
+    $('scene').addEventListener('pointerup', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.target.closest && e.target.closest('button, a, input, textarea')) return;
+      if (overlayName()) return;
+      if (!state || state.screen !== 'scene') return;
+      if (choiceOpen) return;
       advance();
     });
     $('btnAuto').addEventListener('click', function (e) { e.stopPropagation(); toggleAuto(); });
