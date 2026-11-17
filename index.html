@@ -70,6 +70,9 @@
   }
   .card:nth-child(2){animation-delay:.08s}
   .card:nth-child(3){animation-delay:.16s}
+  .card:nth-child(4){animation-delay:.24s}
+  .card:nth-child(5){animation-delay:.32s}
+  .card:nth-child(6){animation-delay:.40s}
   @keyframes cardIn{to{opacity:1;transform:none}}
   .art{height:200px;position:relative;overflow:hidden;border-radius:var(--r) var(--r) 0 0}
   .art canvas{display:block;width:100%;height:100%}
@@ -212,6 +215,17 @@ const GAMES = [
     accent: '#ff9a4a',
     tag: 'WEIRD WEST ROGUELITE',
     art: 'sorrow'
+  },
+  {
+    id: 'sirens',
+    name: 'SIRENS',
+    subtitle: 'Of the Hollow Spire',
+    blurb: 'Climb a gothic tower with a cursed arm. Free a swordswoman, an elven witch, and a valkyrie, then silence the voice at the crown.',
+    href: './sirens/',
+    accent: '#d4a0ff',
+    tag: 'ACTION RPG',
+    mature: true,
+    art: 'sirens'
   }
 ];
 
@@ -255,11 +269,12 @@ if (lastId) {
   const box=document.getElementById('recents');
   if(!box) return;
   const fmtTime=s=>{ s=Math.floor(+s||0); return String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0'); };
-  let voidBest=0, siegeBest=0, spireBest=0, valeLv=0, valeBoss=false;
+  let voidBest=0, siegeBest=0, spireBest=0, valeLv=0, valeBoss=false, sirensBest=0;
   try{ const sp=JSON.parse(localStorage.getItem('kylearcade_lumenspire_save')||'null'); spireBest=sp?(sp.bestFloor||0):0; }catch(e){}
   try{ const sv=JSON.parse(localStorage.getItem('kylearcade_starfall-vale_save')||'null'); if(sv){ valeLv=sv.lvl||1; valeBoss=!!(sv.flags&&(sv.flags.boss_barrowking||sv.flags.boss_wyrm)); } }catch(e){}
   try{ voidBest=+(localStorage.getItem('voidbreaker_best')||0)||0; }catch(e){}
   try{ siegeBest=+(localStorage.getItem('kylearcade_mobsiege_best')||0)||0; }catch(e){}
+  try{ const ss=JSON.parse(localStorage.getItem('kylearcade_sirens_save')||'null'); sirensBest=ss&&ss.meta?(ss.meta.bestFloor||0):0; }catch(e){}
   const byId=Object.fromEntries(GAMES.map(g=>[g.id,g]));
   const last=byId[lastId];
   let html='';
@@ -268,6 +283,7 @@ if (lastId) {
       :last.id==='lumenspire'?(spireBest?'Best floor  '+spireBest:'Climb the tower')
       :last.id==='starfall-vale'?(valeLv?(valeBoss?'Barrow King slain  ·  Lv '+valeLv:'Level '+valeLv):'Cross the moor')
       :last.id==='six-for-sorrow'?'Ride the Dry Mile'
+      :last.id==='sirens'?(sirensBest?(sirensBest>=4?'Crown sealed  ·  Floor '+sirensBest:'Floor '+sirensBest):'Climb the spire')
       :(siegeBest?'Furthest level  '+siegeBest:'Storm the keep');
     html+=`<a class="continue" href="${last.href}" data-id="${last.id}" style="--accent:${last.accent}">
       <div class="meta"><div class="k">CONTINUE</div><div class="n" style="color:${last.accent}">${last.name}</div><div class="s">${score}</div></div>
@@ -279,6 +295,7 @@ if (lastId) {
   if(siegeBest) lines.push(`<div>MOB SIEGE  ·  <b>Level ${siegeBest}</b></div>`);
   if(spireBest) lines.push(`<div>ASHSPIRE  ·  <b>Floor ${spireBest}</b></div>`);
   if(valeLv) lines.push(`<div>GRAVENMOOR  ·  <b>Level ${valeLv}${valeBoss?' · King slain':''}</b></div>`);
+  if(sirensBest) lines.push(`<div>SIRENS  ·  <b>Floor ${sirensBest}</b></div>`);
   if(lines.length) html+=`<div class="bests">${lines.join('')}</div>`;
   box.innerHTML=html;
   box.addEventListener('click',e=>{
@@ -438,6 +455,19 @@ function paintArt(c, kind, accent){
     // wolf eyes in the dark
     [[560,H*.8],[600,H*.83],[420,H*.78]].forEach(([x,y])=>{ ctx.fillStyle='#ffb04a'; ctx.shadowColor='#ff8a1a'; ctx.shadowBlur=8; ctx.fillRect(x,y,4,2); ctx.fillRect(x+9,y,4,2); }); ctx.shadowBlur=0;
     const v=ctx.createRadialGradient(W/2,H/2,H*.35,W/2,H/2,W*.7); v.addColorStop(0,'rgba(0,0,0,0)'); v.addColorStop(1,'rgba(0,0,0,.55)'); ctx.fillStyle=v; ctx.fillRect(0,0,W,H);
+  } else if (kind==='sirens') {
+    const g=ctx.createLinearGradient(0,0,0,H);
+    g.addColorStop(0,'#140818'); g.addColorStop(.45,'#3a1868'); g.addColorStop(1,'#120810');
+    ctx.fillStyle=g; ctx.fillRect(0,0,W,H);
+    ctx.fillStyle='#e6d2ff'; ctx.font='800 54px Georgia,serif'; ctx.textAlign='center'; ctx.textBaseline='middle';
+    ctx.fillText('SIRENS', W*0.34, H*0.42);
+    ctx.fillStyle='#e2c27a'; ctx.font='700 16px Georgia,serif'; ctx.fillText('OF THE HOLLOW SPIRE', W*0.34, H*0.58);
+    const img=new Image();
+    img.onload=function(){
+      const sw=img.width, sh=Math.round(img.height*0.78);
+      ctx.drawImage(img,0,0,sw,sh,0,0,W,H);
+    };
+    img.src='sirens/art/keyart.jpg';
   } else {
     const g=ctx.createLinearGradient(0,0,0,H);
     g.addColorStop(0,'#6ea6d4'); g.addColorStop(0.35,'#7da85a'); g.addColorStop(1,'#2f6a32');
