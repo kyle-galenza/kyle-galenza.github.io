@@ -656,19 +656,20 @@ body.world-frozen #runBtn{opacity:.4}
 .artl .ai{flex:0 0 auto;margin-top:1px}.artl small{color:var(--dim)}.artl em{font-style:normal;color:#d8cfbd}.artl .need{color:#ffcf7a}.artl.lk{opacity:.72}
 #eType{flex:0 0 auto;margin:0 0 0 auto;align-self:center}#battle #eName{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
-/* v1.8 E: full-screen NPC scenes */
-#nscene{position:fixed;inset:0;z-index:60;display:none;overflow:hidden;background:#000;-webkit-user-select:none;user-select:none;touch-action:manipulation}
-#nscene.on{display:block}
-#nscene .ns-par{position:absolute;inset:-4%;will-change:transform}#nscene .ns-bg{width:100%;height:100%;display:block}
-#nscene .ns-chr{position:absolute;left:0;right:0;bottom:0;height:86%;display:flex;justify-content:center;align-items:flex-end;will-change:transform;pointer-events:none}
-#nscene .ns-act{height:100%;display:flex;align-items:flex-end;transform-origin:50% 100%;animation:nsBreathe 4.2s ease-in-out infinite}
-#nscene .ns-img{height:100%;width:auto;max-width:none;flex:none;-webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.6) 9%,#000 22%);mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.6) 9%,#000 22%)}
-#nscene .ns-fx{position:absolute;inset:0;width:100%;height:100%;pointer-events:none}
-#nscene .ns-grad{position:absolute;left:0;right:0;bottom:0;height:46%;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(8,5,4,.72) 45%,rgba(8,5,4,.94));pointer-events:none}
-#nscene .ns-top{position:absolute;top:calc(var(--st) + 10px);left:calc(12px + var(--sl));right:calc(12px + var(--sr));display:flex;gap:8px;align-items:center}
+/* v1.8.4: large video/portrait band (top ~60-66%), text band below, no overlap */
+#nscene{position:fixed;inset:0;z-index:60;display:none;flex-direction:column;overflow:hidden;background:#000;-webkit-user-select:none;user-select:none;touch-action:manipulation}
+#nscene.on{display:flex}
+#nscene .ns-par{position:absolute;inset:-4%;z-index:0;will-change:transform}#nscene .ns-bg{width:100%;height:100%;display:block}
+#nscene .ns-chr{position:relative;z-index:1;flex:0 0 63%;min-height:0;max-height:66%;display:flex;justify-content:center;align-items:stretch;padding:calc(var(--st) + 8px) 8px 8px;box-sizing:border-box;will-change:transform;pointer-events:none}
+@media (max-height:700px){#nscene .ns-chr{flex-basis:66%;max-height:70%}}
+#nscene .ns-act{position:relative;width:100%;height:100%;border-radius:18px;overflow:hidden;box-shadow:0 16px 40px rgba(0,0,0,.42);transform-origin:50% 100%;animation:nsBreathe 4.2s ease-in-out infinite}
+#nscene .ns-img{width:100%;height:100%;object-fit:cover;object-position:50% 15%;display:block}
+#nscene .ns-fx{position:absolute;inset:0;width:100%;height:100%;z-index:2;pointer-events:none}
+#nscene .ns-grad{position:absolute;left:0;right:0;bottom:0;height:37%;z-index:2;background:linear-gradient(180deg,rgba(0,0,0,0),rgba(8,5,4,.55) 40%,rgba(8,5,4,.88));pointer-events:none}
+#nscene .ns-top{position:absolute;top:calc(var(--st) + 10px);left:calc(12px + var(--sl));right:calc(12px + var(--sr));z-index:4;display:flex;gap:8px;align-items:center}
 #nscene .ns-loc{flex:1;min-width:0;font:800 12px/1.2 inherit;letter-spacing:.04em;color:#f4e6c8;background:rgba(10,6,4,.55);padding:7px 11px;border-radius:12px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 #nscene .ns-voice,#nscene .ns-skip{width:44px;height:44px;border-radius:50%;border:1px solid rgba(255,236,200,.3);background:rgba(10,6,4,.6);color:#f4e6c8;display:grid;place-items:center}
-#nscene .ns-dlg{position:absolute;left:calc(14px + var(--sl));right:calc(14px + var(--sr));bottom:calc(max(var(--sb),12px) + 14px);padding:14px 16px 12px;border-radius:18px;background:rgba(16,10,8,.66);border:1px solid rgba(255,220,170,.18);color:#f6ecd8;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
+#nscene .ns-dlg{position:relative;z-index:3;flex:1 1 auto;min-height:0;margin:8px calc(14px + var(--sl)) calc(max(var(--sb),12px) + 10px) calc(14px + var(--sr));padding:14px 16px 12px;border-radius:18px;background:rgba(16,10,8,.66);border:1px solid rgba(255,220,170,.18);color:#f6ecd8;-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px)}
 #nscene .ns-name{display:block;font-family:var(--display);color:var(--acc,#ffc070);font-size:15px;margin-bottom:4px}
 #nscene .ns-txt{margin:0;font-size:15.5px;line-height:1.45}#nscene .s-nar .ns-txt{font-style:italic;color:#e0d4bc}
 #nscene .ns-more{display:block;text-align:right;font-size:11px;color:rgba(255,236,200,.55);margin-top:6px}
@@ -699,8 +700,9 @@ body.world-frozen #runBtn{opacity:.4}
 .mem-tx{flex:1;min-width:0}.mem-tx b{display:block;font-size:15px;color:#f2e6d2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mem-tx small{display:block;font-size:12px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .mem-play{flex:none;min-width:92px;gap:6px;display:inline-flex;align-items:center;justify-content:center}
 .mem-row.locked .mem-tx b{color:#6f675e;letter-spacing:.2em}.mem-row.locked .mem-k{opacity:.45}.mem-lk{flex:none;width:44px;display:flex;justify-content:center;color:#6f675e}
-#nscene .ns-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 100%;opacity:0;transition:opacity .45s ease;-webkit-mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.6) 9%,#000 22%);mask-image:linear-gradient(to bottom,transparent 0,rgba(0,0,0,.6) 9%,#000 22%)}
+#nscene .ns-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 15%;opacity:0;transition:opacity .45s ease}
 #nscene.vid-on .ns-vid{opacity:1}#nscene.vid-on .ns-img{opacity:0;transition:opacity .45s ease}
+#nscene.vid-on .ns-act{animation:nsBreathe 4.2s ease-in-out infinite}
 #nscene.mem .ns-loc{color:#ffd9a8}
 </style>
 </head>
@@ -825,7 +827,7 @@ body.world-frozen #runBtn{opacity:.4}
 <script>
 (() => {
 'use strict';
-const KA_GAME='lumenspire', KA_VERSION='1.8.3';
+const KA_GAME='lumenspire', KA_VERSION='1.8.4';
 /* KA_TELEMETRY_START */
 // Shared anonymous play-log module. No personal data.
 // TELEMETRY_URL is the ntfy.sh topic. Messages over 4096 bytes become attachments,
@@ -5627,7 +5629,7 @@ function openNpcScene(o){if(NSC)closeNpcScene(true);joyEnd&&joyEnd();
     const srcs=v.querySelectorAll('source');srcs[srcs.length-1].addEventListener('error',drop);v.addEventListener('error',drop);
     v.addEventListener('playing',()=>{if(!NSC||!v.isConnected)return;clearTimeout(NSC.vto);NSC.vid='playing';el.classList.add('vid-on');},{once:true});
     NSC.vid='loading';NSC.vto=setTimeout(()=>{if(NSC&&NSC.vid==='loading')drop();},3500);
-    el.querySelector('.ns-chr').appendChild(v);const p=v.play();if(p&&p.catch)p.catch(()=>{});}
+    el.querySelector('.ns-act').appendChild(v);const p=v.play();if(p&&p.catch)p.catch(()=>{});}
   const fx=el.querySelector('.ns-fx'),dpr=Math.min(1.5,DPR||1);fx.width=Math.round(innerWidth*dpr);fx.height=Math.round(innerHeight*dpr);NSC.dpr=dpr;
   nsSeed();document.body.classList.add('ns-on');KATel.pick&&KATel.pick('nscene',id,{loc:o.loc,act,st});
   if(!rm)NSC.raf=requestAnimationFrame(nsFrame);else nsFrame(performance.now());
