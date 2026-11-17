@@ -827,7 +827,7 @@ body.world-frozen #runBtn{opacity:.4}
 <script>
 (() => {
 'use strict';
-const KA_GAME='lumenspire', KA_VERSION='1.8.4';
+const KA_GAME='lumenspire', KA_VERSION='1.9.0';
 /* KA_TELEMETRY_START */
 // Shared anonymous play-log module. No personal data.
 // TELEMETRY_URL is the ntfy.sh topic. Messages over 4096 bytes become attachments,
@@ -5525,6 +5525,35 @@ const SHARED={
     lines:[{s:'npc',t:"Careful on the slates. Here. It's chamomile and something I won't name."},{s:'npc',t:"That one's the Lantern. Sailors steered by it, before the ash. I like that it's still there."}],reward:()=>{S.perks.rest=Math.max(1,S.perks.rest||0);return 'Well rested';}},
   liraen:{id:'patrol',name:'Night patrol with Liraen',loc:'town_wall',act:'patrol',stage:1,d:'Walk the wall and check every lock. Gold and shards for the trouble',
     lines:[{s:'npc',t:"Gate, postern, the grate by the well. Rattle each one. If it rattles back, we run."},{s:'hero',t:"Has one ever rattled back?"},{s:'npc',t:"Once. It was Pip. Long story."}],reward:()=>{const g=30+townTier()*15;S.gold+=g;S.shards+=2;KATel.coins(g,0);return `+${g} gold, +2 shards`;}}};
+
+/* v1.9.0: a one-time funny inn memory once Pip and Marla are both Friends. Replayable, no rewards. */
+const SPILL={k:'moment:spill',name:'The spilled mug',loc:'inn_floor',act:'trays',npc:'pip',
+  hint:'A funny night at the inn · after you, Pip and Marla are friends',
+  lines:[
+    {s:'nar',t:"Pip is mid-stride across the common room with a tray of mugs when one tips. Ale splashes down her apron. She yelps, then bursts out laughing."},
+    {s:'npc',who:'pip',t:"Ah! Traitor mug! I never spill— I almost never spill!"},
+    {s:'hero',t:"Are you all right?"},
+    {s:'npc',who:'pip',t:"I'm fine! The apron took the worst of it. The ale's having a better evening than I am."},
+    {s:'nar',t:"Marla is already there with a towel, shaking her head and fighting a smile."},
+    {s:'npc',who:'marla',t:"You never spill, she says, standing in a puddle of my best ale."},
+    {s:'npc',who:'pip',t:"It's mostly the apron! Mostly. A little on the floor. A very little. Don't look at the floor."},
+    {s:'npc',who:'marla',t:"Hold still, you menace."},
+    {s:'nar',t:"Marla dabs the wet patch on Pip's apron, firm and practical, while Pip tries not to giggle and fails."},
+    {s:'npc',who:'pip',t:"You're making it worse! You're laughing!"},
+    {s:'npc',who:'marla',t:"I'm laughing at you, not the ale. The ale didn't do anything funny. You did."},
+    {s:'npc',who:'pip',t:"I did, didn't I. Oh, I'm going to hear about this for a year."},
+    {s:'npc',who:'marla',t:"A year? I'll have it framed. 'Pip, who never spills.'"},
+    {s:'hero',t:"I'll fetch another towel."},
+    {s:'npc',who:'pip',t:"See? A true friend. Unlike certain innkeepers."},
+    {s:'npc',who:'marla',t:"Wipe your hands and get a fresh tray. And you — don't you dare let her live this down."},
+    {s:'nar',t:"They lean together, laughing, the towel forgotten between them, the spilled mug already just a story."}
+  ]};
+function spillReady(){return stageOf('pip')>=1&&stageOf('marla')>=1&&!S.story.spill;}
+function trySpill(id){if((id!=='pip'&&id!=='marla')||!spillReady())return false;playSpill({live:1,from:id});return true;}
+function playSpill(o){o=o||{};const live=!!o.live,from=o.from||'pip',back=o.onEnd;
+  openNpcScene({npc:'pip',stage:stageOf('pip'),loc:SPILL.loc,act:SPILL.act,title:SPILL.name,memory:!live,lines:SPILL.lines,loop:SCENE_HAVE['scenes/loop_spill.mp4']?'spill':undefined,
+    onEnd:()=>{if(live){S.story.spill=1;memRec(SPILL.k);save();try{KATel.pick('moment','spill');}catch(e){}}if(back)back();else if(live)sheetFor(from);}});}
+
 function sharedReady(id){const x=SHARED[id];return !!x&&stageOf(id)>=x.stage&&(S.story['sh_'+id]!==today());}
 function sharedRow(id){const x=SHARED[id];if(!x)return '';const st=stageOf(id),ok=st>=x.stage,done=S.story['sh_'+id]===today();
   return `<button class="bless shop shared${done?' owned':''}" data-act="shared" data-id="${id}" ${ok&&!done?'':'disabled'}><span class="bi">${ic('heart',22)}</span><span class="tx"><b>${esc(x.name)}</b><small>${ok?(done?'Done today · again tomorrow':esc(x.d)):`Unlocks when you're friends (affinity ${STAGE_AT[x.stage]})`}</small></span><span class="pr">${done?ic('check',16,2.4):ok?'Go':ic('lock',14,2.4)}</span></button>`;}
@@ -5540,6 +5569,7 @@ function folkTalk(id,base){
   if(!S.stageSeen)S.stageSeen={};const st=stageOf(id),seen=S.stageSeen[id]||0;
   if(st>seen){S.stageSeen[id]=st;for(let k=seen+1;k<=st;k++)memRec('stage:'+id+':'+k);save();openNpcScene({npc:id,stage:st,loc:STAGE_LOC[id][st],act:NPC_ACT[id],title:`${STAGE_NAMES[st]} · ${NPCS[id].name}`,
     lines:stageUpLines(id,st),onEnd:()=>{talkAff(id);KATel.pick('stage',id,{st});save();sheetFor(id);}});return;}
+  if(trySpill(id))return;
   const k='stt_'+id;S.story[k]=(S.story[k]||0)+1;
   if((st>=1||loopFor(id,0))&&S.story[k]%2===0){const L=STAGE_LINES[id][st];openNpcScene({npc:id,stage:st,loc:STAGE_LOC[id][st],act:NPC_ACT[id],lines:L[((S.story[k]>>1)-1+L.length)%L.length],onEnd:()=>{talkAff(id);save();sheetFor(id);}});return;}
   base();}
@@ -5634,8 +5664,13 @@ function openNpcScene(o){if(NSC)closeNpcScene(true);joyEnd&&joyEnd();
   nsSeed();document.body.classList.add('ns-on');KATel.pick&&KATel.pick('nscene',id,{loc:o.loc,act,st});
   if(!rm)NSC.raf=requestAnimationFrame(nsFrame);else nsFrame(performance.now());
   nsNext();}
-function nsLine(){const L=NSC.o.lines[NSC.i];const el=$('nscene');const who=L.s==='npc'?(NPCS[NSC.id]||{}).name:L.s==='hero'?CLASSES[S.cls].name:'';
-  el.querySelector('.ns-name').textContent=who||'';el.querySelector('.ns-name').style.display=who?'':'none';el.querySelector('.ns-txt').textContent=L.t;el.querySelector('.ns-dlg').className='ns-dlg s-'+L.s;
+function nsLine(){const L=NSC.o.lines[NSC.i];const el=$('nscene');
+  const nid=L.who||(NPCS[L.s]?L.s:null)||(L.s==='npc'?NSC.id:null);
+  const who=L.s==='hero'?CLASSES[S.cls].name:L.s==='nar'?'':(NPCS[nid]||{}).name||'';
+  const cls=L.s==='hero'||L.s==='nar'?L.s:'npc';
+  const nm=el.querySelector('.ns-name');nm.textContent=who||'';nm.style.display=who?'':'none';
+  if(who)nm.style.color=L.s==='hero'?(CLASSES[S.cls].col||''):((NPCS[nid]||{}).col||'');
+  el.querySelector('.ns-txt').textContent=L.t;el.querySelector('.ns-dlg').className='ns-dlg s-'+cls;
   if(NSC.au){NSC.au.pause();NSC.au=null;}if(S.voice&&L.v){try{NSC.au=new Audio(L.v);NSC.au.play().catch(()=>{});}catch(e){}}}
 function nsNext(){if(!NSC)return;NSC.i++;if(NSC.i>=NSC.o.lines.length){closeNpcScene();return;}nsLine();SFX.tap&&NSC.i>0&&SFX.tap();}
 function closeNpcScene(silent){if(!NSC)return;const o=NSC.o;cancelAnimationFrame(NSC.raf);clearTimeout(NSC.vto);if(NSC.au)NSC.au.pause();const el=$('nscene');el.className='';const v=el.querySelector('video');if(v)v.remove();
@@ -5870,6 +5905,144 @@ const STAGE_UP_N={
  liraen:[null,null,"Liraen leaves the side door on the latch, just for you.","Liraen has stopped checking the lock twice."]};
 function stageUpNar(id,st){const a=STAGE_UP_N[id];return (a&&a[st])||STAGE_UP[id];}
 function stageUpLines(id,st){const R2=ROMANCE[id],up=R2&&R2.up[st];return [{s:'nar',t:stageUpNar(id,st)}].concat(up||STAGE_LINES[id][st][0]);}
+
+/* v1.9.0: more flirty-but-tasteful talks at Friend (1), Close (2), Devoted (3). Warm, teasing, blushing; a kiss only at 3. */
+const ROMANCE_MORE={
+ marla:{1:[
+   [_n("I caught myself watching the door again. If anyone asks, I was checking the weather. In here.")],
+   [_n("You've a habit of coming in just as the stew's ready. Coincidence, is it?"),_h("I have a good nose."),_n("You've a good timing. Sit down before I take it personally.")],
+   [_n("You take your tea the same way every time. I remembered. Don't make a fuss about it, I'll deny I said that.")],
+   [_n("If you're going to loiter, loiter where I can see you. The far stool's been lonely. So have I, occasionally. Don't quote me.")],
+   [_n("Pip says I go soft when you walk in. Pip can polish the mugs and mind her business."),_h("Do you?"),_n("That's between me and the mugs.")],
+   [_n("Extra bread. If you tell the regulars I have favourites, I'll deny it with a perfectly straight face.")]
+  ],2:[
+   [_n("I put my hair up differently. Don't you dare not notice."),_h("I noticed."),_n("Good. I did it for you, which is a terrible reason, and I'm not taking it down.")],
+   [_n("Come behind the bar a minute. I need a taller person for the top shelf. That's the story, and we're sticking to it.")],
+   [_x("Marla takes your hand to steer you around a wet flagstone, and forgets to let go."),_n("The floor's treacherous. I'm being responsible.")],
+   [_n("You've a smudge of flour on your cheek. No, I put it there, so I'd have an excuse. Hold still.")],
+   [_n("When you laugh like that I forget what I was pouring. That's expensive, I'll have you know.")],
+   [_n("Stay till close. I'll walk you as far as the lamp. Maybe farther. Don't get ideas. ...Get some ideas.")]
+  ],3:[
+   [_n("Come here, you. I saved you the seat and the last of the good cider and a kiss, if you're not too proud.")],
+   [_n("I used to lock up and go to bed angry at the silence. Now I leave the lantern and wait. You've ruined my solitude. Thank you.")],
+   [_x("She turns your hand over by the hearth, thumb at your wrist."),_n("Warmed up. Medical mystery solved. I'll need to keep checking.")],
+   [_n("If you want a home to come back to, it's this one. The door, the bread, me. Especially me.")],
+   [_x("Marla kisses your temple, brief and sure, and keeps her brow there a moment."),_n("There. For the stairs. And for me.")],
+   [_n("I love you, you menace. There. I said the soft thing twice. Sit down before I say it a third time.")]
+  ]},
+ pip:{1:[
+   [_n("I practised saying your name in the cellar. The casks didn't laugh. The casks are very kind.")],
+   [_n("You've got a leaf in your hair. I'll get it. ...There are no more leaves. I'm just standing here now."),_h("You can stay."),_n("I was hoping you'd say that. I didn't have a second plan.")],
+   [_n("Marla says I talk too much when you're in. She's right. I have so many words and they all want to be first.")],
+   [_n("I saved you the window table. The one with the nice light. For your face. The light is for your face. I'm going to stop talking.")],
+   [_n("Walk me to the well? I was going anyway. I go to the well constantly now. It's a whole new habit.")],
+   [_n("If I trip, it's because I'm looking at you, not because I'm clumsy. I'm also clumsy. It's a combination.")]
+  ],2:[
+   [_n("I wore the ribbon you said you liked. If you don't remember saying that, please pretend. I remembered enough for both of us.")],
+   [_n("Can I hold your hand as far as the yard? For balance. The yard is very slanted. It isn't. I know.")],
+   [_n("I keep smiling at the stew. The stew didn't do anything. You did. The stew is confused.")],
+   [_n("Don't look at me like that, I forget the orders. Table four has been waiting so long they've started a club.")],
+   [_n("I made you a flower from a napkin. It's terrible. Please keep it forever."),_h("Forever."),_n("Good. I already told the other napkins.")],
+   [_n("If anyone asks, we're discussing the menu. We are not. I'm just happy. Don't tell the menu.")]
+  ],3:[
+   [_n("You're my favourite person. I was going to be casual about it and then I opened my mouth. Sorry. Not sorry.")],
+   [_x("Pip kisses your cheek, then covers her face with both hands and peeks through."),_n("I did that. I did that on purpose. I'm a professional.")],
+   [_n("Stay a bit? The plants won't mind. I told them you were coming. They've been very supportive.")],
+   [_x("She laces her fingers through yours and swings your hands once, delighted."),_n("There. That's the good kind of busy.")],
+   [_n("When you come down from the tower I want to be the first thing you see. I've been practising being the first thing. It's mostly standing here grinning.")],
+   [_n("I love you. I wrote it on a bit of paper and then I said it anyway. The paper can be backup.")]
+  ]},
+ aelira:{1:[
+   [_n("I set out two cups again. I tell myself it is habit. It is not habit. It is you.")],
+   [_n("You are less of a disaster this week. I am choosing to take credit."),_h("I'll allow it."),_n("Generous. Sit. I will allow you the comfortable stool.")],
+   [_n("The mint is doing well. I talk to it. I may have mentioned you. The mint is discreet.")],
+   [_n("Hold still. There is ash on your brow. There. I have made you presentable. You may thank me by not immediately undoing it.")],
+   [_n("Most patients fidget. You fidget less when I am talking. I have noticed. I notice too much, lately.")],
+   [_n("Walk the herb path with me? I can go alone. I have gone alone for a very long time. Today I would rather not.")]
+  ],2:[
+   [_n("Your pulse jumps when I take your wrist. Mine does too. We are a very poor study."),_h("Should I see a healer?"),_n("You are seeing one. She is equally compromised.")],
+   [_n("I kept the chair beside mine empty all afternoon. In case. It is a ridiculous reason. I am keeping the chair anyway.")],
+   [_x("Aelira turns a leaf in her fingers, then tucks it behind your ear, checking the effect."),_n("Yes. I was right the first time. Do not take it off.")],
+   [_n("I have been practising a compliment. You have a kind mouth. That is the compliment. I will not be repeating it if you laugh.")],
+   [_n("Sit closer. The bench is cold and I have decided you are a reasonable remedy.")],
+   [_n("If I go quiet, I am not angry. I am trying not to say something too fond, too soon. I am not succeeding.")]
+  ],3:[
+   [_x("Aelira meets you at the gate and takes both your hands as if she has been waiting to."),_n("There you are. I can stop inventing reasons to look down the path.")],
+   [_n("Stay a while. I have tea, and a century of silence I no longer want.")],
+   [_x("She kisses you once, unhurried, and rests her forehead against yours."),_n("That is the prescription. Repeat as needed. I will be here to administer it.")],
+   [_n("I used to measure my days in patients and moonwort. Now I measure them in the hours until you come back. It is a better clock.")],
+   [_n("I love you. I have not said that in a very long time. It still fits. It fits you.")],
+   [_x("She leans against your shoulder, eyes closed, thumb tracing idle circles on your palm."),_n("Hush. I am memorising this. I intend to keep it a long while.")]
+  ]},
+ vivienne:{1:[
+   [_n("You came back in one piece. And you didn't wipe your hands on the silk. I'm raising my estimate of you.")],
+   [_n("Stand there. No, in the light. I was thinking about a colour and I wanted to check it against you. Purely professional curiosity.")],
+   [_n("I caught myself humming after you left yesterday. I don't hum. It's unseemly. It's your fault."),_h("I'll take the blame."),_n("See that you do. And come back so I can hum again.")],
+   [_n("Your cuff is crooked. Hold out your wrist. ...There. I could have let you walk around like that. I found I couldn't.")],
+   [_n("Someone asked if the tall climber was 'the one who visits you'. I said you were a client. I said it much too quickly.")],
+   [_n("If you're going to loiter in my doorway, loiter where I can see your face. I have decided I like it. Don't preen.")]
+  ],2:[
+   [_n("Turn. Slower. I'm not done looking. At the hem. At you. The distinction is getting thinner.")],
+   [_x("Vivienne pins nothing at all, then laughs under her breath."),_n("I ran out of excuses to stand this close. How embarrassing. How nice.")],
+   [_n("I saved you the window seat upstairs. The light is good and I wanted an hour of it with you in it.")],
+   [_n("If you keep bringing me that smile I shall have to design a whole season around it."),_h("What would you call it?"),_n("Something shameless. I'll think of a prettier word later.")],
+   [_n("Hold still. You've a loose thread on your collar and I am going to take a very long time about it.")],
+   [_n("Walk me to close? I can lock up alone. I'd rather lock up and then not be alone.")]
+  ],3:[
+   [_x("Vivienne reaches for you the moment the door shuts, both arms around your neck, laughing into your shoulder."),_n("There. That's the fitting I actually wanted.")],
+   [_n("Stay a while. I've put the kettle on and taken my shoes off, which is as close as I come to a declaration.")],
+   [_x("She kisses you hello, then again, as if the first were only a test stitch."),_n("Yes. That sits correctly.")],
+   [_n("I used to dress people so they would be looked at. Now I only care that you look at me. It's ruinously simple.")],
+   [_n("I love you. I've said prettier things, but I haven't said a truer one. Don't you dare wrinkle it.")],
+   [_x("She walks you through the evening with her arm through yours, unhurried, thoroughly pleased."),_n("Let the town talk. I've never minded an audience. Not for this.")]
+  ]},
+ maid:{1:[
+   [_n("I set a second cup again. I shall stop apologising for it. I should like you to stay and drink it.")],
+   [_n("You thanked me for the fire. You always thank me. I have started waiting for it, which is a problem I am enjoying."),_h("Thank you for the fire."),_n("...Yes. Like that.")],
+   [_n("Liraen asked why the hall smells of orange peel. I put it in the bowl because you said you liked it. I will not be taking questions.")],
+   [_n("If you sit there, I can talk and still pretend to fold linen. The linen has been folded three times. I'm aware.")],
+   [_n("You may walk with me to the market, if you like. I can go alone. I find I keep hoping you won't let me.")],
+   [_n("I almost called you by your name in front of the grocer. I stopped just in time. I have been thinking about the almost all day.")]
+  ],2:[
+   [_n("Come into the kitchen a moment. I don't need help. I would like company. Those are different, and I have learned the difference.")],
+   [_x("Sylwen reaches up to brush ash from your shoulder and lets her hand stay."),_n("There. Clean. I could have done that quicker. I didn't want to.")],
+   [_n("I practised saying something brave. You look glad to see me. That's the whole of it. I'm sitting down now.")],
+   [_n("The big shawl is already on the roof. I assumed. I hoped. If I'm wrong you may still sit close. For warmth. For me.")],
+   [_n("Hold this cup. No, with your other hand, so I can take this one. ...I've arranged to hold your hand. I planned that. I'm not sorry.")],
+   [_n("Stay and dry dishes with me. I will talk more than I should. I would like that very much.")]
+  ],3:[
+   [_x("Sylwen meets you in the hall and takes your hands first, then a quiet breath, as if arriving herself."),_n("Welcome home. I've been standing here practising until it sounded like I meant it. I do.")],
+   [_n("Stay a while. I've turned down my own lamp and left yours lit. Come and be where I can see you.")],
+   [_x("She kisses you, gentle and unhurried, and smiles against your mouth as if surprised it is allowed."),_n("There. I have wanted to do that all day, and now I have, and I still want to.")],
+   [_n("I don't have to be useful to be here with you. I'm still learning that. You're a very good teacher.")],
+   [_n("I love you. I said it to the teapot first, which was cowardly, and now I'm saying it to you, which is better.")],
+   [_x("She leans against you on the window seat, hair down, utterly still for once."),_n("Don't move. This is the first evening I haven't wanted to tidy. I intend to keep it.")]
+  ]},
+ liraen:{1:[
+   [_n("You're on the list. Not the lock list. The other list. The one I don't show anyone. Don't look so pleased. ...Fine. Look a little pleased.")],
+   [_n("I waited at the gate an extra minute. I told myself it was the latch. It was not the latch."),_h("I'm glad you waited."),_n("Don't make a habit of being late, then. I might make a habit of waiting.")],
+   [_n("The wall's quieter when you're on it. That's not a complaint about the wall.")],
+   [_n("Hold the lantern a second. No, stay there. The light's better on you than on the path. That's an observation. Filed.")],
+   [_n("Sylwen says I check the side door more when you're in town. Sylwen should mind her inventory."),_h("Do you?"),_n("The door's fine. I'm checking something else.")],
+   [_n("Walk the long way back with me. It's the same number of locks. It's a better number of minutes.")]
+  ],2:[
+   [_n("Come up the tower. I don't need a second pair of eyes. I want one particular pair. Yours.")],
+   [_x("Liraen bumps her shoulder against yours on the wall and leaves it there."),_n("Wind's cold. That's my reason. I've got others. I'm not listing them.")],
+   [_n("I almost took your hand on the stairs and then I remembered I have a reputation. Then I thought about the reputation. It's overrated.")],
+   [_n("You've a leaf on your coat. I'll get it. ...It's gone. I'm still here. That's also fine.")],
+   [_n("If I go quiet, I'm not on duty. I'm trying not to smile. I'm failing. Don't point.")],
+   [_n("Stay till the next bell. I can walk the wall alone. I'd rather not count the lamps by myself tonight.")]
+  ],3:[
+   [_x("Liraen meets you at the postern, takes your hand, and only then remembers to lock it behind you."),_n("Priorities. I have them in the right order for once.")],
+   [_n("Stay a while. Lamp's out, lock's checked, and I am off the clock. Officially. I wrote it down so I'd have to mean it.")],
+   [_x("She kisses you in the dark hall, quick and certain, then stays close enough to share a breath."),_n("There. That's the last thing I needed to make sure of.")],
+   [_n("I used to think the house was safest when everything was locked. Turns out it's safest when you're in it.")],
+   [_n("I love you. I've checked that statement twice. It still opens. I'm leaving it that way.")],
+   [_x("She walks you the length of the wall with her fingers laced through yours, lantern low, unhurried."),_n("Let the town sleep. I've got what I was watching for.")]
+  ]}
+};
+REL_IDS.forEach(id=>{const add=ROMANCE_MORE[id];if(!add||!ROMANCE[id])return;for(let st=1;st<=3;st++)ROMANCE[id].talk[st]=ROMANCE[id].talk[st].concat(add[st]);});
+
 /* the stage pools grow: the original location line first, then the new ones */
 REL_IDS.forEach(id=>{const R2=ROMANCE[id];if(!R2)return;for(let st=0;st<4;st++)STAGE_LINES[id][st]=STAGE_LINES[id][st].concat(R2.talk[st]);});
 ICONS.play='<path d="M8 5.5v13l10.5-6.5z"/>';ICONS.book='<path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5z"/><path d="M4 20.5A2.5 2.5 0 0 0 6.5 23H20v-5"/>';
@@ -5879,14 +6052,15 @@ function memRec(k){if(!S.mem||typeof S.mem!=='object')S.mem={};if(S.mem[k])retur
 function memBackfill(s){s=s||S;if(!s)return;if(!s.mem||typeof s.mem!=='object')s.mem={};const m=s.mem,put=k=>{if(!m[k])m[k]={t:0,c:0,b:1};};
   REL_IDS.forEach(id=>{const n=Math.min(3,(s.scn&&s.scn[id])||0);for(let i=0;i<n;i++)put('story:'+id+':'+i);
     const st=Math.min(3,(s.stageSeen&&s.stageSeen[id])||0);for(let k=1;k<=st;k++)put('stage:'+id+':'+k);
-    if(s.story&&s.story['sh_'+id])put('shared:'+id);});}
+    if(s.story&&s.story['sh_'+id])put('shared:'+id);});if(s.story&&s.story.spill)put('moment:spill');}
 /* the full catalogue, in the order she reveals it: story 1, Friend, shared, story 2, Close, story 3, Devoted */
 function memList(id){const out=[],sc=SCENES[id]||[],x=SHARED[id];
   const st=i=>({k:'story:'+id+':'+i,kind:'Story',title:sc[i].title,where:sc[i].where,hint:i===0?`Affinity ${SCENE_REQ[i].a}`:`Affinity ${SCENE_REQ[i].a} · clear floor ${SCENE_REQ[i].f}`});
   const sg=k=>({k:'stage:'+id+':'+k,kind:'Stage',title:STAGE_NAMES[k],where:LOCS[STAGE_LOC[id][k]].name,hint:`Become ${STAGE_NAMES[k].toLowerCase()} · affinity ${STAGE_AT[k]}`});
   if(sc[0])out.push(st(0));out.push(sg(1));if(x)out.push({k:'shared:'+id,kind:'Shared',title:x.name,where:LOCS[x.loc].name,hint:'Shared experience · unlocks as friends'});
+  if((id==='pip'||id==='marla')&&typeof SPILL!=='undefined')out.push({k:SPILL.k,kind:'Moment',title:SPILL.name,where:LOCS[SPILL.loc].name,hint:SPILL.hint});
   if(sc[1])out.push(st(1));out.push(sg(2));if(sc[2])out.push(st(2));out.push(sg(3));return out;}
-function memCount(){memBackfill();let n=0,t=0;REL_IDS.forEach(id=>memList(id).forEach(e=>{t++;if(S.mem&&S.mem[e.k])n++;}));return {n,t};}
+function memCount(){memBackfill();const keys=new Set(),seen=new Set();REL_IDS.forEach(id=>memList(id).forEach(e=>{keys.add(e.k);if(S.mem&&S.mem[e.k])seen.add(e.k);}));return {n:seen.size,t:keys.size};}
 const MEM_MON=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 function memWhen(r){if(!r)return '';if(r.b||!r.t)return 'Before Memories began';const d=new Date(r.t);return `${MEM_MON[d.getMonth()]} ${d.getDate()} · after climb ${r.c}`;}
 function memThumb(id,known){const pf=porFor(id,known?stageOf(id):0,'');return `<span class="mem-th${known?'':' sil'}"><img src="${pf.src}" alt="" loading="lazy" decoding="async"></span>`;}
@@ -5901,7 +6075,8 @@ function openMemories(){memBackfill();const c=memCount();
 function memReplay(k){if(!S.mem||!S.mem[k])return;const [kind,id,a]=k.split(':'),i=+a,back=()=>{setTimeout(openMemories,60);};closeSheet('A');try{KATel.pick('memory_replay',k);}catch(e){}
   if(kind==='story'){const sc=SCENES[id][i];playScene({npc:id,memory:1,por:sc.night&&(id==='maid'||id==='liraen')?(id==='maid'?'maid_night':'liraen_night'):id==='maid'?maidPor():id==='liraen'?liraenPor():id,lines:[{s:'nar',t:'Memory · '+sc.title+' · '+sc.where}].concat(sc.lines),onEnd:back});return;}
   if(kind==='stage'){openNpcScene({npc:id,stage:i,loc:STAGE_LOC[id][i],act:NPC_ACT[id],memory:1,title:`${STAGE_NAMES[i]} · ${NPCS[id].name}`,lines:stageUpLines(id,i),onEnd:back});return;}
-  if(kind==='shared'){const x=SHARED[id];openNpcScene({npc:id,loc:x.loc,act:x.act,title:x.name,memory:1,lines:x.lines,loop:x.id,onEnd:back});}}
+  if(kind==='shared'){const x=SHARED[id];openNpcScene({npc:id,loc:x.loc,act:x.act,title:x.name,memory:1,lines:x.lines,loop:x.id,onEnd:back});return;}
+  if(kind==='moment'&&id==='spill'){playSpill({onEnd:back});}}
 /* ---------- Input ---------- */
 document.addEventListener('click',ev=>{
   {const x=$('eNoteX');if(x&&x.classList.contains('on')){x.classList.remove('on');if(ev.target.closest('#eNote'))return;}
@@ -6028,7 +6203,7 @@ window.addEventListener('pagehide',()=>save(true));
 setInterval(()=>{if(S)save(true);},30000);
 load();resize();renderTitle();if(S)prefetchPor(S.cls);
 requestAnimationFrame(frame);
-window.__LS={ROMANCE,townFootprints,townCobble,onCobble,leaveInn,ruinSky,STAGE_LOC,stageOf,festivalOn,stageUpLines,drawEnt,growTown,enterInn,buildInn,townGrid,villagerSprite,loopFor,SCENE_SHIP,memRec,memBackfill,memList,memCount,openMemories,memReplay,openSettings,SCENES,STAGE_LINES,STAGE_UP,playShared,folkTalk,get S(){return S},drawWorld,get RUNV(){return RUN},get NSC(){return NSC},stageOf,STAGE_LOC,LOCS,SHARED,STAGE_POR,SCENE_ASSETS,ART_HAVE,SCENE_HAVE,porFor,scenePor,playScene,openNpcScene,closeNpcScene,nsNext,playShared,sharedReady,folkTalk,growthTier,growthScore,crowdN,festivalOn,LOTS,HOMES,visitHome,startDescent,descendStairs,enterCamp,castlePack,CASTLE_MON,CASTLE_BOSSES,campBuy,openQuarter,inCastle,castleUnlocked,descentHtml,biomeOf,TOWN,skillCd,drawHero,HERO,JOY,KATel,updateWorld,disc,drillTab,artsBlock,ledgerHtml,get AREA(){return AREA},get RUNB(){return RUNB},RUN_MULT,MTYPE,DT_MULT,dtOf,dtMult,mtypeOf,ARTS,PROF_XP,profLv,profXp,profGain,curSty,artSkill,artSpec,artTargets,previewArt,doArt,counterMult,counterOf,v18Pack,swarmTick,V18_MONSTERS,trainCost,trainProf,temperCost,temperItem,INVEST,invest,investEff,telSkill,telFlush,weaponLook,weaponIconURL,itemIconHtml,heroLook,drawHeroR,drawHeroClassic,runSync,makeEnemy,makePack,heroAtkMods,battleSkill,gSpec,previewAction,get B(){return B},get RUN(){return RUN},get busy(){return busy},get PST(){return PST},selectAction,execAction,ACTS,approachNode,bestAttackTile,guardTiles,tapWorld,get DLGO(){return DLG},nextLine,endScene,tapTile,moveHero,undoMove,waitTurn,useTonic,blink,canBlink,aiChoose,aiTurn,simFight,startFight,makePack,gSpec,targetsFor,previewAction,areaTiles,reach,planAll,threatMap,flankOf,inCover,los,genArena,genFloor,validateFloor,buildFloor,heroMove,openShrine,takeBlessing,talkFolk,openFolk,buyShop,wearOutfit,takeGift,applyPerks,OUTFITS,FOLK,NPCS,LADY,openBoutique,openLiraen,buildTown,renderBattle,telegraphMap,breathStop,intentHtml,INT_IC,AREA_T,liraenOffDuty,liraenPor,maidOffDuty,maidPor,maidNight,liraenNight,nightVisit,lateHour,NIGHT_CLOCK,MAID_NIGHT,LIRAEN_NIGHT,LIRAEN_OFF,gainAff,aff,talkAff,nextScene,folkTalk,SCENES,SCENE_REQ,townTier,patronCount,giveGift,openSylwen,takeSupper,GOSSIP,SHOPS,lockPlan,foeAct,doIntent,BOSS_T,boardOpen,talkTo,goTown,enterHouse,leaveHouse,townNews,lirGift,buildHouse,TOWN,readLore,LORE,BLESS,rollIntent,enemyTurn,win,lose,returnToFloor,climbStairs,drawMiniMap,openChest,skillCost,startClimb,endRun,goHub,hs,gearPower,itemPower,equip,salvage,upCost,newSave,save,show,renderHub,openGear,openTree,openForge,openVictory,closeSheet,SH,WSTYLES,styleOf,defaultStyle,makeItem,migrate,battleSkill,makeEnemy,hitFoe,knockback,openItem,bootFight,
+window.__LS={ROMANCE,ROMANCE_MORE,SPILL,spillReady,trySpill,playSpill,townFootprints,townCobble,onCobble,leaveInn,ruinSky,STAGE_LOC,stageOf,festivalOn,stageUpLines,drawEnt,growTown,enterInn,buildInn,townGrid,villagerSprite,loopFor,SCENE_SHIP,memRec,memBackfill,memList,memCount,openMemories,memReplay,openSettings,SCENES,STAGE_LINES,STAGE_UP,playShared,folkTalk,get S(){return S},drawWorld,get RUNV(){return RUN},get NSC(){return NSC},stageOf,STAGE_LOC,LOCS,SHARED,STAGE_POR,SCENE_ASSETS,ART_HAVE,SCENE_HAVE,porFor,scenePor,playScene,openNpcScene,closeNpcScene,nsNext,playShared,sharedReady,folkTalk,growthTier,growthScore,crowdN,festivalOn,LOTS,HOMES,visitHome,startDescent,descendStairs,enterCamp,castlePack,CASTLE_MON,CASTLE_BOSSES,campBuy,openQuarter,inCastle,castleUnlocked,descentHtml,biomeOf,TOWN,skillCd,drawHero,HERO,JOY,KATel,updateWorld,disc,drillTab,artsBlock,ledgerHtml,get AREA(){return AREA},get RUNB(){return RUNB},RUN_MULT,MTYPE,DT_MULT,dtOf,dtMult,mtypeOf,ARTS,PROF_XP,profLv,profXp,profGain,curSty,artSkill,artSpec,artTargets,previewArt,doArt,counterMult,counterOf,v18Pack,swarmTick,V18_MONSTERS,trainCost,trainProf,temperCost,temperItem,INVEST,invest,investEff,telSkill,telFlush,weaponLook,weaponIconURL,itemIconHtml,heroLook,drawHeroR,drawHeroClassic,runSync,makeEnemy,makePack,heroAtkMods,battleSkill,gSpec,previewAction,get B(){return B},get RUN(){return RUN},get busy(){return busy},get PST(){return PST},selectAction,execAction,ACTS,approachNode,bestAttackTile,guardTiles,tapWorld,get DLGO(){return DLG},nextLine,endScene,tapTile,moveHero,undoMove,waitTurn,useTonic,blink,canBlink,aiChoose,aiTurn,simFight,startFight,makePack,gSpec,targetsFor,previewAction,areaTiles,reach,planAll,threatMap,flankOf,inCover,los,genArena,genFloor,validateFloor,buildFloor,heroMove,openShrine,takeBlessing,talkFolk,openFolk,buyShop,wearOutfit,takeGift,applyPerks,OUTFITS,FOLK,NPCS,LADY,openBoutique,openLiraen,buildTown,renderBattle,telegraphMap,breathStop,intentHtml,INT_IC,AREA_T,liraenOffDuty,liraenPor,maidOffDuty,maidPor,maidNight,liraenNight,nightVisit,lateHour,NIGHT_CLOCK,MAID_NIGHT,LIRAEN_NIGHT,LIRAEN_OFF,gainAff,aff,talkAff,nextScene,folkTalk,SCENES,SCENE_REQ,townTier,patronCount,giveGift,openSylwen,takeSupper,GOSSIP,SHOPS,lockPlan,foeAct,doIntent,BOSS_T,boardOpen,talkTo,goTown,enterHouse,leaveHouse,townNews,lirGift,buildHouse,TOWN,readLore,LORE,BLESS,rollIntent,enemyTurn,win,lose,returnToFloor,climbStairs,drawMiniMap,openChest,skillCost,startClimb,endRun,goHub,hs,gearPower,itemPower,equip,salvage,upCost,newSave,save,show,renderHub,openGear,openTree,openForge,openVictory,closeSheet,SH,WSTYLES,styleOf,defaultStyle,makeItem,migrate,battleSkill,makeEnemy,hitFoe,knockback,openItem,bootFight,
   get screen(){return screen},get AREA(){return AREA},HERO,JOY,CAM,talkTo,bumpMonster,enterFloor,goTown,enterHouse,openMap,openGate,get DLG(){return DLG},TUNE,checkpoints,get FAST(){return FAST},GC,GR,BOSS_T,ELITE_T,MONSTERS,BOSSES,computeIdle,openIdle,KATel,CLASSES};
 })();
 </script>
