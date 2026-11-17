@@ -445,41 +445,46 @@ body.dlg-on #island{opacity:0}
 .mmleg{flex-wrap:wrap;gap:8px 14px}.mmleg span{display:inline-flex;align-items:center}.mmleg svg{margin-right:5px}
 .sheet .cps{display:flex;gap:8px;flex-wrap:wrap}
 .sc-idle{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--dim);margin-top:8px}
-#dlg{position:fixed;inset:0;z-index:76;visibility:hidden;pointer-events:none;transition:visibility 0s linear .4s}
+/* v1.8.3: large NPC portrait in the upper band; text sits below and never covers her */
+#dlg{position:fixed;inset:0;z-index:76;display:flex;flex-direction:column;visibility:hidden;pointer-events:none;transition:visibility 0s linear .4s}
 #dlg.on{visibility:visible;pointer-events:auto;transition:none}
-.dl-scrim{position:absolute;inset:0;background:linear-gradient(180deg,rgb(8 6 6 / .45),rgb(8 6 6 / .58) 50%,rgb(8 6 6 / .86));-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .35s ease}
+.dl-scrim{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgb(8 6 6 / .35),rgb(8 6 6 / .5) 55%,rgb(8 6 6 / .8));-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);opacity:0;transition:opacity .35s ease}
 #dlg.in .dl-scrim{opacity:1}
-.dl-por{position:absolute;bottom:calc(max(var(--sb),12px) + 156px);width:66%;max-width:340px;aspect-ratio:3/4;opacity:0;transition:opacity .4s ease,transform .6s cubic-bezier(.2,1.12,.3,1)}
-.dl-por.L{left:-6%;transform:translateX(-60px)}
-.dl-por.R{right:-6%;transform:translateX(60px)}
+.dl-stage{position:relative;z-index:1;flex:0 0 63%;min-height:0;max-height:66%;container-type:size;display:grid;place-items:center;padding:calc(var(--st) + 8px) 0 8px;box-sizing:border-box}
+@media (max-height:700px){.dl-stage{flex-basis:66%;max-height:70%}}
+.dl-por{opacity:0;transition:opacity .4s ease,transform .6s cubic-bezier(.2,1.12,.3,1)}
+.dl-por.R{position:relative;width:min(100cqw,calc(100cqh * 3 / 4));height:min(100cqh,calc(100cqw * 4 / 3));max-width:100%;max-height:100%;aspect-ratio:3/4;transform:translateY(16px)}
+.dl-por.L{position:relative;flex:0 0 76px;width:76px;max-height:100%;aspect-ratio:3/4;align-self:flex-end;transform:translateX(-20px)}
 #dlg.in .dl-por{opacity:1;transform:none}
-#dlg.in .dl-por.R{transition-delay:.1s}
+#dlg.in .dl-por.R{transition-delay:.08s}
 .dl-por.off{display:none}
 .dl-por.spk{z-index:2}
 .dl-in{position:absolute;inset:0;transform-origin:50% 100%;transition:filter .32s ease,transform .4s var(--spring)}
-.dl-por.dim .dl-in{filter:brightness(.4) saturate(.55);transform:scale(.93)}
-.dl-por.spk .dl-in{filter:none;transform:scale(1.02) translateY(-6px)}
+.dl-por.dim .dl-in{filter:brightness(.55) saturate(.65)}
+.dl-por.spk .dl-in{filter:none}
+.dl-por.L.spk .dl-in{transform:scale(1.04)}
 .dl-idle{position:absolute;inset:0;transform-origin:50% 100%;pointer-events:none}
-#dlg.in .dl-por .dl-idle{animation:dlSway 8.5s ease-in-out .7s infinite;will-change:transform}
+#dlg.in .dl-por.L .dl-idle{animation:dlSway 8.5s ease-in-out .7s infinite;will-change:transform}
 #dlg.in .dl-por .dl-idle img,#dlg.in .dl-por .dl-idle .dl-fb{animation:dlBreathe 4s ease-in-out .7s infinite;transform-origin:50% 100%;will-change:transform}
 @keyframes dlBreathe{0%,100%{transform:scale(1) translateY(0)}50%{transform:scale(1.014) translateY(-1.1%)}}
 @keyframes dlSway{0%,100%{transform:rotate(0deg) translateX(0)}28%{transform:rotate(.4deg) translateX(.55%)}68%{transform:rotate(-.32deg) translateX(-.45%)}}
-.dl-in img{width:100%;height:100%;object-fit:cover;display:block;-webkit-user-drag:none;
-  -webkit-mask-image:radial-gradient(ellipse 50% 52% at 50% 45%,#000 42%,rgba(0,0,0,.5) 74%,transparent 98%),linear-gradient(180deg,#000 0,#000 66%,transparent 97%);-webkit-mask-composite:source-in;mask-image:radial-gradient(ellipse 50% 52% at 50% 45%,#000 42%,rgba(0,0,0,.5) 74%,transparent 98%),linear-gradient(180deg,#000 0,#000 66%,transparent 97%);mask-composite:intersect}
-.dl-fb{display:none;position:absolute;inset:8% 10% 0;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;padding-bottom:18%;border-radius:50% 50% 18px 18px / 36% 36% 18px 18px;
+.dl-in img{width:100%;height:100%;object-fit:cover;object-position:50% 12%;display:block;-webkit-user-drag:none;border-radius:18px;box-shadow:0 16px 40px rgba(0,0,0,.42)}
+.dl-por.L .dl-in img{border-radius:14px;object-position:50% 18%;box-shadow:0 8px 20px rgba(0,0,0,.4)}
+.dl-fb{display:none;position:absolute;inset:0;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;padding-bottom:18%;border-radius:18px;
   background:radial-gradient(circle at 50% 30%,#3a3230 0 18%,transparent 19%),radial-gradient(ellipse 60% 40% at 50% 92%,#3a3230 0 98%,transparent 100%),linear-gradient(180deg,#1c1817,#100d0c);color:#f0d7a0;border:1px solid rgb(255 255 255 / .12)}
 .dl-fb b{font-family:var(--display);font-size:44px;line-height:1}
 .dl-fb span{font-size:12px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--dim)}
 .dl-por.missing img{display:none}.dl-por.missing .dl-fb{display:flex}
-.dl-box{position:absolute;left:calc(12px + var(--sl));right:calc(12px + var(--sr));bottom:calc(max(var(--sb),12px) + 10px);min-height:142px;z-index:3;padding:26px 18px 20px;border-radius:22px;
+.dl-band{position:relative;z-index:3;flex:1 1 auto;min-height:0;display:flex;align-items:stretch;gap:10px;padding:10px calc(12px + var(--sr)) calc(max(var(--sb),12px) + 8px) calc(12px + var(--sl));box-sizing:border-box}
+.dl-box{position:relative;flex:1 1 auto;min-width:0;min-height:132px;z-index:3;padding:40px 16px 24px;border-radius:22px;
   background:rgb(22 17 15 / .8);-webkit-backdrop-filter:blur(20px) saturate(150%);backdrop-filter:blur(20px) saturate(150%);border:1px solid rgb(255 255 255 / .16);box-shadow:0 14px 40px rgba(0,0,0,.5),inset 0 1px 0 rgb(255 255 255 / .08);
-  transform:translateY(26px);opacity:0;transition:opacity .3s ease,transform .5s var(--spring)}
+  transform:translateY(18px);opacity:0;transition:opacity .3s ease,transform .5s var(--spring)}
 #dlg.in .dl-box{transform:none;opacity:1}
-.dl-name{position:absolute;top:-16px;left:16px;height:32px;padding:0 16px;border-radius:16px;display:flex;align-items:center;font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.06em;
+.dl-name{position:absolute;top:10px;left:14px;height:32px;padding:0 16px;border-radius:16px;display:flex;align-items:center;font-family:var(--display);font-weight:700;font-size:16px;letter-spacing:.06em;
   background:#1c1513;border:1px solid rgb(255 255 255 / .22);box-shadow:0 6px 16px rgba(0,0,0,.4);transition:opacity .2s ease}
-.dl-name.r{left:auto;right:16px}
+.dl-name.r{left:auto;right:14px}
 .dl-name.hide{opacity:0}
-.dl-text{font-size:17px;line-height:1.5;color:#f3ecdf;min-height:76px;-webkit-user-select:none;user-select:none}
+.dl-text{font-size:17px;line-height:1.5;color:#f3ecdf;min-height:64px;-webkit-user-select:none;user-select:none}
 .dl-box.nar .dl-text{font-style:italic;color:#ddd3c3;text-align:center;font-family:Georgia,serif}
 .dl-next{position:absolute;right:16px;bottom:8px;display:flex;align-items:center;gap:5px;font-size:16px;font-weight:800;letter-spacing:.04em;opacity:0;color:#f0d7a0;transition:opacity .2s}
 .dl-next span{font-size:13px}
@@ -800,9 +805,13 @@ body.world-frozen #runBtn{opacity:.4}
 
 <div id="dlg" role="dialog" aria-modal="true" aria-label="Conversation">
   <div class="dl-scrim"></div>
-  <div class="dl-por L" id="dlL"><div class="dl-in"><div class="dl-idle"><img alt="" draggable="false"><div class="dl-fb"></div></div></div></div>
-  <div class="dl-por R" id="dlR"><div class="dl-in"><div class="dl-idle"><img alt="" draggable="false"><div class="dl-fb"></div></div></div></div>
-  <div class="dl-box" id="dlBox"><div class="dl-name" id="dlN"></div><div class="dl-aff" id="dlA" role="img"></div><div class="dl-text" id="dlT"></div><div class="dl-next">Tap <span>&#9660;</span></div></div>
+  <div class="dl-stage">
+    <div class="dl-por R" id="dlR"><div class="dl-in"><div class="dl-idle"><img alt="" draggable="false"><div class="dl-fb"></div></div></div></div>
+  </div>
+  <div class="dl-band">
+    <div class="dl-por L" id="dlL"><div class="dl-in"><div class="dl-idle"><img alt="" draggable="false"><div class="dl-fb"></div></div></div></div>
+    <div class="dl-box" id="dlBox"><div class="dl-name" id="dlN"></div><div class="dl-aff" id="dlA" role="img"></div><div class="dl-text" id="dlT"></div><div class="dl-next">Tap <span>&#9660;</span></div></div>
+  </div>
   <button id="dlSkip" type="button">Skip</button>
 </div>
 <div id="fade"></div>
@@ -816,7 +825,7 @@ body.world-frozen #runBtn{opacity:.4}
 <script>
 (() => {
 'use strict';
-const KA_GAME='lumenspire', KA_VERSION='1.8.2';
+const KA_GAME='lumenspire', KA_VERSION='1.8.3';
 /* KA_TELEMETRY_START */
 // Shared anonymous play-log module. No personal data.
 // TELEMETRY_URL is the ntfy.sh topic. Messages over 4096 bytes become attachments,
