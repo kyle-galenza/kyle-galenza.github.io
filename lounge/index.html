@@ -7,6 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="theme-color" content="#140e12">
+<script>try{if(localStorage.getItem("kyle-stories-unlock")==="1")document.documentElement.dataset.unlocked="1";}catch(e){}</script>
 <title>The Lounge</title>
 <style>
   :root{--ink:#f6efe6;--dim:#cbbbaa;--gold:#e7c98a;--line:rgba(231,201,138,.45)}
@@ -20,36 +21,94 @@
   a.card,button{display:block;width:100%;text-align:left;text-decoration:none;color:inherit;min-height:48px;margin:10px 0;padding:14px 16px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.04);font:inherit}
   a.card b{display:block;font:italic 26px/1.1 Georgia,serif}
   a.card small{color:var(--dim)}
-  button.pri{background:var(--gold);color:#24180c;border:0;font-weight:800}
+  button.pri{background:var(--gold);color:#24180c;border:0;font-weight:800;text-align:center}
   [hidden]{display:none !important}
+  label{display:block;margin-top:12px;font-weight:700}
+  .age{display:flex;align-items:center;gap:12px;min-height:48px;font-size:17px;font-weight:600}
+  .age input{width:24px;height:24px;flex:0 0 auto}
+  .pwrow{display:flex;gap:8px;align-items:stretch}
+  #lockPw{flex:1;min-width:0;min-height:48px;font-size:16px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.28);color:inherit}
+  #lockShow{flex:0 0 auto;min-width:76px;text-align:center}
+  #lockErr{color:#ffb4b4;font-weight:700}
+  html:not([data-unlocked]) #list{display:none !important}
+  html[data-unlocked] #lock{display:none !important}
 </style>
 </head>
 <body>
-<main>
+<main id="lock">
   <p class="sub">UNLISTED</p>
   <h1>The Lounge</h1>
-  <div id="gate">
+  <form id="lockForm" autocomplete="off">
     <p class="notice">18+ only. Everyone inside is an adult. Suggestive, never explicit. This page is not on the public arcade.</p>
-    <button type="button" class="pri" id="enter">I am 18 or older</button>
-  </div>
-  <div id="list" hidden>
-    <p class="notice">A private door between the stories. Nothing here is linked from the arcade index.</p>
-    <a class="card" href="../beach/"><b>Coral Key</b><small>A weekend at the resort. Aurelia, Mika, Celeste, Sable.</small></a>
-    <a class="card" href="../elves/"><b>Lanternveil</b><small>Twenty-one days of Moonpetal. Aelith, Nyssa, Lirael.</small></a>
-    <a class="card" href="../sirens/"><b>Sirens</b><small>The other shore, if you want it.</small></a>
-  </div>
+    <label class="age"><input type="checkbox" id="lockAge"> I am 18 or older</label>
+    <label for="lockPw">Password</label>
+    <div class="pwrow">
+      <input id="lockPw" name="pw" type="password" autocomplete="current-password" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Password">
+      <button type="button" id="lockShow" aria-pressed="false">Show</button>
+    </div>
+    <p id="lockErr" hidden></p>
+    <button type="submit" class="pri">Enter</button>
+  </form>
+</main>
+<main id="list">
+  <p class="sub">UNLISTED</p>
+  <h1>The Lounge</h1>
+  <p class="notice">A private door between the stories. Nothing here is linked from the arcade index.</p>
+  <a class="card" href="../beach/"><b>Coral Key</b><small>A weekend at the resort. Aurelia, Mika, Celeste, Sable.</small></a>
+  <a class="card" href="../elves/"><b>Lanternveil</b><small>Twenty-one days of Moonpetal. Aelith, Nyssa, Lirael.</small></a>
+  <a class="card" href="../sirens/"><b>Sirens</b><small>The other shore, if you want it.</small></a>
 </main>
 <script>
 (function () {
-  var KEY = 'lounge-18';
-  function open() {
-    document.getElementById('gate').hidden = true;
-    document.getElementById('list').hidden = false;
+  var KEY = "kyle-stories-unlock";
+  var SALT = "063edc75bd4b4e1301828dec7215c277";
+  var HASH = "11b89436d8911e64c493f89db68f014d5ed19db80d319f78e92fab7f8179f6f9";
+  function open() { document.documentElement.dataset.unlocked = "1"; }
+  if (document.documentElement.dataset.unlocked === "1") return;
+  var form = document.getElementById("lockForm");
+  var pw = document.getElementById("lockPw");
+  var show = document.getElementById("lockShow");
+  var err = document.getElementById("lockErr");
+  var age = document.getElementById("lockAge");
+  show.addEventListener("click", function () {
+    var on = pw.type === "password";
+    pw.type = on ? "text" : "password";
+    show.textContent = on ? "Hide" : "Show";
+    show.setAttribute("aria-pressed", on ? "true" : "false");
+    pw.focus();
+  });
+  function hex(buf) {
+    var b = new Uint8Array(buf), o = "";
+    for (var i = 0; i < b.length; i++) o += b[i].toString(16).padStart(2, "0");
+    return o;
   }
-  try { if (localStorage.getItem(KEY) === '1') open(); } catch (e) {}
-  document.getElementById('enter').addEventListener('click', function () {
-    try { localStorage.setItem(KEY, '1'); } catch (e) {}
-    open();
+  function same(a, b) {
+    if (a.length !== b.length) return false;
+    var n = 0;
+    for (var i = 0; i < a.length; i++) n |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    return n === 0;
+  }
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (!age.checked) {
+      err.hidden = false;
+      err.textContent = "Confirm you are 18 or older.";
+      return;
+    }
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode(SALT + pw.value)).then(function (buf) {
+      if (!same(hex(buf), HASH)) {
+        err.hidden = false;
+        err.textContent = "That password is not right.";
+        return;
+      }
+      try { localStorage.setItem(KEY, "1"); } catch (e) {}
+      err.hidden = true;
+      pw.value = "";
+      open();
+    }).catch(function () {
+      err.hidden = false;
+      err.textContent = "This browser could not check the password.";
+    });
   });
 })();
 </script>

@@ -10,6 +10,7 @@
 <meta name="apple-mobile-web-app-title" content="Coral Key">
 <meta name="theme-color" content="#08343c">
 <meta name="format-detection" content="telephone=no">
+<script>try{if(localStorage.getItem("kyle-stories-unlock")==="1")document.documentElement.dataset.unlocked="1";}catch(e){}</script>
 <title>Coral Key</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2308343c'/%3E%3Ccircle cx='8' cy='7' r='3' fill='%23ffd27a'/%3E%3Cpath fill='%233ec8b0' d='M1 12c2-2 4-1 7-1s5-1 7 1v3H1z'/%3E%3C/svg%3E">
 <style>
@@ -180,6 +181,15 @@
     #viewer.screen{flex-direction:row;align-items:stretch}
     #viewer .panel{max-height:none;height:100%;width:min(380px,42vw);border-radius:0}
   }
+  html:not([data-unlocked]) body > :not(#lock){display:none !important}
+  #lock{position:fixed;inset:0;z-index:80;overflow:auto;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;justify-content:flex-end;padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));background:#062830}
+  html[data-unlocked] #lock{display:none !important}
+  #lock .pwrow{display:flex;gap:8px;align-items:stretch}
+  #lockPw{flex:1;min-width:0;min-height:48px;font-size:16px;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.28);color:inherit}
+  #lockShow{flex:0 0 auto;min-width:76px}
+  #lock .age{display:flex;align-items:center;gap:12px;min-height:48px;font-size:17px}
+  #lock .age input{width:24px;height:24px;flex:0 0 auto}
+  #lockErr{margin:8px 0 0;color:#ffb4b4;font-weight:700}
 </style>
 </head>
 <body>
@@ -192,18 +202,20 @@
 <div id="toast" role="status"></div>
 <div id="crash" hidden></div>
 
-<section id="gate" class="screen">
-  <div class="panel">
+<section id="lock">
+  <form id="lockForm" class="panel" autocomplete="off">
     <p class="kicker">18+</p>
     <h1>Coral Key</h1>
-    <p class="notice">All characters are adults. Suggestive content.</p>
-    <p class="hint">A sunny, flirty weekend at an island resort. Every route ends on a kiss, then fades to black.</p>
-    <div class="stack">
-      <button type="button" class="btn pri" id="gateYes">I am 18 or older</button>
-      <button type="button" class="btn" id="gateNo">Not now</button>
+    <p class="notice">All characters are adults. Suggestive, never explicit. A sunny weekend that ends on a kiss, then fades to black.</p>
+    <label class="age"><input type="checkbox" id="lockAge"> I am 18 or older</label>
+    <label for="lockPw">Password</label>
+    <div class="pwrow">
+      <input id="lockPw" name="pw" type="password" autocomplete="current-password" enterkeyhint="go" autocapitalize="off" autocorrect="off" spellcheck="false" aria-label="Password">
+      <button type="button" class="btn" id="lockShow" aria-pressed="false">Show</button>
     </div>
-    <p class="hint" id="gateStay" hidden>Come back when you are.</p>
-  </div>
+    <p id="lockErr" hidden></p>
+    <button type="submit" class="btn pri" style="margin-top:12px">Enter</button>
+  </form>
 </section>
 
 <section id="title" class="screen" hidden>
@@ -439,7 +451,75 @@ window.addEventListener('error', function (e) {
   el.textContent = (e && (e.message || (e.error && e.error.message))) || 'Script error';
 });
 </script>
-<script src="story.js?v=3"></script>
-<script src="engine.js?v=3"></script>
+<script>
+(function () {
+  var KEY = "kyle-stories-unlock";
+  var SALT = "063edc75bd4b4e1301828dec7215c277";
+  var HASH = "11b89436d8911e64c493f89db68f014d5ed19db80d319f78e92fab7f8179f6f9";
+  function start() {
+    document.documentElement.dataset.unlocked = "1";
+    var s = document.createElement("script");
+    s.src = "story.js?v=4";
+    s.onload = function () {
+      var e = document.createElement("script");
+      e.src = "engine.js?v=4";
+      document.body.appendChild(e);
+    };
+    s.onerror = function () {
+      var el = document.getElementById("lockErr");
+      if (!el) return;
+      el.hidden = false;
+      el.textContent = "The story did not load.";
+    };
+    document.body.appendChild(s);
+  }
+  if (document.documentElement.dataset.unlocked === "1") { start(); return; }
+  var form = document.getElementById("lockForm");
+  var pw = document.getElementById("lockPw");
+  var show = document.getElementById("lockShow");
+  var err = document.getElementById("lockErr");
+  var age = document.getElementById("lockAge");
+  show.addEventListener("click", function () {
+    var on = pw.type === "password";
+    pw.type = on ? "text" : "password";
+    show.textContent = on ? "Hide" : "Show";
+    show.setAttribute("aria-pressed", on ? "true" : "false");
+    pw.focus();
+  });
+  function hex(buf) {
+    var b = new Uint8Array(buf), o = "";
+    for (var i = 0; i < b.length; i++) o += b[i].toString(16).padStart(2, "0");
+    return o;
+  }
+  function same(a, b) {
+    if (a.length !== b.length) return false;
+    var n = 0;
+    for (var i = 0; i < a.length; i++) n |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    return n === 0;
+  }
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    if (!age.checked) {
+      err.hidden = false;
+      err.textContent = "Confirm you are 18 or older.";
+      return;
+    }
+    crypto.subtle.digest("SHA-256", new TextEncoder().encode(SALT + pw.value)).then(function (buf) {
+      if (!same(hex(buf), HASH)) {
+        err.hidden = false;
+        err.textContent = "That password is not right.";
+        return;
+      }
+      try { localStorage.setItem(KEY, "1"); } catch (e) {}
+      err.hidden = true;
+      pw.value = "";
+      start();
+    }).catch(function () {
+      err.hidden = false;
+      err.textContent = "This browser could not check the password.";
+    });
+  });
+})();
+</script>
 </body>
 </html>

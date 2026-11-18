@@ -1305,11 +1305,11 @@
   }
 
   function bind() {
-    $('gateYes').addEventListener('click', function () {
+    if ($('gateYes')) $('gateYes').addEventListener('click', function () {
       try { localStorage.setItem(GATE_KEY, '1'); } catch (e) {}
       showTitle();
     });
-    $('gateNo').addEventListener('click', function () {
+    if ($('gateNo')) $('gateNo').addEventListener('click', function () {
       const stay = $('gateStay');
       if (stay) stay.hidden = false;
     });
@@ -1450,13 +1450,6 @@
   }
 
   function bootGate() {
-    let ok = false;
-    try { ok = localStorage.getItem(GATE_KEY) === '1'; } catch (e) {}
-    setBg('beach');
-    if (!ok) {
-      showBase('gate');
-      return;
-    }
     showTitle();
   }
 
