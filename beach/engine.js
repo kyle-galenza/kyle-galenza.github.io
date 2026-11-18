@@ -351,6 +351,7 @@
   function takeChoice(menu, i, e) {
     if (e && e.stopPropagation) e.stopPropagation();
     if (e && e.preventDefault && e.type !== 'click') e.preventDefault();
+    if (!e || e.type !== 'click') swallowNextClick();
     if (menu !== choiceMenu || choiceTaken === menu) return;
     choiceTaken = menu;
     try { pickChoice(i); }
@@ -427,10 +428,26 @@
     present();
   }
 
+  function swallowNextClick() {
+    let done = false;
+    const cleanup = function () {
+      if (done) return;
+      done = true;
+      document.removeEventListener('click', eat, true);
+    };
+    const eat = function (e) {
+      e.preventDefault();
+      e.stopPropagation();
+      cleanup();
+    };
+    document.addEventListener('click', eat, true);
+    setTimeout(cleanup, 0);
+  }
   function advance() {
     if (overlayName()) return;
     if (!state || state.screen !== 'scene' || !state.play || finishing) return;
     if (choiceOpen) return;
+    swallowNextClick();
     if (!textDone) { completeText(); return; }
     if (pageIndex < pages.length - 1) { pageIndex += 1; typePage(); return; }
     stepIndex += 1;
@@ -816,7 +833,10 @@
   function playVideoStep(step) {
     const vmeta = D.VIDEOS[step.video];
     const src = shipSrc(vmeta);
-    if (!src) {
+    const who = step.who;
+    const aff = (state && state.aff && who && state.aff[who]) || 0;
+    const gated = step.minAff != null && aff < step.minAff;
+    if (!src || gated) {
       if (step.fallback) {
         showSay({
           op: 'say',

@@ -1,11 +1,8 @@
 /* Coral Key — a weekend at the resort.
    Adapted from the Lanternveil story shape. elves/ is not shared and not modified.
-   VIDEOS HOOK: leave this object empty until the remade clips arrive.
-   Ending steps and gallery entries already name aurelia.memory, mika.memory,
-   celeste.memory, and sable.memory. A missing key plays the fallback line and
-   requests nothing. When a clip is ready:
-   1. Add { src, poster, still, title, who } under that key.
-   2. Add the mp4 and poster paths to SHIP_LIST. Only listed files are requested. */
+   VIDEOS: one muted memory clip per woman. Ending steps play the clip only when
+   her affection is already high (minAff). Gallery entries with the same key
+   show Play once that memory is unlocked. Paths must also be in SHIP_LIST. */
 (function () {
   'use strict';
 
@@ -37,10 +34,42 @@
     night: 'art/bg_beach_night.webp'
   };
 
-  const VIDEOS = {};
+  const VIDEOS = {
+    'aurelia.memory': {
+      src: 'video/aurelia.mp4',
+      poster: 'video/aurelia_poster.jpg',
+      still: 'art/aurelia_ending.webp',
+      title: 'A Smile',
+      who: 'aurelia'
+    },
+    'mika.memory': {
+      src: 'video/mika.mp4',
+      poster: 'video/mika_poster.jpg',
+      still: 'art/mika_ending.webp',
+      title: 'A Glance',
+      who: 'mika'
+    },
+    'celeste.memory': {
+      src: 'video/celeste.mp4',
+      poster: 'video/celeste_poster.jpg',
+      still: 'art/celeste_ending.webp',
+      title: 'Her Laugh',
+      who: 'celeste'
+    },
+    'sable.memory': {
+      src: 'video/sable.mp4',
+      poster: 'video/sable_poster.jpg',
+      still: 'art/sable_ending.webp',
+      title: 'Blown Kiss',
+      who: 'sable'
+    }
+  };
 
   const SHIP_LIST = Object.keys(SPRITE_FILES).map(function (k) { return SPRITE_FILES[k]; })
     .concat(Object.keys(BG_FILES).map(function (k) { return BG_FILES[k]; }));
+  Object.keys(VIDEOS).forEach(function (k) {
+    SHIP_LIST.push(VIDEOS[k].src, VIDEOS[k].poster);
+  });
 
   const CAST = {
     aurelia: {
@@ -452,7 +481,7 @@
         },
         endingChoice('ea5', 'aurelia', 'aurelia.evening'),
         {
-          op: 'video', id: 'ea6', video: 'aurelia.memory', who: 'aurelia', sprite: 'aurelia.evening',
+          op: 'video', id: 'ea6', video: 'aurelia.memory', who: 'aurelia', sprite: 'aurelia.evening', minAff: 16,
           fallback: 'She steps in until the lantern is behind her and the only polite thing left is to stop being polite.'
         },
         say('ea7', 'narr', 'Aurelia kisses you. It is slow, and sure, and her fingers curl at your waist as the balcony, the moon, and the rest of the night fade to black.', { sprite: 'aurelia.evening', fade: true }),
@@ -473,7 +502,7 @@
         },
         endingChoice('em5', 'mika', 'mika.evening'),
         {
-          op: 'video', id: 'em6', video: 'mika.memory', who: 'mika', sprite: 'mika.evening',
+          op: 'video', id: 'em6', video: 'mika.memory', who: 'mika', sprite: 'mika.evening', minAff: 16,
           fallback: 'She leans in, misses by a shy inch, laughs once, and tries again like the second try is the brave one.'
         },
         say('em7', 'narr', 'Mika kisses you. It is soft, a little shaky, and then not shaky at all. Her hands stay on your shoulders as the lanterns blur and the night fades to black.', { sprite: 'mika.evening', fade: true }),
@@ -494,7 +523,7 @@
         },
         endingChoice('ec5', 'celeste', 'celeste.evening'),
         {
-          op: 'video', id: 'ec6', video: 'celeste.memory', who: 'celeste', sprite: 'celeste.evening',
+          op: 'video', id: 'ec6', video: 'celeste.memory', who: 'celeste', sprite: 'celeste.evening', minAff: 16,
           fallback: 'She meets you halfway, laughing into the inch between you, stars in her eyes and salt still on her skin.'
         },
         say('ec7', 'narr', 'Celeste kisses you, bright and sure, a happy sound caught between your mouths. The stars wheel, the tide stays out, and the rest of the night fades to black.', { sprite: 'celeste.evening', fade: true }),
@@ -515,7 +544,7 @@
         },
         endingChoice('es5', 'sable', 'sable.evening'),
         {
-          op: 'video', id: 'es6', video: 'sable.memory', who: 'sable', sprite: 'sable.evening',
+          op: 'video', id: 'es6', video: 'sable.memory', who: 'sable', sprite: 'sable.evening', minAff: 16,
           fallback: 'She draws you down by the front of your shirt, unhurried, until the steam is a curtain and her smile is the only map left.'
         },
         say('es7', 'narr', 'Sable kisses you. It is deep, unhurried, and entirely sure. Her hand stays at your jaw as the lanterns smear into gold and the night fades to black.', { sprite: 'sable.evening', fade: true }),
