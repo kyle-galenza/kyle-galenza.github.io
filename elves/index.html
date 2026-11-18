@@ -193,12 +193,15 @@
     .lanterns i{animation:none}
     #fade{transition:none}
   }
-  :root{--topbar:calc(44px + env(safe-area-inset-top));--dock:calc(34dvh + env(safe-area-inset-bottom));--side:42vw}
+  :root{--topbar:0px;--dock:calc(36dvh + env(safe-area-inset-bottom));--side:42vw}
   .meters,#hud,#mapActions{display:none !important}
   #toast{top:auto;bottom:calc(12px + env(safe-area-inset-bottom));max-width:min(280px,70vw)}
   #vidTitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .vid-ui{overflow:hidden}
-  #btnPeek{position:fixed;z-index:30;top:calc(6px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));width:44px;height:36px;min-height:36px;padding:0;border-radius:999px;border:1px solid var(--line);background:rgba(16,12,10,.5);color:var(--gold);font:800 18px/1 system-ui}
+  #btnPeek{position:fixed;z-index:30;top:auto;left:auto;right:calc(18px + env(safe-area-inset-right));bottom:calc(var(--dock) - 72px);width:44px;height:36px;min-height:36px;padding:0;border-radius:999px;border:1px solid var(--line);background:#1a1612;color:var(--gold);font:800 18px/1 system-ui}
+  #nameplate{margin-right:52px}
+  #box,.dlg{background:#14110e}
+  .dlg{backdrop-filter:none;-webkit-backdrop-filter:none}
   body:not([data-screen="scene"]):not([data-screen="map"]) #btnPeek{visibility:hidden;pointer-events:none}
   #figure,#figure.cg{top:var(--topbar);bottom:var(--dock)}
   #sprite{max-height:100%;object-fit:contain;object-position:center bottom}
@@ -223,7 +226,7 @@
     #figure,#figure.cg{top:0;bottom:0;right:var(--side);left:0}
     #video video,#vidPoster{top:0;left:0;right:auto;bottom:auto;width:calc(100vw - var(--side));height:100dvh}
     #box,.vid-ui,#menu.overlay,#log.overlay,#saves.overlay,#settings.overlay,#mini.overlay{left:auto;right:0;top:0;width:var(--side);height:100%;max-height:none;padding-top:52px}
-    #btnPeek{left:calc(58vw + 8px);right:auto}
+    #btnPeek{top:calc(8px + env(safe-area-inset-top));bottom:auto;left:calc(58vw + 8px);right:auto}
     #toast{left:calc(100vw - var(--side) / 2);max-width:calc(var(--side) - 20px)}
     #viewer.screen{flex-direction:row;align-items:stretch}
     #viewer .panel{max-height:none;height:100%;width:min(380px,42vw);border-radius:0}
@@ -518,10 +521,10 @@ window.addEventListener('unhandledrejection', function (e) {
   function start() {
     document.documentElement.dataset.unlocked = "1";
     var s = document.createElement("script");
-    s.src = "story.js?v=9";
+    s.src = "story.js?v=10";
     s.onload = function () {
       var e = document.createElement("script");
-      e.src = "engine.js?v=9";
+      e.src = "engine.js?v=10";
       document.body.appendChild(e);
     };
     s.onerror = function () {
