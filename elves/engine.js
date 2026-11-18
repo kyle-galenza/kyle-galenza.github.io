@@ -585,7 +585,9 @@
     state.dailyN[who] = n + 1;
     return list[n % list.length];
   }
+  let blockPlacesUntil = 0;
   function pickPlace(place) {
+    if (Date.now() < blockPlacesUntil) return;
     if (!state || state.screen !== 'map') return;
     const who = PLACES[place];
     if (!who) return;
@@ -1497,6 +1499,8 @@
       if (overlayName()) return;
       if (!state || state.screen !== 'scene') return;
       if (choiceOpen) return;
+      if (e.preventDefault) e.preventDefault();
+      blockPlacesUntil = Date.now() + 450;
       advance();
     });
     $('btnAuto').addEventListener('click', function (e) { e.stopPropagation(); toggleAuto(); });
