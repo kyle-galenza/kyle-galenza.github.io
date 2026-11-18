@@ -51,11 +51,13 @@
     ],
     celeste: [
       { id: 'laugh', src: 'video/celeste.mp4', poster: 'video/celeste_poster.jpg', still: 'art/celeste_ending.webp', title: 'Her Laugh' },
-      { id: 'bonfire', src: 'video/celeste_bonfire.mp4', poster: 'video/celeste_bonfire_poster.jpg', still: 'art/celeste_bonfire.webp', title: 'Bonfire Kiss' }
+      { id: 'bonfire', src: 'video/celeste_bonfire.mp4', poster: 'video/celeste_bonfire_poster.jpg', still: 'art/celeste_bonfire.webp', title: 'Bonfire Kiss' },
+      { id: 'surf', src: 'video/celeste_surf.mp4', poster: 'video/celeste_surf_poster.jpg', still: 'art/celeste_surf.webp', title: 'Wet Smile' }
     ],
     sable: [
       { id: 'kiss', src: 'video/sable.mp4', poster: 'video/sable_poster.jpg', still: 'art/sable_ending.webp', title: 'Blown Kiss' },
-      { id: 'palms', src: 'video/sable_palms.mp4', poster: 'video/sable_palms_poster.jpg', still: 'art/sable_palms.webp', title: 'Through Her Lashes' }
+      { id: 'palms', src: 'video/sable_palms.mp4', poster: 'video/sable_palms_poster.jpg', still: 'art/sable_palms.webp', title: 'Through Her Lashes' },
+      { id: 'jetski', src: 'video/sable_jetski.mp4', poster: 'video/sable_jetski_poster.jpg', still: 'art/sable_jetski.webp', title: 'Wind Smile' }
     ]
   };
 
@@ -125,11 +127,11 @@
     mika_market: { who: 'mika', title: 'Night Market', caption: 'Lantern light, her hair in the breeze, a smile and a wink.', sprite: 'mika.market', video: 'mika.market' },
     end_mika: { who: 'mika', title: 'Lanterns for Two', caption: 'She stops apologizing long enough to kiss you.', sprite: 'mika.evening', video: 'mika.glance' },
     celeste_beach: { who: 'celeste', title: 'The Break', caption: 'She waves with her whole arms, like the tide might miss it.', sprite: 'celeste.beach' },
-    celeste_surf: { who: 'celeste', title: 'One Wave', caption: 'The board is an excuse. The smile is the point.', sprite: 'celeste.surf', video: 'celeste.laugh' },
+    celeste_surf: { who: 'celeste', title: 'One Wave', caption: 'Wet hair, a smile, and a blink she aims at you.', sprite: 'celeste.surf', video: 'celeste.surf' },
     celeste_bonfire: { who: 'celeste', title: 'Bonfire', caption: 'Firelight, a warm smile, and a kiss blown across the blanket.', sprite: 'celeste.bonfire', video: 'celeste.bonfire' },
     end_celeste: { who: 'celeste', title: 'Stay Through Sunday', caption: 'Low tide, starlight, and a kiss that tastes like salt.', sprite: 'celeste.evening', video: 'celeste.laugh' },
     sable_palms: { who: 'sable', title: 'Striped Shade', caption: 'She looks up through her lashes, then lets the smirk arrive.', sprite: 'sable.palms', video: 'sable.palms' },
-    sable_jetski: { who: 'sable', title: 'Hold On', caption: 'Open water, her laugh, and your hands where she told you to put them.', sprite: 'sable.jetski', video: 'sable.kiss' },
+    sable_jetski: { who: 'sable', title: 'Hold On', caption: 'Wind in her hair, and a close-mouthed smile over her shoulder.', sprite: 'sable.jetski', video: 'sable.jetski' },
     sable_tiki: { who: 'sable', title: 'Her Stool', caption: 'Sunglasses up, sunset down, and no interest in pretending.', sprite: 'sable.tiki' },
     end_sable: { who: 'sable', title: 'The Pool After Dark', caption: 'Closed to guests. Open to you. A kiss, then dark.', sprite: 'sable.evening', video: 'sable.kiss' },
     suit_aurelia: { who: 'aurelia', title: 'Gold Suit', caption: 'The lounger look, unlocked when her weekend is yours.', sprite: 'aurelia.pool', section: 'SWIMSUITS', route: true },
@@ -324,6 +326,10 @@
         say('cd6', 'narr', 'She talks the way other people run, easy and glad to be tired later. A white board is planted in the sand like a flag. She spins it up onto her hip and the water applauds in small crashes. Her blue suit is practical and also, clearly, a choice.'),
         unlock('cd7', 'celeste', 'surf', 'celeste_surf'),
         say('cd8', 'celeste', 'Rule one, you do not have to stand. Rule two, if you fall, fall toward the fun. Rule three, I am going to show off a little and you are going to pretend it is instruction. Ready, {name}? Say ready. It helps my nerves, which I hide in shouting.', { sprite: 'celeste.surf' }),
+        {
+          op: 'video', id: 'cd8b', video: 'celeste.surf', who: 'celeste', sprite: 'celeste.surf',
+          fallback: 'She smiles, blinks, and lets the wet hair blow across the grin.'
+        },
         choice('cd9', 'celeste', [
           { text: 'Say ready, and mean it.', aff: 5, sprite: 'celeste.surf', reply: 'Ready is my favorite word in your mouth. Again later, in a different context, if the weekend goes my way. Paddle! I will be the loud one behind you, which is always.' },
           { text: 'Admit you might fall, and go anyway.', aff: 3, sprite: 'celeste.surf', reply: 'Falling is just surfing with extra steps. I fall on purpose sometimes so nobody feels lonely about it. Not today. Today I want you to see me fly a little. Watch my hands, then my face. Mostly my face.' },
@@ -362,6 +368,10 @@
         unlock('sd8', 'sable', 'jetski', 'sable_jetski'),
         say('sd9', 'narr', 'The ski is silver and impatient. Sable takes the front as if the ocean asked her to drive and she agreed on her terms. Spray climbs. The island shrinks into a green sentence. She glances back, hair a black flag, and tips her chin at the grip.'),
         say('sd10', 'sable', 'Hands on the grips, or around my waist if you want to stay aboard. I am going to open it up, {name}. Hold on like you mean to arrive with me.', { sprite: 'sable.jetski' }),
+        {
+          op: 'video', id: 'sd10b', video: 'sable.jetski', who: 'sable', sprite: 'sable.jetski',
+          fallback: 'She looks back with a close-mouthed smile, hair a black flag in the wind.'
+        },
         choice('sd11', 'sable', [
           { text: 'Hold on, close, and tell her not to spare you.', aff: 5, sprite: 'sable.jetski', reply: 'Good. I hate spare. Keep that grip. If you laugh, I will go faster. If you swear, I will go faster. I am consistent. So is the sea. We are not.' },
           { text: 'Hold on, and ask her to show you the pretty line first.', aff: 3, sprite: 'sable.jetski', reply: 'Pretty first, wicked after. I respect a person with a sequence. Watch the cove. Then watch me. The cove will still be there. I am the view that moves.' },
