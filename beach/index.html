@@ -152,7 +152,8 @@
   }
   :root{--topbar:0px;--dock:20dvh;--side:42vw}
   .meters,#mapActions,#hud{display:none !important}
-  #toast,body[data-screen="scene"] #toast,body[data-screen="map"] #toast,body[data-screen="ending"] #toast,body[data-screen="title"] #toast{top:auto;bottom:calc(12px + env(safe-area-inset-bottom));max-width:min(280px,70vw)}
+  #toast,body[data-screen="scene"] #toast,body[data-screen="map"] #toast,body[data-screen="ending"] #toast,body[data-screen="title"] #toast{top:auto;bottom:calc(var(--dock) + 8px);max-width:min(280px,70vw)}
+  body.choosing #toast{bottom:auto;top:calc(8px + env(safe-area-inset-top));max-width:min(240px,68vw)}
   #vidTitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .vid-ui{overflow:hidden}
   #btnPeek{position:fixed;z-index:30;top:auto;left:auto;right:calc(8px + env(safe-area-inset-right));bottom:calc(var(--dock) - 32px);width:28px;height:24px;min-height:24px;padding:0;border-radius:999px;border:1px solid var(--line);background:#0b2430;color:var(--gold);font:800 13px/1 system-ui;opacity:.85}
@@ -162,17 +163,19 @@
   #line{font-size:16px;line-height:1.25}
   #lineWrap{min-height:0;padding-right:4px}
   #btnAdvance{min-height:32px;min-width:0;height:32px;padding:0 10px;font-size:14px;bottom:4px;right:6px}
-  .choice{min-height:36px;font-size:15px;line-height:1.2;padding:6px 10px;width:auto;max-width:78%;flex:0 0 auto}
-  #choices{flex-direction:row;flex-wrap:nowrap;align-items:stretch;overflow-x:auto;overflow-y:hidden;gap:8px}
+  .choice{min-height:40px;font-size:15px;line-height:1.2;padding:8px 12px;width:100%;max-width:none;flex:0 0 auto;text-align:left}
+  #choices{flex-direction:column;flex-wrap:nowrap;align-items:stretch;overflow-x:hidden;overflow-y:auto;gap:6px}
   .dlg{gap:2px;padding:4px 8px 4px}
   #box,.dlg{background:#071820}
   .dlg{backdrop-filter:none;-webkit-backdrop-filter:none}
   body:not([data-screen="scene"]):not([data-screen="map"]) #btnPeek{visibility:hidden;pointer-events:none}
   #bgImg,#cgImg{left:0;right:auto;top:var(--topbar);bottom:auto;width:100%;height:calc(100dvh - var(--topbar) - var(--dock));object-fit:cover;object-position:center 22%}
   #box{min-height:0;height:var(--dock);max-height:var(--dock);overflow:hidden}
-  body.choosing #box{min-height:0;height:var(--dock);max-height:var(--dock)}
-  .dlg,body.choosing .dlg{height:100%;max-height:100%;overflow:hidden}
-  #choices{overflow:auto;min-height:0;flex:1 1 auto;-webkit-overflow-scrolling:touch}
+  body.choosing #box{height:auto;min-height:0;max-height:52dvh;overflow:hidden;background:rgba(7,24,32,.84)}
+  .dlg{height:100%;max-height:100%;overflow:hidden}
+  body.choosing .dlg{height:auto;max-height:52dvh;overflow:hidden;background:transparent}
+  body.choosing #choices{display:flex;flex-direction:column;max-height:236px;overflow-x:hidden;overflow-y:auto}
+  body.choosing #btnPeek{visibility:hidden}
   #menu.overlay,#log.overlay,#saves.overlay,#settings.overlay{top:auto;bottom:0;left:0;right:0;height:var(--dock);max-height:var(--dock);background:transparent;padding:6px 8px calc(6px + env(safe-area-inset-bottom));align-items:stretch}
   #menu .sheet,#log .sheet,#saves .sheet,#settings .sheet{width:100%;max-height:100%;border-radius:16px 16px 0 0}
   #video video,#vidPoster{inset:auto;left:0;right:auto;top:var(--topbar);bottom:auto;width:100%;height:calc(100dvh - var(--topbar) - var(--dock));object-fit:cover;object-position:center 22%;background:#041016}
@@ -191,6 +194,8 @@
     #box,.vid-ui,#menu.overlay,#log.overlay,#saves.overlay,#settings.overlay{left:auto;right:0;top:0;width:var(--side);height:100%;max-height:none;padding-top:52px}
     #btnPeek{top:calc(8px + env(safe-area-inset-top));bottom:auto;left:calc(58vw + 8px);right:auto}
     #toast{left:calc(100vw - var(--side) / 2);max-width:calc(var(--side) - 20px)}
+    body.choosing #box{top:0;bottom:0;height:100%;max-height:none;left:auto;right:0;width:var(--side)}
+    body.choosing #choices{max-height:none;flex:1 1 auto}
     #viewer.screen{flex-direction:row;align-items:stretch}
     #viewer .panel{max-height:none;height:100%;width:min(380px,42vw);border-radius:0}
   }
@@ -472,10 +477,10 @@ window.addEventListener('error', function (e) {
   function start() {
     document.documentElement.dataset.unlocked = "1";
     var s = document.createElement("script");
-    s.src = "story.js?v=9";
+    s.src = "story.js?v=10";
     s.onload = function () {
       var e = document.createElement("script");
-      e.src = "engine.js?v=8";
+      e.src = "engine.js?v=9";
       document.body.appendChild(e);
     };
     s.onerror = function () {
