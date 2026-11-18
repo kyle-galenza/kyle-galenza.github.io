@@ -1354,6 +1354,7 @@
       img.alt = g.title;
       img.decoding = 'async';
       img.src = resolved.src;
+      img.addEventListener('click', function () { stage.classList.toggle('full'); });
       stage.appendChild(img);
     } else {
       const c = document.createElement('div');
