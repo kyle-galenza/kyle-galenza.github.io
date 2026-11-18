@@ -489,6 +489,8 @@
     $('choices').innerHTML = '';
     blip();
     if (opt.ending) {
+      state.bonusPlayed = 0;
+      state.checkoutPlayed = 0;
       runScene(D.ENDINGS[opt.ending], 'ending:' + opt.ending);
       return;
     }
@@ -564,7 +566,22 @@
     if (after === 'map') beginDay();
     else if (after === 'endday') endDay();
     else if (after && after.indexOf('visit:') === 0) afterVisit(after.slice(6));
-    else if (after && after.indexOf('ending:') === 0) showEndingCard(after.slice(7), false);
+    else if (after && after.indexOf('ending:') === 0) {
+      const id = after.slice(7);
+      if (id !== 'neutral' && D.CAST[id]) {
+        if (!state.bonusPlayed && (state.aff[id] || 0) >= 48) {
+          state.bonusPlayed = 1;
+          runScene(bonusScene(id), 'ending:' + id);
+          return;
+        }
+        if (!state.checkoutPlayed) {
+          state.checkoutPlayed = 1;
+          runScene(farewellScene(id), 'ending:' + id);
+          return;
+        }
+      }
+      showEndingCard(id, false);
+    }
   }
   function pendingEvent(who) {
     for (let i = 0; i < D.EVENTS.length; i++) {
@@ -699,14 +716,55 @@
     return { id: 'neutral', bg: 'gate', steps: steps };
   }
 
+  function bonusScene(id) {
+    const name = D.CAST[id] ? D.CAST[id].name : 'She';
+    const bg = id === 'nyssa' ? 'tower' : id === 'lirael' ? 'camp' : 'gardens';
+    return {
+      id: 'bonus_' + id,
+      who: id,
+      bg: bg,
+      steps: [
+        { op: 'say', id: 'bn1', who: 'narr', text: name + ' keeps you past the last polite lantern. What she is wearing is not a costume anymore. It is what she chose, for you.' },
+        { op: 'say', id: 'bn2', who: id, sprite: id + '.night.pose2', text: 'This is the part the festival does not get to watch. Stay for it.' },
+        { op: 'video', id: 'bn3', who: id, video: id + '.night.b', sprite: id + '.night.clipb', fallback: name + ' laughs, close, and does not look away.' },
+        { op: 'unlock', id: 'bn4', who: id, gallery: id + '_night_b' }
+      ]
+    };
+  }
+  function farewellScene(id) {
+    const name = D.CAST[id] ? D.CAST[id].name : 'She';
+    const bg = id === 'nyssa' ? 'tower' : id === 'lirael' ? 'falls' : 'gardens';
+    const line = {
+      aelith: 'The road can have you for a while. It cannot have the last thing I give you. Look back.',
+      nyssa: 'Go, if you must. I will be on the balcony. This is the kiss I am not going to joke about.',
+      lirael: 'The forest will keep your footprints. I am keeping the rest. Watch me do this properly.'
+    }[id];
+    return {
+      id: 'farewell_' + id,
+      who: id,
+      bg: bg,
+      steps: [
+        { op: 'say', id: 'fw1', who: 'narr', text: 'The last lanterns thin out. ' + name + ' walks you as far as the gate and does not pretend it is only polite.' },
+        { op: 'say', id: 'fw2', who: id, sprite: id + '.night.pose4', text: line || 'Come back when the lanterns are lit. I will be looking.' },
+        { op: 'video', id: 'fw3', who: id, video: id + '.night.c', sprite: id + '.night.clipc', fallback: 'She blows you a kiss, and the road takes everything except that.' },
+        { op: 'unlock', id: 'fw4', who: id, gallery: id + '_night_c' }
+      ]
+    };
+  }
   function showEndingCard(id, replay) {
     state.ending = id;
     state.play = null;
     if (!replay && !state.endingCredited) {
       state.endingCredited = true;
       meta.endings[id] = (meta.endings[id] || 0) + 1;
-      if (id !== 'neutral') unlockGallery('end_' + id);
-      else unlockGallery('end_neutral');
+      meta.routes = meta.routes || {};
+      if (id !== 'neutral') {
+        meta.routes[id] = 1;
+        unlockGallery('end_' + id);
+        D.GALLERY_ORDER.forEach(function (gid) {
+          if (gid.indexOf(id + '_night') === 0 || gid === id + '_close_night') unlockGallery(gid);
+        });
+      } else unlockGallery('end_neutral');
       saveMeta();
     }
     const card = D.CARDS[id] || D.CARDS.neutral;
@@ -1248,9 +1306,22 @@
     const grid = $('galGrid');
     grid.innerHTML = '';
     const have = Object.assign({}, meta.gallery || {}, (state && state.gallery) || {});
+    let lastSec = '';
     D.GALLERY_ORDER.forEach(function (id) {
       const g = D.GALLERY[id];
-      const on = !!have[id];
+      const lingerie = id.indexOf('_night') !== -1;
+      const routeOn = lingerie && g.who && meta.routes && meta.routes[g.who];
+      const on = !!have[id] || !!routeOn;
+      const sec = lingerie && g.who && D.CAST[g.who] ? D.CAST[g.who].name.toUpperCase() + ' · NIGHT SET' : '';
+      if (sec !== lastSec) {
+        lastSec = sec;
+        if (sec) {
+          const h = document.createElement('div');
+          h.className = 'gal-sec';
+          h.textContent = sec;
+          grid.appendChild(h);
+        }
+      }
       const card = document.createElement('button');
       card.type = 'button';
       card.className = 'gal' + (on ? '' : ' lock');
@@ -1383,6 +1454,11 @@
     if (a) a.classList.toggle('on', !!settings.auto);
     if (s) s.classList.toggle('on', !!settings.skip);
     if (a) a.textContent = settings.auto ? 'Auto on' : 'Auto';
+    const ma = $('menuAuto');
+    if (ma) {
+      ma.classList.toggle('on', !!settings.auto);
+      ma.textContent = settings.auto ? 'Auto on' : 'Auto';
+    }
     if (s) s.textContent = settings.skip ? 'Skip on' : 'Skip';
   }
   function toggleAuto() {
@@ -1400,15 +1476,43 @@
     syncSetButtons();
     toast(settings.skip ? 'Skip reads lines you have already seen' : 'Skip off');
   }
+  let theme = null;
+  function ensureTheme() {
+    if (muted) return;
+    if (!theme) {
+      theme = new Audio('audio/theme.mp3');
+      theme.loop = true;
+      theme.volume = 0.32;
+    }
+    const p = theme.play();
+    if (p && p.catch) p.catch(function () {});
+  }
+  function syncTheme() {
+    if (!theme) {
+      if (!muted) ensureTheme();
+      return;
+    }
+    if (muted) theme.pause();
+    else {
+      const p = theme.play();
+      if (p && p.catch) p.catch(function () {});
+    }
+  }
   function toggleMute() {
     muted = !muted;
     try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (e) {}
+    syncTheme();
     syncSetButtons();
   }
   function openSettings() { showOverlay('settings'); syncSetButtons(); }
+  let menuTimer = 0;
   function openMenu() {
     if (!state || (state.screen !== 'scene' && state.screen !== 'map')) { openSettings(); return; }
     showOverlay('menu');
+    clearTimeout(menuTimer);
+    menuTimer = setTimeout(function () {
+      if (overlayName() === 'menu') clearOverlay();
+    }, 7000);
   }
   function paintTitleCast() {
     const row = $('titleCast');
@@ -1515,7 +1619,18 @@
     $('mapSettings').addEventListener('click', openSettings);
     $('mapTitle').addEventListener('click', function () { autosave(); showTitle(); });
     $('btnAdvance').addEventListener('click', function (e) { e.stopPropagation(); advance(); });
+    let holdTimer = 0;
+    let heldMenu = false;
+    $('scene').addEventListener('pointerdown', function (e) {
+      const el = eventEl(e.target);
+      if (el && el.closest && el.closest('button, a, input, textarea, .choice')) return;
+      heldMenu = false;
+      clearTimeout(holdTimer);
+      holdTimer = setTimeout(function () { heldMenu = true; openMenu(); }, 560);
+    });
     $('scene').addEventListener('pointerup', function (e) {
+      clearTimeout(holdTimer);
+      if (heldMenu) { heldMenu = false; if (e.stopPropagation) e.stopPropagation(); return; }
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       const el = eventEl(e.target);
       if (el && el.closest && el.closest('button, a, input, textarea, .choice')) return;
@@ -1526,10 +1641,14 @@
       blockPlacesUntil = Date.now() + 450;
       advance();
     });
+    $('scene').addEventListener('pointercancel', function () { clearTimeout(holdTimer); });
+    document.addEventListener('pointerup', function () { ensureTheme(); });
     $('btnAuto').addEventListener('click', function (e) { e.stopPropagation(); toggleAuto(); });
     $('btnSkip').addEventListener('click', function (e) { e.stopPropagation(); toggleSkip(); });
     $('btnLog').addEventListener('click', function (e) { e.stopPropagation(); openLog(); });
     $('btnMenu').addEventListener('click', function (e) { e.stopPropagation(); openMenu(); });
+    if ($('btnPeek')) $('btnPeek').addEventListener('click', function (e) { e.stopPropagation(); openMenu(); });
+    if ($('menuAuto')) $('menuAuto').addEventListener('click', function (e) { e.stopPropagation(); toggleAuto(); });
     let vidTap = 0;
     let vidTapKey = '';
     function onceVid(key, fn, e) {

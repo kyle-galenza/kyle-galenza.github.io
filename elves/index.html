@@ -192,9 +192,45 @@
     .lanterns i{animation:none}
     #fade{transition:none}
   }
+  :root{--topbar:calc(44px + env(safe-area-inset-top));--dock:calc(34dvh + env(safe-area-inset-bottom));--side:42vw}
+  .meters,#hud,#mapActions{display:none !important}
+  #toast{top:auto;bottom:calc(12px + env(safe-area-inset-bottom));max-width:min(280px,70vw)}
+  #vidTitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .vid-ui{overflow:hidden}
+  #btnPeek{position:fixed;z-index:30;top:calc(6px + env(safe-area-inset-top));right:calc(8px + env(safe-area-inset-right));width:44px;height:36px;min-height:36px;padding:0;border-radius:999px;border:1px solid var(--line);background:rgba(16,12,10,.5);color:var(--gold);font:800 18px/1 system-ui}
+  body:not([data-screen="scene"]):not([data-screen="map"]) #btnPeek{visibility:hidden;pointer-events:none}
+  #figure,#figure.cg{top:var(--topbar);bottom:var(--dock)}
+  #sprite{max-height:100%;object-fit:contain;object-position:center bottom}
+  #box{height:var(--dock);max-height:var(--dock);overflow:hidden}
+  body.choosing #box{height:var(--dock);max-height:var(--dock)}
+  .dlg,body.choosing .dlg{height:100%;max-height:100%;overflow:hidden}
+  #choices{overflow:auto;min-height:0;flex:1 1 auto;-webkit-overflow-scrolling:touch}
+  #menu.overlay,#log.overlay,#saves.overlay,#settings.overlay,#mini.overlay{top:auto;bottom:0;left:0;right:0;height:var(--dock);max-height:var(--dock);background:transparent;padding:6px 8px calc(6px + env(safe-area-inset-bottom));align-items:stretch}
+  #menu .sheet,#log .sheet,#saves .sheet,#settings .sheet,#mini .sheet{width:100%;max-height:100%;border-radius:16px 16px 0 0}
+  .dance{height:110px}
+  #video video,#vidPoster{top:var(--topbar);bottom:auto;left:0;right:auto;width:100%;height:calc(100dvh - var(--topbar) - var(--dock));object-fit:contain;object-position:center center}
+  .vid-ui{height:var(--dock);background:#100c0a}
+  #vidTitle{position:static;flex:1.1;margin:0;text-shadow:none}
+  .cast img{object-fit:contain;object-position:center bottom;height:auto;max-height:28vh}
+  #wardImg{object-fit:contain;object-position:center bottom;height:168px}
+  #viewer.screen{justify-content:flex-end;padding:0;background:#100c0a}
+  #viewer .panel{width:min(860px,100%);margin:0 auto;max-height:32dvh;overflow:auto;border-radius:18px 18px 0 0}
+  #viewStage{flex:1 1 auto;min-height:0;width:100%;max-height:none;border-radius:0;display:flex;align-items:flex-end;justify-content:center}
+  #viewStage img{max-height:100%;max-width:100%;width:auto;height:auto;object-fit:contain;object-position:center bottom}
+  .gal-sec{margin:14px 0 2px;color:var(--gold);font:800 12px/1 system-ui;letter-spacing:.14em}
+  @media (orientation:landscape){
+    #figure,#figure.cg{top:0;bottom:0;right:var(--side);left:0}
+    #video video,#vidPoster{top:0;left:0;right:auto;bottom:auto;width:calc(100vw - var(--side));height:100dvh}
+    #box,.vid-ui,#menu.overlay,#log.overlay,#saves.overlay,#settings.overlay,#mini.overlay{left:auto;right:0;top:0;width:var(--side);height:100%;max-height:none;padding-top:52px}
+    #btnPeek{left:calc(58vw + 8px);right:auto}
+    #toast{left:calc(100vw - var(--side) / 2);max-width:calc(var(--side) - 20px)}
+    #viewer.screen{flex-direction:row;align-items:stretch}
+    #viewer .panel{max-height:none;height:100%;width:min(380px,42vw);border-radius:0}
+  }
 </style>
 </head>
 <body>
+<button type="button" id="btnPeek" aria-label="Menu">···</button>
 <div id="bg" class="bg gate"></div>
 <div id="fade"></div>
 <div id="toast" role="status"></div>
@@ -258,7 +294,7 @@
       <em class="wait" data-wait="lirael" hidden>She is waiting</em>
     </button>
   </div>
-  <div class="row">
+  <div class="row" id="mapActions">
     <button type="button" class="btn" id="mapWardrobe">Wardrobe</button>
     <button type="button" class="btn" id="mapGallery">Gallery</button>
     <button type="button" class="btn" id="mapSave">Save</button>
@@ -344,8 +380,8 @@
 </section>
 
 <section id="viewer" class="screen" hidden>
-  <div class="panel" style="width:min(860px,100%)">
-    <div id="viewStage"></div>
+  <div id="viewStage"></div>
+  <div class="panel">
     <h2 id="viewTitle"></h2>
     <p id="viewCaption"></p>
     <div class="row">
@@ -356,10 +392,10 @@
 </section>
 
 <div id="video" class="overlay" hidden>
-  <p id="vidTitle"></p>
   <img id="vidPoster" alt="" hidden>
   <video id="vid" playsinline webkit-playsinline muted preload="none"></video>
   <div class="vid-ui">
+    <p id="vidTitle"></p>
     <button type="button" class="btn" id="btnVidReplay" hidden>Replay</button>
     <button type="button" class="btn" id="btnVidSound">Tap for sound</button>
     <button type="button" class="btn pri" id="btnVidSkip">Skip</button>
@@ -382,6 +418,7 @@
       <button type="button" class="btn pri" id="menuClose">Resume</button>
       <button type="button" class="btn" id="menuSave">Save</button>
       <button type="button" class="btn" id="menuLoad">Load</button>
+      <button type="button" class="btn" id="menuAuto">Auto</button>
       <button type="button" class="btn" id="menuLog">Log</button>
       <button type="button" class="btn" id="menuWard">Wardrobe</button>
       <button type="button" class="btn" id="menuGal">Gallery</button>
@@ -446,7 +483,7 @@ window.addEventListener('unhandledrejection', function (e) {
   el.textContent = (r && (r.message || r)) || 'Script error';
 });
 </script>
-<script src="story.js?v=7"></script>
-<script src="engine.js?v=7"></script>
+<script src="story.js?v=8"></script>
+<script src="engine.js?v=8"></script>
 </body>
 </html>

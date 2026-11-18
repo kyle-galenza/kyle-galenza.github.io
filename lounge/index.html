@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#140e12">
+<title>The Lounge</title>
+<style>
+  :root{--ink:#f6efe6;--dim:#cbbbaa;--gold:#e7c98a;--line:rgba(231,201,138,.45)}
+  *{box-sizing:border-box}
+  html,body{margin:0;min-height:100%;background:#140e12;color:var(--ink);font:500 17px/1.45 system-ui,-apple-system,sans-serif}
+  body{min-height:100dvh;padding:calc(18px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))}
+  main{max-width:520px;margin:0 auto}
+  h1{margin:0;font:italic 46px/1 Georgia,serif}
+  .sub{letter-spacing:.18em;font:800 12px/1 system-ui;color:var(--gold);margin:8px 0 0}
+  .notice{margin:16px 0;padding:12px;border-radius:16px;border:1px solid var(--line);background:rgba(0,0,0,.28)}
+  a.card,button{display:block;width:100%;text-align:left;text-decoration:none;color:inherit;min-height:48px;margin:10px 0;padding:14px 16px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.04);font:inherit}
+  a.card b{display:block;font:italic 26px/1.1 Georgia,serif}
+  a.card small{color:var(--dim)}
+  button.pri{background:var(--gold);color:#24180c;border:0;font-weight:800}
+  [hidden]{display:none !important}
+</style>
+</head>
+<body>
+<main>
+  <p class="sub">UNLISTED</p>
+  <h1>The Lounge</h1>
+  <div id="gate">
+    <p class="notice">18+ only. Everyone inside is an adult. Suggestive, never explicit. This page is not on the public arcade.</p>
+    <button type="button" class="pri" id="enter">I am 18 or older</button>
+  </div>
+  <div id="list" hidden>
+    <p class="notice">A private door between the stories. Nothing here is linked from the arcade index.</p>
+    <a class="card" href="../beach/"><b>Coral Key</b><small>A weekend at the resort. Aurelia, Mika, Celeste, Sable.</small></a>
+    <a class="card" href="../elves/"><b>Lanternveil</b><small>Twenty-one days of Moonpetal. Aelith, Nyssa, Lirael.</small></a>
+    <a class="card" href="../sirens/"><b>Sirens</b><small>The other shore, if you want it.</small></a>
+  </div>
+</main>
+<script>
+(function () {
+  var KEY = 'lounge-18';
+  function open() {
+    document.getElementById('gate').hidden = true;
+    document.getElementById('list').hidden = false;
+  }
+  try { if (localStorage.getItem(KEY) === '1') open(); } catch (e) {}
+  document.getElementById('enter').addEventListener('click', function () {
+    try { localStorage.setItem(KEY, '1'); } catch (e) {}
+    open();
+  });
+})();
+</script>
+</body>
+</html>

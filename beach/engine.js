@@ -173,7 +173,7 @@
     if (you) you.textContent = (state.name || 'Kai') + '  ·  27';
     const sub = $('mapSub');
     if (sub && state.screen === 'map') {
-      sub.textContent = (state.name || 'Kai') + '  ·  age 27  ·  affection follows the time you spend';
+      sub.textContent = (state.name || 'Kai') + '  ·  age 27';
     }
   }
 
@@ -570,8 +570,21 @@
     setTimeout(function () {
       finishing = false;
       if (!state || state.play) return;
-      if (after && after.indexOf('ending:') === 0) showEndingCard(after.slice(7), false);
-      else advanceSchedule();
+      if (after && after.indexOf('ending:') === 0) {
+        const id = after.slice(7);
+        const warm = (state.aff[id] || 0) >= (D.BONUS_AFF || 16);
+        if (!state.bonusPlayed && warm && D.BONUS && D.BONUS[id]) {
+          state.bonusPlayed = 1;
+          runScene(D.BONUS[id], 'ending:' + id);
+          return;
+        }
+        if (!state.checkoutPlayed && D.CHECKOUT && D.CHECKOUT[id]) {
+          state.checkoutPlayed = 1;
+          runScene(D.CHECKOUT[id], 'ending:' + id);
+          return;
+        }
+        showEndingCard(id, false);
+      } else advanceSchedule();
     }, 0);
   }
   function advanceSchedule() {
@@ -627,6 +640,8 @@
     state.phase = 'sunday';
     state.when = 'Sunday';
     state.route = id;
+    state.bonusPlayed = 0;
+    state.checkoutPlayed = 0;
     runScene(D.ENDINGS[id], 'ending:' + id);
   }
   function showEndingCard(id, replay) {
@@ -636,7 +651,13 @@
     state.play = null;
     if (!replay) {
       meta.endings[id] = (meta.endings[id] || 0) + 1;
+      meta.routes = meta.routes || {};
+      meta.routes[id] = 1;
       unlockGallery('end_' + id);
+      D.GALLERY_ORDER.forEach(function (gid) {
+        const g = D.GALLERY[gid];
+        if (g && g.route && g.who === id) unlockGallery(gid);
+      });
       saveMeta();
     }
     const card = D.CARDS[id];
@@ -671,7 +692,9 @@
       screen: 'scene',
       ending: null,
       sceneWho: null,
-      play: null
+      play: null,
+      bonusPlayed: 0,
+      checkoutPlayed: 0
     };
   }
   function newGame(name) {
@@ -969,10 +992,22 @@
     if (!grid) return;
     grid.innerHTML = '';
     const have = Object.assign({}, meta.gallery || {}, (state && state.gallery) || {});
+    let lastSec = '';
     D.GALLERY_ORDER.forEach(function (id) {
       const g = D.GALLERY[id];
       if (!g) return;
-      const on = !!have[id];
+      const routeOn = !!(g.route && meta.routes && meta.routes[g.who]);
+      const on = !!have[id] || routeOn;
+      const sec = g.section || '';
+      if (sec !== lastSec) {
+        lastSec = sec;
+        if (sec) {
+          const h = document.createElement('div');
+          h.className = 'gal-sec';
+          h.textContent = sec;
+          grid.appendChild(h);
+        }
+      }
       const card = document.createElement('button');
       card.type = 'button';
       card.className = 'gal' + (on ? '' : ' lock');
@@ -1099,6 +1134,11 @@
       a.classList.toggle('on', !!settings.auto);
       a.textContent = settings.auto ? 'Auto on' : 'Auto';
     }
+    const ma = $('menuAuto');
+    if (ma) {
+      ma.classList.toggle('on', !!settings.auto);
+      ma.textContent = settings.auto ? 'Auto on' : 'Auto';
+    }
     const sk = $('menuSkip');
     if (sk) {
       sk.classList.toggle('on', !!settings.skip);
@@ -1120,16 +1160,46 @@
     syncSetButtons();
     toast(settings.skip ? 'Skip reads lines you have already seen' : 'Skip off');
   }
+  let theme = null;
+  let themeArmed = false;
+  function ensureTheme() {
+    if (muted) return;
+    if (!theme) {
+      theme = new Audio('audio/theme.mp3');
+      theme.loop = true;
+      theme.volume = 0.35;
+    }
+    const p = theme.play();
+    if (p && p.catch) p.catch(function () {});
+    themeArmed = true;
+  }
+  function syncTheme() {
+    if (!theme) {
+      if (!muted) ensureTheme();
+      return;
+    }
+    if (muted) theme.pause();
+    else {
+      const p = theme.play();
+      if (p && p.catch) p.catch(function () {});
+    }
+  }
   function toggleMute() {
     muted = !muted;
     try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (e) {}
+    syncTheme();
     syncSetButtons();
   }
   function openSettings() { showOverlay('settings'); syncSetButtons(); }
+  let menuTimer = 0;
   function openMenu() {
     if (!state || (state.screen !== 'scene' && state.screen !== 'map')) { openSettings(); return; }
     showOverlay('menu');
     syncSetButtons();
+    clearTimeout(menuTimer);
+    menuTimer = setTimeout(function () {
+      if (overlayName() === 'menu') clearOverlay();
+    }, 7000);
   }
   function paintTitleCast() {
     const row = $('titleCast');
@@ -1266,16 +1336,31 @@
     $('mapSettings').addEventListener('click', openSettings);
     $('mapToTitle').addEventListener('click', function () { autosave(); showTitle(); });
     $('btnAdvance').addEventListener('click', function (e) { e.stopPropagation(); advance(); });
+    let holdTimer = 0;
+    let heldMenu = false;
+    $('scene').addEventListener('pointerdown', function (e) {
+      const el = eventEl(e.target);
+      if (el && el.closest && el.closest('button, a, input, textarea, .choice')) return;
+      heldMenu = false;
+      clearTimeout(holdTimer);
+      holdTimer = setTimeout(function () { heldMenu = true; openMenu(); }, 560);
+    });
     $('scene').addEventListener('pointerup', function (e) {
+      clearTimeout(holdTimer);
+      if (heldMenu) { heldMenu = false; if (e.stopPropagation) e.stopPropagation(); return; }
       if (e.pointerType === 'mouse' && e.button !== 0) return;
       const el = eventEl(e.target);
       if (el && el.closest && el.closest('button, a, input, textarea, .choice')) return;
       if (overlayName()) return;
       advance();
     });
+    $('scene').addEventListener('pointercancel', function () { clearTimeout(holdTimer); });
+    document.addEventListener('pointerup', function () { ensureTheme(); });
     $('btnAuto').addEventListener('click', function (e) { e.stopPropagation(); toggleAuto(); });
     $('btnLog').addEventListener('click', function (e) { e.stopPropagation(); openLog(); });
     $('btnMenu').addEventListener('click', function (e) { e.stopPropagation(); openMenu(); });
+    $('btnPeek').addEventListener('click', function (e) { e.stopPropagation(); openMenu(); });
+    $('menuAuto').addEventListener('click', function (e) { e.stopPropagation(); toggleAuto(); });
     $('btnVidSkip').addEventListener('click', function (e) { e.stopPropagation(); finishVideo(); });
     $('btnVidSound').addEventListener('click', function (e) { e.stopPropagation(); unmuteVid(); });
     $('vid').addEventListener('click', function (e) { e.stopPropagation(); unmuteVid(); });
