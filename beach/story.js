@@ -1,8 +1,12 @@
 /* Coral Key — a weekend at the resort.
    Adapted from the Lanternveil story shape. elves/ is not shared and not modified.
-   VIDEOS: one muted memory clip per woman. Ending steps play the clip only when
-   her affection is already high (minAff). Gallery entries with the same key
-   show Play once that memory is unlocked. Paths must also be in SHIP_LIST. */
+   VIDEOS is an array of clips per woman. Each item is
+   { id, src, poster, still, title }.
+   A scene step or gallery card points at one clip with "aurelia.smile"
+   (her name, a dot, the clip id). To add a memory moment, push another
+   object onto her array, add its src and poster to SHIP_LIST (only listed
+   files are requested), and set video: "aurelia.newId" on the scene or card.
+   High-affection steps can also set minAff. */
 (function () {
   'use strict';
 
@@ -35,40 +39,33 @@
   };
 
   const VIDEOS = {
-    'aurelia.memory': {
-      src: 'video/aurelia.mp4',
-      poster: 'video/aurelia_poster.jpg',
-      still: 'art/aurelia_ending.webp',
-      title: 'A Smile',
-      who: 'aurelia'
-    },
-    'mika.memory': {
-      src: 'video/mika.mp4',
-      poster: 'video/mika_poster.jpg',
-      still: 'art/mika_ending.webp',
-      title: 'A Glance',
-      who: 'mika'
-    },
-    'celeste.memory': {
-      src: 'video/celeste.mp4',
-      poster: 'video/celeste_poster.jpg',
-      still: 'art/celeste_ending.webp',
-      title: 'Her Laugh',
-      who: 'celeste'
-    },
-    'sable.memory': {
-      src: 'video/sable.mp4',
-      poster: 'video/sable_poster.jpg',
-      still: 'art/sable_ending.webp',
-      title: 'Blown Kiss',
-      who: 'sable'
-    }
+    aurelia: [
+      { id: 'smile', src: 'video/aurelia.mp4', poster: 'video/aurelia_poster.jpg', still: 'art/aurelia_ending.webp', title: 'A Smile' },
+      { id: 'tiki', src: 'video/aurelia_tiki.mp4', poster: 'video/aurelia_tiki_poster.jpg', still: 'art/aurelia_cocktail.webp', title: 'Sideways Laugh' },
+      { id: 'kiss', src: 'video/aurelia_kiss.mp4', poster: 'video/aurelia_kiss_poster.jpg', still: 'art/aurelia_ending.webp', title: 'Blown Kiss' }
+    ],
+    mika: [
+      { id: 'glance', src: 'video/mika.mp4', poster: 'video/mika_poster.jpg', still: 'art/mika_ending.webp', title: 'A Glance' },
+      { id: 'meet', src: 'video/mika_meet.mp4', poster: 'video/mika_meet_poster.jpg', still: 'art/mika_maid.webp', title: 'Sheepish' },
+      { id: 'market', src: 'video/mika_market.mp4', poster: 'video/mika_market_poster.jpg', still: 'art/mika_market.webp', title: 'Market Wink' }
+    ],
+    celeste: [
+      { id: 'laugh', src: 'video/celeste.mp4', poster: 'video/celeste_poster.jpg', still: 'art/celeste_ending.webp', title: 'Her Laugh' },
+      { id: 'bonfire', src: 'video/celeste_bonfire.mp4', poster: 'video/celeste_bonfire_poster.jpg', still: 'art/celeste_bonfire.webp', title: 'Bonfire Kiss' }
+    ],
+    sable: [
+      { id: 'kiss', src: 'video/sable.mp4', poster: 'video/sable_poster.jpg', still: 'art/sable_ending.webp', title: 'Blown Kiss' },
+      { id: 'palms', src: 'video/sable_palms.mp4', poster: 'video/sable_palms_poster.jpg', still: 'art/sable_palms.webp', title: 'Through Her Lashes' }
+    ]
   };
 
   const SHIP_LIST = Object.keys(SPRITE_FILES).map(function (k) { return SPRITE_FILES[k]; })
     .concat(Object.keys(BG_FILES).map(function (k) { return BG_FILES[k]; }));
-  Object.keys(VIDEOS).forEach(function (k) {
-    SHIP_LIST.push(VIDEOS[k].src, VIDEOS[k].poster);
+  Object.keys(VIDEOS).forEach(function (who) {
+    (VIDEOS[who] || []).forEach(function (clip) {
+      if (clip.src) SHIP_LIST.push(clip.src);
+      if (clip.poster) SHIP_LIST.push(clip.poster);
+    });
   });
 
   const CAST = {
@@ -120,24 +117,25 @@
   const GALLERY = {
     aurelia_checkin: { who: 'aurelia', title: 'Check-In', caption: 'She gives you a shell key and a look that is not in the manual.', sprite: 'aurelia.hostess' },
     aurelia_pool: { who: 'aurelia', title: 'Off Duty', caption: 'The lounger, the gold suit, and an afternoon she refuses to call a date.', sprite: 'aurelia.pool' },
-    aurelia_cocktail: { who: 'aurelia', title: 'Last Call For Two', caption: 'Sunset, one glass, and the desk left to someone else.', sprite: 'aurelia.cocktail', video: 'aurelia.memory' },
-    end_aurelia: { who: 'aurelia', title: 'The Key Stays Out', caption: 'A balcony, a kiss, and a Sunday that does not involve the ferry.', sprite: 'aurelia.evening', video: 'aurelia.memory' },
-    mika_meet: { who: 'mika', title: 'Under the Bed', caption: 'A dust cloth, a bumped head, and an apology with extra apologies.', sprite: 'mika.maid' },
+    aurelia_cocktail: { who: 'aurelia', title: 'Last Call For Two', caption: 'Sunset, one glass, and a laugh she aims just past your shoulder.', sprite: 'aurelia.cocktail', video: 'aurelia.tiki' },
+    aurelia_smile: { who: 'aurelia', title: 'A Smile', caption: 'She smiles, winks, and tips her head, already sure of Sunday.', sprite: 'aurelia.evening', video: 'aurelia.smile' },
+    end_aurelia: { who: 'aurelia', title: 'The Key Stays Out', caption: 'A soft smile, a blown kiss, and the balcony going dark.', sprite: 'aurelia.evening', video: 'aurelia.kiss' },
+    mika_meet: { who: 'mika', title: 'Under the Bed', caption: 'She blinks, flustered, then finds a sheepish smile.', sprite: 'mika.maid', video: 'mika.meet' },
     mika_beach: { who: 'mika', title: 'Day Off', caption: 'She meant to read. The breeze had other plans for her hair.', sprite: 'mika.beach' },
-    mika_market: { who: 'mika', title: 'Night Market', caption: 'Lanterns, grilled pineapple, and a sundress she keeps smoothing.', sprite: 'mika.market', video: 'mika.memory' },
-    end_mika: { who: 'mika', title: 'Lanterns for Two', caption: 'She stops apologizing long enough to kiss you.', sprite: 'mika.evening', video: 'mika.memory' },
+    mika_market: { who: 'mika', title: 'Night Market', caption: 'Lantern light, her hair in the breeze, a smile and a wink.', sprite: 'mika.market', video: 'mika.market' },
+    end_mika: { who: 'mika', title: 'Lanterns for Two', caption: 'She stops apologizing long enough to kiss you.', sprite: 'mika.evening', video: 'mika.glance' },
     celeste_beach: { who: 'celeste', title: 'The Break', caption: 'She waves with her whole arms, like the tide might miss it.', sprite: 'celeste.beach' },
-    celeste_surf: { who: 'celeste', title: 'One Wave', caption: 'The board is an excuse. The smile is the point.', sprite: 'celeste.surf', video: 'celeste.memory' },
-    celeste_bonfire: { who: 'celeste', title: 'Bonfire', caption: 'A blanket, sparks, and a race she lets you almost win.', sprite: 'celeste.bonfire' },
-    end_celeste: { who: 'celeste', title: 'Stay Through Sunday', caption: 'Low tide, starlight, and a kiss that tastes like salt.', sprite: 'celeste.evening', video: 'celeste.memory' },
-    sable_palms: { who: 'sable', title: 'Striped Shade', caption: 'She was not waiting. She also was.', sprite: 'sable.palms' },
-    sable_jetski: { who: 'sable', title: 'Hold On', caption: 'Open water, her laugh, and your hands where she told you to put them.', sprite: 'sable.jetski', video: 'sable.memory' },
+    celeste_surf: { who: 'celeste', title: 'One Wave', caption: 'The board is an excuse. The smile is the point.', sprite: 'celeste.surf', video: 'celeste.laugh' },
+    celeste_bonfire: { who: 'celeste', title: 'Bonfire', caption: 'Firelight, a warm smile, and a kiss blown across the blanket.', sprite: 'celeste.bonfire', video: 'celeste.bonfire' },
+    end_celeste: { who: 'celeste', title: 'Stay Through Sunday', caption: 'Low tide, starlight, and a kiss that tastes like salt.', sprite: 'celeste.evening', video: 'celeste.laugh' },
+    sable_palms: { who: 'sable', title: 'Striped Shade', caption: 'She looks up through her lashes, then lets the smirk arrive.', sprite: 'sable.palms', video: 'sable.palms' },
+    sable_jetski: { who: 'sable', title: 'Hold On', caption: 'Open water, her laugh, and your hands where she told you to put them.', sprite: 'sable.jetski', video: 'sable.kiss' },
     sable_tiki: { who: 'sable', title: 'Her Stool', caption: 'Sunglasses up, sunset down, and no interest in pretending.', sprite: 'sable.tiki' },
-    end_sable: { who: 'sable', title: 'The Pool After Dark', caption: 'Closed to guests. Open to you. A kiss, then dark.', sprite: 'sable.evening', video: 'sable.memory' }
+    end_sable: { who: 'sable', title: 'The Pool After Dark', caption: 'Closed to guests. Open to you. A kiss, then dark.', sprite: 'sable.evening', video: 'sable.kiss' }
   };
 
   const GALLERY_ORDER = [
-    'aurelia_checkin', 'aurelia_pool', 'aurelia_cocktail', 'end_aurelia',
+    'aurelia_checkin', 'aurelia_pool', 'aurelia_cocktail', 'aurelia_smile', 'end_aurelia',
     'mika_meet', 'mika_beach', 'mika_market', 'end_mika',
     'celeste_beach', 'celeste_surf', 'celeste_bonfire', 'end_celeste',
     'sable_palms', 'sable_jetski', 'sable_tiki', 'end_sable'
@@ -192,6 +190,10 @@
         say('fr2', 'narr', 'You say hello. The shoes kick. There is a wooden thump, a bright little "ow," and then she backs out on her knees in a rush, pink hair in her eyes, a dust cloth crushed in both hands like a white flag.'),
         unlock('fr3', 'mika', 'maid', 'mika_meet'),
         say('fr4', 'mika', 'I was cleaning. Under there. A coin rolled, or a shell, and I thought I had six more minutes because the ferry is always late and you are early and I hit my head. I am Mika. I am twenty-three. Please do not tell the front desk.', { sprite: 'mika.maid' }),
+        {
+          op: 'video', id: 'fr4b', video: 'mika.meet', who: 'mika', sprite: 'mika.maid',
+          fallback: 'She blinks hard, finds you still there, and the sheepish smile arrives a second late.'
+        },
         say('fr5', 'mika', 'She is nice. She is also my boss. Those can be the same fact and still be bad. The turndown is done. The mint was a lie I already ate. I am so sorry. I am saying sorry with my whole spine.', { sprite: 'mika.maid' }),
         choice('fr6', 'mika', [
           { text: 'Help her up and check the bump, gently.', aff: 5, sprite: 'mika.maid', reply: 'Oh. You are being kind and I am being a disaster. That is my usual order. The bump is fine. My pride filed a complaint and then fainted.' },
@@ -286,6 +288,10 @@
         say('md12', 'narr', 'Town is paper lanterns, sweet smoke, and a cobbled lane that shines like it has been polished by a hundred good evenings. Mika has changed into a floral sundress and a little purse she holds like it might escape. She looks back to be sure you are real.'),
         unlock('md13', 'mika', 'market', 'mika_market'),
         say('md14', 'mika', 'This one. The pineapple. And the one with the terrible pun on the sign, we skip that one, he knows my name and uses this power for evil. Stay where I can see you. I get brave and then I get lost. Sometimes both.', { sprite: 'mika.market' }),
+        {
+          op: 'video', id: 'md14b', video: 'mika.market', who: 'mika', sprite: 'mika.market',
+          fallback: 'She looks back over her shoulder, hair lifting, and the wink is so quick she might deny it.'
+        },
         choice('md15', 'mika', [
           { text: 'Buy the pineapple and share it from one stick.', aff: 5, sprite: 'mika.market', reply: 'Sharing is a trap and I am in it. You have sugar on your thumb. I am going to think about that the whole walk home and pretend I am thinking about fruit.' },
           { text: 'Let her lead, and tell her the dress was worth the wait.', aff: 3, sprite: 'mika.market', reply: 'I changed three times. The first two were cowardice with sleeves. This one is me deciding you could look. You are looking. I did the math and the math was you.' },
@@ -335,6 +341,10 @@
         say('sd1', 'narr', 'Under the palms the light goes striped. A woman with wet black hair and a red suit has claimed the lounger, one knee up, sunglasses nowhere yet because she wants you to see her eyes do the work. She looks you over like a menu she already intends to order from.'),
         unlock('sd2', 'sable', 'palms', 'sable_palms'),
         say('sd3', 'sable', 'You found the good shade. Most people walk past it on their way to being busy. I am Sable. Twenty-seven. I am on nobody\'s schedule, including the resort\'s, which has learned to live with the disappointment.', { sprite: 'sable.palms' }),
+        {
+          op: 'video', id: 'sd3b', video: 'sable.palms', who: 'sable', sprite: 'sable.palms',
+          fallback: 'She looks up through her lashes, lets you hold the look, and the smirk arrives right on time.'
+        },
         say('sd4', 'sable', 'Sit. The chair was waiting. So was I, if we are telling the truth, and I prefer the truth. It saves the afternoon for better games than small talk. You can still have small talk. I will make it expensive.', { sprite: 'sable.palms' }),
         choice('sd5', 'sable', [
           { text: 'Sit close enough that she has to mean it.', aff: 5, sprite: 'sable.palms', reply: 'There. Honesty looks good in this light. You may keep looking. I wore this so the looking would have somewhere useful to land.' },
@@ -389,6 +399,10 @@
         say('an1', 'narr', 'She turns the neighboring stool with her ankle, a small competent magic, and waits. Up close the dress is the color of the last good light on the water. The glass sweats. So, quietly, do you.'),
         unlock('an2', 'aurelia', 'cocktail', 'aurelia_cocktail'),
         say('an3', 'aurelia', 'I told them I was taking the evening for research. The research is whether you would come. Early results are promising. Sit, {name}. The sunset is officially off duty, which makes two of us.', { sprite: 'aurelia.cocktail' }),
+        {
+          op: 'video', id: 'an3b', video: 'aurelia.tiki', who: 'aurelia', sprite: 'aurelia.cocktail',
+          fallback: 'She laughs, bright as the string lights, and glances sideways as if the sunset were in on it.'
+        },
         say('an4', 'aurelia', 'I spent all day not texting the front desk to ask where you were. Growth. You may reward it with attention, a story, or the truth about who you thought about between breakfast and now. I can survive any of the three. I have preferences.', { sprite: 'aurelia.cocktail' }),
         choice('an5', 'aurelia', [
           { text: 'Tell her the afternoon kept turning into her.', aff: 5, sprite: 'aurelia.cocktail', reply: 'Good. I dislike being a detour. Come here, closer than the stool was built for. I will not kiss you over a bar. I want a door, a moon, and no audience. Tomorrow.' },
@@ -439,6 +453,10 @@
         say('cn1', 'narr', 'The night beach is a different country from the one you swam in. Palms are black cutouts. The moon has put a road on the water. A bonfire snaps inside a ring of stones, and Celeste is on a blanket in a blue crop top and soft shorts, sparks in her hair, already grinning like you are the second half of a joke she likes.'),
         unlock('cn2', 'celeste', 'bonfire', 'celeste_bonfire'),
         say('cn3', 'celeste', 'You came! I told the fire you would, and it did a little pop, which I am counting as science. Sit. The blanket is clean. I am not. I smell like smoke and victory and a little like the sunscreen I missed, behind my ear, you may not look for it yet.', { sprite: 'celeste.bonfire' }),
+        {
+          op: 'video', id: 'cn3b', video: 'celeste.bonfire', who: 'celeste', sprite: 'celeste.bonfire',
+          fallback: 'Firelight finds her smile, and she blows you a kiss like it is the easiest thing she has done all day.'
+        },
         say('cn4', 'celeste', 'Daytime me is cardio. Nighttime me is still cardio, but the feelings kind. I get loud when I mean something. I mean I had a really good day with you, {name}, and I want a really good night that does not end in me chickening out. So. Hi. Officially.', { sprite: 'celeste.bonfire' }),
         choice('cn5', 'celeste', [
           { text: 'Sit close and say the day was your favorite too.', aff: 5, sprite: 'celeste.bonfire', reply: 'Favorite! I am going to do a small victory lap in my soul. Shoulder. Give me shoulder. There. We are a team blanket now. The fire is jealous. It can cope.' },
@@ -481,8 +499,13 @@
         },
         endingChoice('ea5', 'aurelia', 'aurelia.evening'),
         {
-          op: 'video', id: 'ea6', video: 'aurelia.memory', who: 'aurelia', sprite: 'aurelia.evening', minAff: 16,
+          op: 'video', id: 'ea6', video: 'aurelia.smile', who: 'aurelia', sprite: 'aurelia.evening', minAff: 16,
           fallback: 'She steps in until the lantern is behind her and the only polite thing left is to stop being polite.'
+        },
+        { op: 'unlock', id: 'ea6b', who: 'aurelia', gallery: 'aurelia_smile' },
+        {
+          op: 'video', id: 'ea6c', video: 'aurelia.kiss', who: 'aurelia', sprite: 'aurelia.evening',
+          fallback: 'She smiles, soft, and blows you a kiss that the lanterns catch.'
         },
         say('ea7', 'narr', 'Aurelia kisses you. It is slow, and sure, and her fingers curl at your waist as the balcony, the moon, and the rest of the night fade to black.', { sprite: 'aurelia.evening', fade: true }),
         say('ea8', 'narr', 'Sunday morning finds the ferry optional. Coffee waits. The shell key is still yours. So is the woman who gave it to you, now that the desk is someone else\'s and the light is for the two of you.', { bg: 'beach' }),
@@ -502,7 +525,7 @@
         },
         endingChoice('em5', 'mika', 'mika.evening'),
         {
-          op: 'video', id: 'em6', video: 'mika.memory', who: 'mika', sprite: 'mika.evening', minAff: 16,
+          op: 'video', id: 'em6', video: 'mika.glance', who: 'mika', sprite: 'mika.evening', minAff: 16,
           fallback: 'She leans in, misses by a shy inch, laughs once, and tries again like the second try is the brave one.'
         },
         say('em7', 'narr', 'Mika kisses you. It is soft, a little shaky, and then not shaky at all. Her hands stay on your shoulders as the lanterns blur and the night fades to black.', { sprite: 'mika.evening', fade: true }),
@@ -523,7 +546,7 @@
         },
         endingChoice('ec5', 'celeste', 'celeste.evening'),
         {
-          op: 'video', id: 'ec6', video: 'celeste.memory', who: 'celeste', sprite: 'celeste.evening', minAff: 16,
+          op: 'video', id: 'ec6', video: 'celeste.laugh', who: 'celeste', sprite: 'celeste.evening', minAff: 16,
           fallback: 'She meets you halfway, laughing into the inch between you, stars in her eyes and salt still on her skin.'
         },
         say('ec7', 'narr', 'Celeste kisses you, bright and sure, a happy sound caught between your mouths. The stars wheel, the tide stays out, and the rest of the night fades to black.', { sprite: 'celeste.evening', fade: true }),
@@ -544,7 +567,7 @@
         },
         endingChoice('es5', 'sable', 'sable.evening'),
         {
-          op: 'video', id: 'es6', video: 'sable.memory', who: 'sable', sprite: 'sable.evening', minAff: 16,
+          op: 'video', id: 'es6', video: 'sable.kiss', who: 'sable', sprite: 'sable.evening', minAff: 16,
           fallback: 'She draws you down by the front of your shirt, unhurried, until the steam is a curtain and her smile is the only map left.'
         },
         say('es7', 'narr', 'Sable kisses you. It is deep, unhurried, and entirely sure. Her hand stays at your jaw as the lanterns smear into gold and the night fades to black.', { sprite: 'sable.evening', fade: true }),

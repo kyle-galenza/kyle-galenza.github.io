@@ -78,6 +78,20 @@
   function shipSrc(vmeta) {
     return vmeta && vmeta.src && SHIP[vmeta.src] ? vmeta.src : '';
   }
+  function videoMeta(ref) {
+    if (!ref || !D.VIDEOS) return null;
+    const direct = D.VIDEOS[ref];
+    if (direct && !Array.isArray(direct) && direct.src) return direct;
+    const parts = String(ref).split('.');
+    if (parts.length < 2) return null;
+    const list = D.VIDEOS[parts[0]];
+    if (!Array.isArray(list)) return null;
+    const id = parts.slice(1).join('.');
+    for (let i = 0; i < list.length; i++) {
+      if (list[i] && list[i].id === id) return list[i];
+    }
+    return null;
+  }
   function cleanName(s) {
     let t = String(s || '').replace(/[<>&]/g, '').replace(/\s+/g, ' ').trim();
     if (!t) t = 'Kai';
@@ -777,6 +791,7 @@
     v.onerror = null;
     try { v.pause(); } catch (e) {}
     v.removeAttribute('src');
+    try { v.load(); } catch (e) {}
     const poster = $('vidPoster');
     if (poster) {
       poster.hidden = true;
@@ -815,11 +830,20 @@
     $('vidTitle').textContent = vmeta.title || 'Memory';
     $('btnVidSound').textContent = 'Tap for sound';
     showOverlay('video');
-    v.onended = function () { finishVideo(); };
+    const arm = Date.now();
+    v.onended = function () {
+      if (Date.now() - arm < 500) return;
+      finishVideo();
+    };
     v.onerror = function () { finishVideo(); };
     v.src = withV(src);
-    const p = v.play();
-    if (p && p.catch) p.catch(function () {});
+    const start = function () {
+      try { if (v.currentTime > 0.05) v.currentTime = 0; } catch (e) {}
+      const p = v.play();
+      if (p && p.catch) p.catch(function () {});
+    };
+    v.onloadeddata = start;
+    start();
   }
   function unmuteVid() {
     const v = $('vid');
@@ -831,7 +855,7 @@
     if (p && p.catch) p.catch(function () {});
   }
   function playVideoStep(step) {
-    const vmeta = D.VIDEOS[step.video];
+    const vmeta = videoMeta(step.video);
     const src = shipSrc(vmeta);
     const who = step.who;
     const aff = (state && state.aff && who && state.aff[who]) || 0;
@@ -857,7 +881,7 @@
     openVideo(vmeta, src, function () {
       stepIndex += 1;
       if (state && state.play) state.play.step = stepIndex;
-      present();
+      setTimeout(function () { present(); }, 0);
     });
   }
 
@@ -987,7 +1011,7 @@
     $('viewTitle').textContent = g.title;
     $('viewCaption').textContent = g.caption || '';
     const play = $('viewPlay');
-    const vmeta = g.video ? D.VIDEOS[g.video] : null;
+    const vmeta = g.video ? videoMeta(g.video) : null;
     const vsrc = shipSrc(vmeta);
     play.hidden = !vsrc;
     play.onclick = function () {
@@ -1179,9 +1203,7 @@
       (scene.steps || []).forEach(function (st, i) {
         if (!st || !st.op) problems.push(scene.id + ' step ' + i);
         if (!st) return;
-        if (st.op === 'video' && D.VIDEOS[st.video] && (!D.VIDEOS[st.video].src || !D.VIDEOS[st.video].poster)) {
-          problems.push('video meta ' + st.video);
-        }
+        if (st.op === 'video' && st.video && !videoMeta(st.video)) problems.push('unknown video ' + st.video);
         if (st.op === 'say' && !st.text) problems.push('empty line ' + (st.id || scene.id));
         if (st.op === 'choice' && (!(st.options && st.options.length))) problems.push('no choices ' + scene.id);
         if (st.sprite && !D.SPRITE_FILES[st.sprite]) problems.push('bad sprite ' + st.sprite);
@@ -1193,14 +1215,21 @@
     }
     Object.keys(D.SCENES).forEach(function (k) { walk(D.SCENES[k], k); });
     Object.keys(D.ENDINGS).forEach(function (k) { walk(D.ENDINGS[k], k); });
-    Object.keys(D.VIDEOS).forEach(function (k) {
-      const v = D.VIDEOS[k];
-      if (!v.src || !v.poster) problems.push('video meta ' + k);
+    Object.keys(D.VIDEOS).forEach(function (who) {
+      const list = D.VIDEOS[who];
+      if (!Array.isArray(list)) { problems.push('videos for ' + who + ' must be an array'); return; }
+      const seenId = {};
+      list.forEach(function (clip, i) {
+        if (!clip || !clip.id || !clip.src || !clip.poster) problems.push('video meta ' + who + '[' + i + ']');
+        else if (seenId[clip.id]) problems.push('dup video ' + who + '.' + clip.id);
+        else seenId[clip.id] = 1;
+      });
     });
     D.GALLERY_ORDER.forEach(function (id) {
       const g = D.GALLERY[id];
       if (!g) problems.push('missing gallery ' + id);
       else if (g.sprite && !D.SPRITE_FILES[g.sprite]) problems.push('gallery sprite ' + id);
+      else if (g.video && !videoMeta(g.video)) problems.push('gallery video ' + id + ' ' + g.video);
     });
     return problems;
   }
