@@ -40,24 +40,24 @@
 
   const VIDEOS = {
     aurelia: [
-      { id: 'smile', src: 'video/aurelia.mp4', poster: 'video/aurelia_poster.jpg', still: 'art/aurelia_ending.webp', title: 'A Smile' },
-      { id: 'tiki', src: 'video/aurelia_tiki.mp4', poster: 'video/aurelia_tiki_poster.jpg', still: 'art/aurelia_cocktail.webp', title: 'Sideways Laugh' },
-      { id: 'kiss', src: 'video/aurelia_kiss.mp4', poster: 'video/aurelia_kiss_poster.jpg', still: 'art/aurelia_ending.webp', title: 'Blown Kiss' }
+      { id: 'smile', src: 'video/aurelia.mp4', poster: 'video/aurelia_poster.jpg', still: 'art/aurelia_ending.webp', title: 'A Smile', pos: 'center 22%' },
+      { id: 'tiki', src: 'video/aurelia_tiki.mp4', poster: 'video/aurelia_tiki_poster.jpg', still: 'art/aurelia_cocktail.webp', title: 'Sideways Laugh', pos: 'center 20%' },
+      { id: 'kiss', src: 'video/aurelia_kiss.mp4', poster: 'video/aurelia_kiss_poster.jpg', still: 'art/aurelia_ending.webp', title: 'Blown Kiss', pos: 'center 18%' }
     ],
     mika: [
-      { id: 'glance', src: 'video/mika.mp4', poster: 'video/mika_poster.jpg', still: 'art/mika_ending.webp', title: 'A Glance' },
-      { id: 'meet', src: 'video/mika_meet.mp4', poster: 'video/mika_meet_poster.jpg', still: 'art/mika_maid.webp', title: 'Sheepish' },
-      { id: 'market', src: 'video/mika_market.mp4', poster: 'video/mika_market_poster.jpg', still: 'art/mika_market.webp', title: 'Market Wink' }
+      { id: 'glance', src: 'video/mika.mp4', poster: 'video/mika_poster.jpg', still: 'art/mika_ending.webp', title: 'A Glance', pos: 'center 20%' },
+      { id: 'meet', src: 'video/mika_meet.mp4', poster: 'video/mika_meet_poster.jpg', still: 'art/mika_maid.webp', title: 'Sheepish', pos: 'center 22%' },
+      { id: 'market', src: 'video/mika_market.mp4', poster: 'video/mika_market_poster.jpg', still: 'art/mika_market.webp', title: 'Market Wink', pos: '42% 20%' }
     ],
     celeste: [
-      { id: 'laugh', src: 'video/celeste.mp4', poster: 'video/celeste_poster.jpg', still: 'art/celeste_ending.webp', title: 'Her Laugh' },
-      { id: 'bonfire', src: 'video/celeste_bonfire.mp4', poster: 'video/celeste_bonfire_poster.jpg', still: 'art/celeste_bonfire.webp', title: 'Bonfire Kiss' },
-      { id: 'surf', src: 'video/celeste_surf.mp4', poster: 'video/celeste_surf_poster.jpg', still: 'art/celeste_surf.webp', title: 'Wet Smile' }
+      { id: 'laugh', src: 'video/celeste.mp4', poster: 'video/celeste_poster.jpg', still: 'art/celeste_ending.webp', title: 'Her Laugh', pos: 'center 16%' },
+      { id: 'bonfire', src: 'video/celeste_bonfire.mp4', poster: 'video/celeste_bonfire_poster.jpg', still: 'art/celeste_bonfire.webp', title: 'Bonfire Kiss', pos: 'center 18%' },
+      { id: 'surf', src: 'video/celeste_surf.mp4', poster: 'video/celeste_surf_poster.jpg', still: 'art/celeste_surf.webp', title: 'Wet Smile', pos: '36% 16%' }
     ],
     sable: [
-      { id: 'kiss', src: 'video/sable.mp4', poster: 'video/sable_poster.jpg', still: 'art/sable_ending.webp', title: 'Blown Kiss' },
-      { id: 'palms', src: 'video/sable_palms.mp4', poster: 'video/sable_palms_poster.jpg', still: 'art/sable_palms.webp', title: 'Through Her Lashes' },
-      { id: 'jetski', src: 'video/sable_jetski.mp4', poster: 'video/sable_jetski_poster.jpg', still: 'art/sable_jetski.webp', title: 'Wind Smile' }
+      { id: 'kiss', src: 'video/sable.mp4', poster: 'video/sable_poster.jpg', still: 'art/sable_ending.webp', title: 'Blown Kiss', pos: 'center 18%' },
+      { id: 'palms', src: 'video/sable_palms.mp4', poster: 'video/sable_palms_poster.jpg', still: 'art/sable_palms.webp', title: 'Through Her Lashes', pos: 'center 20%' },
+      { id: 'jetski', src: 'video/sable_jetski.mp4', poster: 'video/sable_jetski_poster.jpg', still: 'art/sable_jetski.webp', title: 'Wind Smile', pos: '38% 14%' }
     ]
   };
 
