@@ -1061,11 +1061,29 @@
   function finishVideo() {
     const cb = videoOnDone;
     videoOnDone = null;
+    markReplay(false);
     clearVidEl();
     const ov = $('video');
     if (ov) ov.hidden = true;
     if (overlayName() === 'video') document.body.dataset.overlay = '';
     if (cb) cb();
+  }
+  let videoEnded = false;
+  let replayStamp = 0;
+  function markReplay(show) {
+    videoEnded = !!show;
+    const b = $('btnVidReplay');
+    if (b) b.hidden = !show;
+  }
+  function replayVid() {
+    const v = $('vid');
+    if (!v || !v.getAttribute('src')) return;
+    replayStamp = Date.now();
+    markReplay(false);
+    try { v.currentTime = 0; } catch (e) {}
+    v.playsInline = true;
+    const p = v.play();
+    if (p && p.catch) p.catch(function () { markReplay(true); });
   }
   function openVideo(vmeta, src, onDone) {
     videoOnDone = onDone;
@@ -1076,8 +1094,11 @@
     v.setAttribute('playsinline', '');
     v.setAttribute('webkit-playsinline', '');
     v.setAttribute('muted', '');
+    v.setAttribute('autoplay', '');
+    v.autoplay = true;
     v.preload = 'none';
     v.controls = false;
+    v.loop = false;
     const poster = posterOf(vmeta);
     if (poster) {
       v.poster = poster;
@@ -1089,14 +1110,16 @@
     }
     $('vidTitle').textContent = vmeta.title || '';
     $('btnVidSound').textContent = 'Tap for sound';
+    markReplay(false);
     showOverlay('video');
-    v.onended = function () { finishVideo(); };
+    v.onended = function () { markReplay(true); };
     v.onerror = function () { finishVideo(); };
     v.src = src;
     const p = v.play();
-    if (p && p.catch) p.catch(function () {});
+    if (p && p.catch) p.catch(function () { markReplay(true); });
   }
   function unmuteVid() {
+    if (Date.now() - replayStamp < 500) return;
     const v = $('vid');
     if (!v) return;
     v.muted = false;
@@ -1507,9 +1530,44 @@
     $('btnSkip').addEventListener('click', function (e) { e.stopPropagation(); toggleSkip(); });
     $('btnLog').addEventListener('click', function (e) { e.stopPropagation(); openLog(); });
     $('btnMenu').addEventListener('click', function (e) { e.stopPropagation(); openMenu(); });
-    $('btnVidSkip').addEventListener('click', function (e) { e.stopPropagation(); finishVideo(); });
-    $('btnVidSound').addEventListener('click', function (e) { e.stopPropagation(); unmuteVid(); });
-    $('vid').addEventListener('click', function (e) { e.stopPropagation(); unmuteVid(); });
+    let vidTap = 0;
+    let vidTapKey = '';
+    function onceVid(key, fn, e) {
+      if (e && e.stopPropagation) e.stopPropagation();
+      if (e && e.type === 'pointerup' && e.preventDefault) e.preventDefault();
+      const now = Date.now();
+      if (vidTapKey === key && now - vidTap < 400) return;
+      vidTapKey = key;
+      vidTap = now;
+      fn();
+    }
+    $('btnVidSkip').addEventListener('pointerup', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      onceVid('skip', finishVideo, e);
+    });
+    $('btnVidSkip').addEventListener('click', function (e) { onceVid('skip', finishVideo, e); });
+    $('btnVidSound').addEventListener('pointerup', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      onceVid('sound', unmuteVid, e);
+    });
+    $('btnVidSound').addEventListener('click', function (e) { onceVid('sound', unmuteVid, e); });
+    $('btnVidReplay').addEventListener('pointerup', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      onceVid('replay', replayVid, e);
+    });
+    $('btnVidReplay').addEventListener('click', function (e) { onceVid('replay', replayVid, e); });
+    $('vid').addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (Date.now() - replayStamp < 500) return;
+      if (videoEnded || $('vid').ended) replayVid();
+      else unmuteVid();
+    });
+    $('viewPlay').addEventListener('pointerup', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.preventDefault) e.preventDefault();
+      e.stopPropagation();
+      if ($('viewPlay').onclick) $('viewPlay').onclick();
+    });
     $('menuClose').addEventListener('click', clearOverlay);
     $('menuSave').addEventListener('click', function () { openSaves('save'); });
     $('menuLoad').addEventListener('click', function () { openSaves('load'); });
