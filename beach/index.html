@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Coral Key">
+<meta name="theme-color" content="#08343c">
+<meta name="format-detection" content="telephone=no">
+<title>Coral Key</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2308343c'/%3E%3Ccircle cx='8' cy='7' r='3' fill='%23ffd27a'/%3E%3Cpath fill='%233ec8b0' d='M1 12c2-2 4-1 7-1s5-1 7 1v3H1z'/%3E%3C/svg%3E">
+<style>
+  :root{
+    --bg:#062830; --ink:#f6f1e6; --dim:#c5d5cf; --gold:#ffd27a; --line:rgba(255,210,122,.4);
+    --glass:rgba(6,22,30,.86); --au:#f0c36a; --mi:#ff9ec4; --ce:#7ec8ff; --sa:#ff7a68;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);
+    font:500 17px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
+    touch-action:manipulation;-webkit-text-size-adjust:100%}
+  body{min-height:100dvh;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  button,input{font:inherit;color:inherit}
+  input{user-select:text;-webkit-user-select:text}
+  button,.choice,.place{cursor:pointer;touch-action:manipulation;min-height:48px}
+  [hidden]{display:none !important}
+  #stage,#fade{position:fixed;inset:0}
+  #stage{z-index:0;background:#042028;overflow:hidden}
+  #bgImg,#cgImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center center}
+  #cgImg{object-position:center center}
+  #fade{z-index:4;background:#04141a;opacity:0;pointer-events:none;transition:opacity .8s ease}
+  body.fade-out #fade{opacity:.94}
+  #toast{position:fixed;z-index:40;left:50%;bottom:calc(16px + env(safe-area-inset-bottom));transform:translate(-50%,8px);opacity:0;pointer-events:none;max-width:min(520px,92vw);padding:10px 14px;border-radius:999px;background:rgba(4,20,26,.94);border:1px solid var(--line);color:var(--gold);font:700 13px/1.3 system-ui;text-align:center;transition:.25s}
+  body[data-screen="scene"] #toast{top:calc(172px + env(safe-area-inset-top));bottom:auto}
+  body[data-screen="map"] #toast,body[data-screen="ending"] #toast,body[data-screen="title"] #toast{top:calc(10px + env(safe-area-inset-top));bottom:auto}
+  #toast.show{opacity:1;transform:translate(-50%,0)}
+  #crash{position:fixed;z-index:90;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));max-height:34dvh;overflow:auto;padding:8px 10px;border-radius:10px;background:#3a1020;color:#ffd0d8;font:600 12px/1.35 ui-monospace,monospace;white-space:pre-wrap}
+  .screen{position:fixed;inset:0;z-index:6;overflow:auto;-webkit-overflow-scrolling:touch;
+    padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
+    display:flex;flex-direction:column;justify-content:flex-end}
+  .panel{width:min(560px,100%);margin:0 auto;padding:16px 16px 14px;border-radius:24px;background:rgba(4,22,28,.78);border:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
+  #gate{background:linear-gradient(180deg,rgba(4,16,20,.15),rgba(4,16,20,.72))}
+  #title{background:linear-gradient(180deg,rgba(4,16,20,.05),rgba(4,16,20,.55) 42%,rgba(4,16,20,.78))}
+  .cast{display:flex;justify-content:center;align-items:flex-end;gap:8px;width:min(560px,100%);margin:0 auto 10px}
+  .cast img{width:23%;height:24vh;max-height:220px;object-fit:cover;object-position:center 12%;border-radius:16px;border:1px solid rgba(255,255,255,.28);box-shadow:0 10px 24px rgba(0,0,0,.35)}
+  h1{margin:0;font:italic 52px/0.95 Georgia,"Times New Roman",serif;letter-spacing:-0.03em}
+  .sub{margin:6px 0 0;letter-spacing:.22em;font:800 12px/1 system-ui;color:var(--gold)}
+  .notice{margin:12px 0;padding:12px;border-radius:16px;border:1px solid rgba(255,210,122,.45);background:rgba(0,0,0,.28);color:#f7edd8;font:600 15px/1.45 system-ui}
+  .hint{color:var(--dim);font-size:13px;margin:8px 0 0}
+  .row{display:flex;flex-wrap:wrap;gap:8px}
+  .stack{display:flex;flex-direction:column;gap:8px}
+  .btn{min-height:48px;padding:0 16px;border-radius:14px;border:1px solid var(--line);background:rgba(255,255,255,.08);font:800 15px/1 system-ui;letter-spacing:.02em}
+  .btn.pri{background:linear-gradient(180deg,#ffe3a6,#e0a84a);color:#24180c;border:0}
+  .btn.on{box-shadow:inset 0 0 0 2px var(--gold);color:var(--gold)}
+  .btn:active,.choice:active,.place:active,.fit:active,.gal:active,.slot:active{transform:scale(.98);background:rgba(255,210,122,.22)}
+  .btn.pri:active{background:linear-gradient(180deg,#fff0c8,#c98d32);color:#24180c}
+  .btn:focus-visible,.choice:focus-visible,.place:focus-visible,.tab:focus-visible,.fit:focus-visible,.gal:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+  #name input,#nameInput{width:100%;min-height:52px;margin:8px 0 12px;padding:0 14px;border-radius:14px;border:1px solid var(--line);background:rgba(0,0,0,.35);font-size:18px}
+  #map,#gallery,#wardrobe,#viewer{justify-content:flex-start}
+  #map{gap:8px;background:linear-gradient(180deg,rgba(3,14,18,.62),rgba(3,14,18,.28) 38%,rgba(3,14,18,.62))}
+  #map .kicker,#map h2,#map .hint{text-shadow:0 2px 10px rgba(0,0,0,.9)}
+  #map h2{font-size:28px}
+  #mapActions{position:sticky;bottom:0;z-index:2;display:flex;flex-wrap:wrap;gap:8px;padding:8px;border-radius:16px;background:rgba(4,22,28,.92);border:1px solid var(--line)}
+  .kicker{margin:0;letter-spacing:.16em;color:var(--gold);font:800 12px/1 system-ui}
+  h2{margin:4px 0 0;font:italic 32px/1.05 Georgia,serif}
+  .places{display:flex;flex-direction:column;gap:8px}
+  .place{text-align:left;min-height:72px;padding:12px 14px;border-radius:18px;border:1px solid var(--line);background:rgba(4,22,28,.82);display:flex;flex-direction:column;gap:3px}
+  .place b{font:italic 24px/1.1 Georgia,serif}
+  .place small{color:var(--dim);font-size:14px;font-weight:600}
+  .meters{display:grid;grid-template-columns:1fr 1fr;gap:8px;background:rgba(4,18,24,.8);border:1px solid rgba(255,210,122,.3);border-radius:14px;padding:8px}
+  .meter span{display:flex;justify-content:space-between;gap:6px;font:800 11px/1.2 system-ui;letter-spacing:.02em;color:#e7f2ec}
+  .meter em{font-style:normal;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .meter b{color:#fff}
+  .meter[data-meter="aurelia"] em{color:var(--au)}
+  .meter[data-meter="mika"] em{color:var(--mi)}
+  .meter[data-meter="celeste"] em{color:var(--ce)}
+  .meter[data-meter="sable"] em{color:var(--sa)}
+  .meter i{display:block;height:8px;margin-top:4px;border-radius:99px;width:0;background:var(--gold)}
+  .bar{height:8px;border-radius:99px;background:rgba(255,255,255,.1);overflow:hidden}
+  .meter[data-meter="aurelia"] i{background:linear-gradient(90deg,#8a5a18,var(--au))}
+  .meter[data-meter="mika"] i{background:linear-gradient(90deg,#8a3060,var(--mi))}
+  .meter[data-meter="celeste"] i{background:linear-gradient(90deg,#1a5080,var(--ce))}
+  .meter[data-meter="sable"] i{background:linear-gradient(90deg,#7a2820,var(--sa))}
+  #scene{position:fixed;inset:0;z-index:5;display:block;pointer-events:auto;touch-action:manipulation;cursor:pointer;background:transparent;padding:0;overflow:hidden}
+  #hud{position:absolute;left:0;right:0;top:0;z-index:7;display:flex;flex-direction:column;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 10px 0;pointer-events:none}
+  #hud .btn,#hud .meters{pointer-events:auto}
+  .hud-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+  .hud-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+  #hudWhen{font:800 12px/1.2 system-ui;letter-spacing:.12em;color:var(--gold);text-shadow:0 1px 4px #000}
+  #hudYou{color:#efe6d4;font-size:12px;margin-top:3px;text-shadow:0 1px 4px #000}
+  #box{position:absolute;left:0;right:0;bottom:0;z-index:6;min-height:calc(32dvh + env(safe-area-inset-bottom));max-height:calc(46dvh + env(safe-area-inset-bottom));padding:8px 10px calc(10px + env(safe-area-inset-bottom));pointer-events:auto}
+  body.choosing #box{min-height:0;max-height:calc(100dvh - env(safe-area-inset-top) - 72px)}
+  .dlg{position:relative;height:100%;width:min(720px,100%);margin:0 auto;display:flex;flex-direction:column;gap:6px;padding:10px 10px 8px;border-radius:18px;background:var(--glass);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.28)}
+  body.choosing .dlg{height:auto;max-height:inherit}
+  #nameplate{display:flex;align-items:baseline;gap:8px;margin:0;padding:2px 2px 0;flex:0 0 auto}
+  #speaker{font:800 15px/1.2 system-ui}
+  #role{color:var(--gold);font:700 11px/1 system-ui;letter-spacing:.08em}
+  #lineWrap{flex:1 1 auto;min-height:3.2em;overflow:auto;padding:0 76px 4px 2px;-webkit-overflow-scrolling:touch}
+  #line{margin:0;font:500 17px/1.4 Georgia,serif}
+  #choices{display:none;flex-direction:column;gap:8px;padding:2px 0 4px}
+  body.choosing #lineWrap{display:none}
+  body.choosing #choices{display:flex}
+  .choice{min-height:48px;width:100%;text-align:left;padding:12px 14px;border-radius:14px;border:1px solid var(--line);background:rgba(8,28,36,.92);font-size:16px;line-height:1.3}
+  #btnAdvance{position:absolute;right:8px;bottom:8px;min-height:48px;min-width:72px;padding:0 14px}
+  body.choosing #btnAdvance{display:none}
+  .overlay{position:fixed;inset:0;z-index:20;display:flex;align-items:flex-end;justify-content:center;padding:12px 12px calc(12px + env(safe-area-inset-bottom));background:rgba(2,10,14,.45)}
+  .sheet{width:min(560px,100%);max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto;-webkit-overflow-scrolling:touch;padding:14px;border-radius:18px;background:rgba(6,24,30,.94);border:1px solid var(--line)}
+  #video{z-index:24;background:#041016;align-items:stretch;justify-content:center;padding:0}
+  #video video,#vidPoster{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:#041016}
+  .vid-ui{position:absolute;left:0;right:0;bottom:0;display:flex;gap:8px;padding:10px 10px calc(10px + env(safe-area-inset-bottom));z-index:2}
+  .vid-ui .btn{flex:1}
+  #vidTitle{position:absolute;left:12px;right:12px;top:calc(10px + env(safe-area-inset-top));z-index:2;margin:0;color:var(--gold);letter-spacing:.12em;font:800 12px/1.3 system-ui;text-shadow:0 1px 6px #000}
+  .tabs{display:flex;gap:8px;margin:8px 0;flex-wrap:wrap}
+  .tab{min-height:44px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:transparent;font-weight:800}
+  .tab.on{background:var(--gold);color:#24180c;border:0}
+  .fits{display:flex;flex-direction:column;gap:8px}
+  .fit,.gal,.slot{text-align:left;min-height:64px;padding:12px;border-radius:16px;border:1px solid var(--line);background:rgba(255,255,255,.05);display:flex;flex-direction:column;gap:4px;width:100%}
+  .fit.on{border-color:var(--gold);box-shadow:inset 0 0 0 1px var(--gold)}
+  .fit.lock,.gal.lock{opacity:.55}
+  .fit small,.gal small,.slot small{color:var(--dim);font-weight:600}
+  .preview{display:flex;gap:12px;align-items:center;margin:8px 0}
+  #wardImg{width:96px;height:144px;object-fit:cover;object-position:center 15%;border-radius:14px;background:#123}
+  #wardCrest{width:96px;height:144px;border-radius:14px;display:flex;align-items:center;justify-content:center;font:italic 48px/1 Georgia,serif;color:var(--gold);border:1px solid var(--line)}
+  #viewStage{min-height:46vh;border-radius:18px;display:flex;align-items:center;justify-content:center;overflow:hidden;background:#041820}
+  #viewStage img{width:100%;max-height:62vh;object-fit:contain}
+  #galGrid{display:flex;flex-direction:column;gap:8px}
+  #logList p{margin:0 0 12px;font:500 15px/1.4 Georgia,serif}
+  #logList b{color:var(--gold);font-family:system-ui,sans-serif}
+  #saveList{display:flex;flex-direction:column;gap:8px}
+  #wipeAsk{margin:8px 0}
+  @media (min-width:720px){
+    .places{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    .meters{grid-template-columns:repeat(4,1fr)}
+    h1{font-size:64px}
+    #galGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+  }
+  @media (max-height:700px){
+    h1{font-size:42px}
+    .cast img{height:18vh}
+    #box{min-height:calc(36dvh + env(safe-area-inset-bottom))}
+  }
+  @media (hover:hover){
+    .choice:hover,.place:hover,.fit:hover,.gal:hover{border-color:var(--gold)}
+  }
+  @media (prefers-reduced-motion:reduce){
+    #fade,#toast{transition:none}
+    .btn:active,.choice:active,.place:active{transform:none}
+  }
+</style>
+</head>
+<body>
+<div id="stage">
+  <img id="bgImg" alt="">
+  <img id="cgImg" alt="" hidden>
+</div>
+<div id="fade"></div>
+<div id="toast" role="status"></div>
+<div id="crash" hidden></div>
+
+<section id="gate" class="screen">
+  <div class="panel">
+    <p class="kicker">18+</p>
+    <h1>Coral Key</h1>
+    <p class="notice">All characters are adults. Suggestive content.</p>
+    <p class="hint">A sunny, flirty weekend at an island resort. Every route ends on a kiss, then fades to black.</p>
+    <div class="stack">
+      <button type="button" class="btn pri" id="gateYes">I am 18 or older</button>
+      <button type="button" class="btn" id="gateNo">Not now</button>
+    </div>
+    <p class="hint" id="gateStay" hidden>Come back when you are.</p>
+  </div>
+</section>
+
+<section id="title" class="screen" hidden>
+  <div class="cast" id="titleCast" hidden></div>
+  <div class="panel">
+    <p class="sub">A SUMMER WEEKEND</p>
+    <h1>Coral Key</h1>
+    <p class="notice">18+. All characters are adults. Suggestive, never explicit.</p>
+    <div class="row">
+      <button type="button" class="btn pri" id="btnNew">Begin</button>
+      <button type="button" class="btn" id="btnCont" hidden>Continue</button>
+      <button type="button" class="btn" id="btnGallery">Memories</button>
+      <button type="button" class="btn" id="btnWardrobe">Wardrobe</button>
+      <button type="button" class="btn" id="btnSettings">Settings</button>
+    </div>
+    <p class="hint" id="saveInfo"></p>
+  </div>
+</section>
+
+<section id="name" class="screen" hidden>
+  <div class="panel">
+    <p class="kicker">THE DESK ASKS</p>
+    <h2>What name goes on the key?</h2>
+    <input id="nameInput" maxlength="18" value="Kai" autocomplete="nickname" enterkeyhint="done" aria-label="Your name">
+    <div class="row">
+      <button type="button" class="btn pri" id="btnNameOk">Check in</button>
+      <button type="button" class="btn" id="btnTitleFromName">Back</button>
+    </div>
+  </div>
+</section>
+
+<section id="map" class="screen" hidden>
+  <p class="kicker" id="mapKicker">Saturday</p>
+  <h2 id="mapHeading">Where will you spend the light?</h2>
+  <p class="hint" id="mapSub"></p>
+  <div class="meters" id="mapMeters">
+    <div class="meter" data-meter="aurelia"><span><em>Aurelia</em><b>0</b></span><div class="bar"><i></i></div></div>
+    <div class="meter" data-meter="mika"><span><em>Mika</em><b>0</b></span><div class="bar"><i></i></div></div>
+    <div class="meter" data-meter="celeste"><span><em>Celeste</em><b>0</b></span><div class="bar"><i></i></div></div>
+    <div class="meter" data-meter="sable"><span><em>Sable</em><b>0</b></span><div class="bar"><i></i></div></div>
+  </div>
+  <div class="places" id="dayPlaces">
+    <button type="button" class="place" id="place-pool">
+      <b>The Pool</b>
+      <small>Aurelia is off duty on a lounger. Mika has the sand just past the deck, and later the night market.</small>
+    </button>
+    <button type="button" class="place" id="place-beach">
+      <b>The Beach</b>
+      <small>Celeste, a guest with a board and nowhere else she would rather be.</small>
+    </button>
+    <button type="button" class="place" id="place-palms">
+      <b>The Palms</b>
+      <small>Sable keeps a striped lounger in the shade, and a jet ski no one else touches.</small>
+    </button>
+  </div>
+  <div class="places" id="nightPlaces" hidden>
+    <button type="button" class="place" id="place-tiki">
+      <b>Tiki Bar</b>
+      <small>Aurelia has a glass and the evening off. Sable has a stool and opinions.</small>
+    </button>
+    <button type="button" class="place" id="place-bonfire">
+      <b>The Bonfire</b>
+      <small>Celeste saved a blanket on the night beach. The fire is already talking.</small>
+    </button>
+  </div>
+  <div class="row" id="mapActions">
+    <button type="button" class="btn" id="mapWardrobe">Wardrobe</button>
+    <button type="button" class="btn" id="mapGallery">Memories</button>
+    <button type="button" class="btn" id="mapSave">Save</button>
+    <button type="button" class="btn" id="mapLoad">Load</button>
+    <button type="button" class="btn" id="mapSettings">Settings</button>
+    <button type="button" class="btn" id="mapToTitle">Title</button>
+  </div>
+</section>
+
+<section id="scene" hidden>
+  <header id="hud">
+    <div class="hud-top">
+      <div>
+        <div id="hudWhen">Friday</div>
+        <div id="hudYou"></div>
+      </div>
+      <div class="hud-actions">
+        <button type="button" class="btn" id="btnAuto">Auto</button>
+        <button type="button" class="btn" id="btnLog">Log</button>
+        <button type="button" class="btn" id="btnMenu">Menu</button>
+      </div>
+    </div>
+    <div class="meters">
+      <div class="meter" data-meter="aurelia"><span><em>Aurelia</em><b>0</b></span><div class="bar"><i></i></div></div>
+      <div class="meter" data-meter="mika"><span><em>Mika</em><b>0</b></span><div class="bar"><i></i></div></div>
+      <div class="meter" data-meter="celeste"><span><em>Celeste</em><b>0</b></span><div class="bar"><i></i></div></div>
+      <div class="meter" data-meter="sable"><span><em>Sable</em><b>0</b></span><div class="bar"><i></i></div></div>
+    </div>
+  </header>
+  <div id="box">
+    <div class="dlg">
+      <div id="nameplate" hidden><div id="speaker"></div><div id="role"></div></div>
+      <div id="lineWrap"><p id="line"></p></div>
+      <div id="choices"></div>
+      <button type="button" class="btn" id="btnAdvance">Next</button>
+    </div>
+  </div>
+</section>
+
+<section id="ending" class="screen" hidden>
+  <div class="panel">
+    <p class="kicker" id="endingKicker"></p>
+    <h2 id="endingTitle"></h2>
+    <p id="endingBody"></p>
+    <div class="row">
+      <button type="button" class="btn pri" id="btnEndingTitle">Title</button>
+      <button type="button" class="btn" id="btnEndingGallery">Memories</button>
+      <button type="button" class="btn" id="btnAgain">Begin again</button>
+    </div>
+  </div>
+</section>
+
+<section id="wardrobe" class="screen" hidden>
+  <div class="panel">
+    <p class="kicker">WARDROBE</p>
+    <h2>What she wore</h2>
+    <p class="hint">Looks unlock as you see them. A story scene still dresses her for that moment.</p>
+    <div class="tabs" id="wardTabs"></div>
+    <div class="preview">
+      <img id="wardImg" alt="" hidden>
+      <div id="wardCrest" hidden></div>
+      <div>
+        <div id="wardCap"></div>
+        <p class="hint" id="wardBlurb"></p>
+      </div>
+    </div>
+    <div class="fits" id="wardGrid"></div>
+    <div class="row" style="margin-top:12px"><button type="button" class="btn" id="wardBack">Back</button></div>
+  </div>
+</section>
+
+<section id="gallery" class="screen" hidden>
+  <div class="panel" style="width:min(720px,100%)">
+    <p class="kicker">MEMORIES</p>
+    <h2>Gallery</h2>
+    <p class="hint">Stills unlock as you live them. Clips, when they arrive, play from here.</p>
+    <div id="galGrid"></div>
+    <div class="row" style="margin-top:12px"><button type="button" class="btn" id="galBack">Back</button></div>
+  </div>
+</section>
+
+<section id="viewer" class="screen" hidden>
+  <div class="panel" style="width:min(720px,100%)">
+    <div id="viewStage"></div>
+    <h2 id="viewTitle"></h2>
+    <p id="viewCaption"></p>
+    <div class="row">
+      <button type="button" class="btn pri" id="viewPlay" hidden>Play memory</button>
+      <button type="button" class="btn" id="viewClose">Close</button>
+    </div>
+  </div>
+</section>
+
+<div id="video" class="overlay" hidden>
+  <p id="vidTitle"></p>
+  <img id="vidPoster" alt="" hidden>
+  <video id="vid" playsinline webkit-playsinline muted preload="none"></video>
+  <div class="vid-ui">
+    <button type="button" class="btn" id="btnVidSound">Tap for sound</button>
+    <button type="button" class="btn pri" id="btnVidSkip">Skip</button>
+  </div>
+</div>
+
+<div id="menu" class="overlay" hidden>
+  <div class="sheet">
+    <h2>Paused</h2>
+    <div class="row">
+      <button type="button" class="btn pri" id="menuClose">Resume</button>
+      <button type="button" class="btn" id="menuSave">Save</button>
+      <button type="button" class="btn" id="menuLoad">Load</button>
+      <button type="button" class="btn" id="menuLog">Log</button>
+      <button type="button" class="btn" id="menuSkip">Skip read</button>
+      <button type="button" class="btn" id="menuWard">Wardrobe</button>
+      <button type="button" class="btn" id="menuGal">Memories</button>
+      <button type="button" class="btn" id="menuSet">Settings</button>
+      <button type="button" class="btn" id="menuTitle">Title</button>
+    </div>
+  </div>
+</div>
+
+<div id="log" class="overlay" hidden>
+  <div class="sheet">
+    <h2>Backlog</h2>
+    <div id="logList"></div>
+    <button type="button" class="btn" id="logClose">Close</button>
+  </div>
+</div>
+
+<div id="saves" class="overlay" hidden>
+  <div class="sheet">
+    <h2 id="saveHead">Postcards</h2>
+    <div id="saveList"></div>
+    <button type="button" class="btn" id="saveClose" style="margin-top:10px">Close</button>
+  </div>
+</div>
+
+<div id="settings" class="overlay" hidden>
+  <div class="sheet">
+    <h2>Settings</h2>
+    <p class="hint">Text speed</p>
+    <div class="row">
+      <button type="button" class="btn" data-speed="0">Instant</button>
+      <button type="button" class="btn" data-speed="1">Fast</button>
+      <button type="button" class="btn" data-speed="2">Normal</button>
+      <button type="button" class="btn" data-speed="3">Slow</button>
+    </div>
+    <div class="row" style="margin-top:12px">
+      <button type="button" class="btn" id="btnMute">Sound on</button>
+      <button type="button" class="btn" id="btnWipe">Erase saves</button>
+      <button type="button" class="btn" id="btnWipeAll">Erase memories</button>
+    </div>
+    <p id="wipeAsk" class="hint" hidden></p>
+    <div class="row" id="wipeRow" hidden>
+      <button type="button" class="btn pri" id="wipeYes">Confirm</button>
+      <button type="button" class="btn" id="wipeNo">Cancel</button>
+    </div>
+    <button type="button" class="btn" id="setClose" style="margin-top:10px">Close</button>
+  </div>
+</div>
+
+<script>
+window.addEventListener('error', function (e) {
+  var el = document.getElementById('crash');
+  if (!el) return;
+  el.hidden = false;
+  el.textContent = (e && (e.message || (e.error && e.error.message))) || 'Script error';
+});
+</script>
+<script src="story.js?v=1"></script>
+<script src="engine.js?v=1"></script>
+</body>
+</html>
