@@ -142,7 +142,8 @@
   #mini.overlay{align-items:center}
   .sheet{width:min(520px,calc(100% - 8px));max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto;padding:12px;border-radius:16px;background:rgba(16,12,10,.82);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
   #miniAct{width:100%;margin-top:8px}
-  #video{z-index:24;background:#100c0a;align-items:stretch;justify-content:center;padding:0}
+  #video{z-index:24;background:#100c0a;align-items:stretch;justify-content:center;padding:0;overflow:hidden}
+  video::-webkit-media-controls{display:none !important}
   body[data-overlay="video"] #box,body[data-overlay="video"] .screen{visibility:hidden}
   #video video,#vidPoster{position:absolute;left:0;right:0;top:0;bottom:20dvh;width:100%;height:auto;object-fit:contain;object-position:center bottom;background:transparent}
   .vid-ui{position:absolute;left:0;right:0;bottom:0;height:20dvh;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px calc(6px + env(safe-area-inset-bottom));z-index:2;background:#100c0a;border-top:1px solid var(--line)}
@@ -531,10 +532,10 @@ window.addEventListener('unhandledrejection', function (e) {
   function start() {
     document.documentElement.dataset.unlocked = "1";
     var s = document.createElement("script");
-    s.src = "story.js?v=12";
+    s.src = "story.js?v=13";
     s.onload = function () {
       var e = document.createElement("script");
-      e.src = "engine.js?v=12";
+      e.src = "engine.js?v=13";
       document.body.appendChild(e);
     };
     s.onerror = function () {

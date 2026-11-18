@@ -9,7 +9,7 @@
   const AUTO_KEY = 'kylearcade_beach_auto';
   const GATE_KEY = 'kylearcade_beach_gate';
   const MUTE_KEY = 'kylearcade_muted';
-  const ART_V = '?v=1';
+  const ART_V = '?v=2';
   const SPEEDS = [0, 12, 26, 48];
   const IDS = ['aurelia', 'mika', 'celeste', 'sable'];
 
@@ -841,15 +841,23 @@
     v.setAttribute('muted', '');
     v.preload = 'auto';
     v.controls = false;
+    v.disablePictureInPicture = true;
+    const pos = (vmeta && vmeta.pos) || 'center 22%';
+    v.style.objectPosition = pos;
+    const posterEl = $('vidPoster');
+    if (posterEl) posterEl.style.objectPosition = pos;
     const poster = posterOf(vmeta);
     if (poster) {
       v.poster = withV(poster);
-      $('vidPoster').hidden = false;
-      $('vidPoster').src = withV(poster);
+      posterEl.hidden = false;
+      posterEl.src = withV(poster);
     } else {
       v.removeAttribute('poster');
-      $('vidPoster').hidden = true;
+      if (posterEl) posterEl.hidden = true;
     }
+    v.onplaying = function () {
+      if (posterEl) posterEl.hidden = true;
+    };
     $('vidTitle').textContent = vmeta.title || 'Memory';
     $('btnVidSound').textContent = 'Tap for sound';
     showOverlay('video');

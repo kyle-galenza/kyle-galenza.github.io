@@ -1154,25 +1154,34 @@
     v.setAttribute('muted', '');
     v.setAttribute('autoplay', '');
     v.autoplay = true;
-    v.preload = 'none';
+    v.preload = 'auto';
     v.controls = false;
     v.loop = false;
+    v.disablePictureInPicture = true;
+    const pos = (vmeta && vmeta.pos) || 'center 22%';
+    v.style.objectPosition = pos;
+    const posterEl = $('vidPoster');
+    if (posterEl) posterEl.style.objectPosition = pos;
     const poster = posterOf(vmeta);
+    const bust = function (src) { return src ? src + (src.indexOf('?') >= 0 ? '' : '?v=2') : ''; };
     if (poster) {
-      v.poster = poster;
-      $('vidPoster').hidden = false;
-      $('vidPoster').src = poster;
+      v.poster = bust(poster);
+      posterEl.hidden = false;
+      posterEl.src = bust(poster);
     } else {
       v.removeAttribute('poster');
-      $('vidPoster').hidden = true;
+      if (posterEl) posterEl.hidden = true;
     }
+    v.onplaying = function () {
+      if (posterEl) posterEl.hidden = true;
+    };
     $('vidTitle').textContent = vmeta.title || '';
     $('btnVidSound').textContent = 'Tap for sound';
     markReplay(false);
     showOverlay('video');
     v.onended = function () { markReplay(true); };
     v.onerror = function () { finishVideo(); };
-    v.src = src;
+    v.src = src + (src.indexOf('?') >= 0 ? '' : '?v=2');
     const p = v.play();
     if (p && p.catch) p.catch(function () { markReplay(true); });
   }
