@@ -1,11 +1,11 @@
 /* Coral Key — a weekend at the resort.
    Adapted from the Lanternveil story shape. elves/ is not shared and not modified.
-   VIDEOS HOOK: a follow-up may add up to four clips, one per woman.
-   1. Put each mp4 and poster in art/video/ using the filenames below.
-   2. Add those paths to SHIP_LIST. Only listed files are requested.
-   3. Keys aurelia.memory, mika.memory, celeste.memory, sable.memory are already
-      referenced by the ending steps and by gallery entries. Until a clip is
-      shipped, the engine shows the fallback line and does not fetch it. */
+   VIDEOS HOOK: leave this object empty until the remade clips arrive.
+   Ending steps and gallery entries already name aurelia.memory, mika.memory,
+   celeste.memory, and sable.memory. A missing key plays the fallback line and
+   requests nothing. When a clip is ready:
+   1. Add { src, poster, still, title, who } under that key.
+   2. Add the mp4 and poster paths to SHIP_LIST. Only listed files are requested. */
 (function () {
   'use strict';
 
@@ -37,36 +37,7 @@
     night: 'art/bg_beach_night.webp'
   };
 
-  const VIDEOS = {
-    'aurelia.memory': {
-      src: 'art/video/aurelia_memory.mp4',
-      poster: 'art/video/aurelia_memory_poster.jpg',
-      still: 'art/aurelia_ending.webp',
-      title: 'The Balcony',
-      who: 'aurelia'
-    },
-    'mika.memory': {
-      src: 'art/video/mika_memory.mp4',
-      poster: 'art/video/mika_memory_poster.jpg',
-      still: 'art/mika_ending.webp',
-      title: 'Lantern Light',
-      who: 'mika'
-    },
-    'celeste.memory': {
-      src: 'art/video/celeste_memory.mp4',
-      poster: 'art/video/celeste_memory_poster.jpg',
-      still: 'art/celeste_ending.webp',
-      title: 'Low Tide',
-      who: 'celeste'
-    },
-    'sable.memory': {
-      src: 'art/video/sable_memory.mp4',
-      poster: 'art/video/sable_memory_poster.jpg',
-      still: 'art/sable_ending.webp',
-      title: 'After Dark',
-      who: 'sable'
-    }
-  };
+  const VIDEOS = {};
 
   const SHIP_LIST = Object.keys(SPRITE_FILES).map(function (k) { return SPRITE_FILES[k]; })
     .concat(Object.keys(BG_FILES).map(function (k) { return BG_FILES[k]; }));

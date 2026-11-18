@@ -1159,7 +1159,9 @@
       (scene.steps || []).forEach(function (st, i) {
         if (!st || !st.op) problems.push(scene.id + ' step ' + i);
         if (!st) return;
-        if (st.op === 'video' && !D.VIDEOS[st.video]) problems.push('unknown video ' + st.video);
+        if (st.op === 'video' && D.VIDEOS[st.video] && (!D.VIDEOS[st.video].src || !D.VIDEOS[st.video].poster)) {
+          problems.push('video meta ' + st.video);
+        }
         if (st.op === 'say' && !st.text) problems.push('empty line ' + (st.id || scene.id));
         if (st.op === 'choice' && (!(st.options && st.options.length))) problems.push('no choices ' + scene.id);
         if (st.sprite && !D.SPRITE_FILES[st.sprite]) problems.push('bad sprite ' + st.sprite);
