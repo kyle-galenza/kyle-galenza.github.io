@@ -1,0 +1,3 @@
+Original audio, generated for this game with ffmpeg (sine tones and filtered noise).
+No third-party recording. Free to use with this project. No voice lines.
+Festival-mood loop for Lanternveil. Same terms as above.
