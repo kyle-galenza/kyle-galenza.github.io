@@ -1034,6 +1034,7 @@
     if (!g) return;
     showBase('viewer');
     const stage = $('viewStage');
+    stage.classList.remove('full');
     stage.innerHTML = '';
     const src = resolveSprite(g.sprite);
     if (src) {
@@ -1041,6 +1042,7 @@
       img.alt = g.title;
       img.decoding = 'async';
       img.src = withV(src);
+      img.addEventListener('click', function () { stage.classList.toggle('full'); });
       stage.appendChild(img);
     }
     $('viewTitle').textContent = g.title;
