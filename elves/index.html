@@ -141,9 +141,11 @@
   #mini.overlay{align-items:center}
   .sheet{width:min(520px,calc(100% - 8px));max-height:calc(100dvh - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom));overflow:auto;padding:12px;border-radius:16px;background:rgba(16,12,10,.82);border:1px solid var(--line);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
   #miniAct{width:100%;margin-top:8px}
-  #video{z-index:24;background:rgba(5,4,3,.2);align-items:stretch;justify-content:center;padding:0}
+  #video{z-index:24;background:#100c0a;align-items:stretch;justify-content:center;padding:0}
+  body[data-overlay="video"] #box,body[data-overlay="video"] .screen{visibility:hidden}
   #video video,#vidPoster{position:absolute;left:0;right:0;top:0;bottom:20dvh;width:100%;height:auto;object-fit:contain;object-position:center bottom;background:transparent}
-  .vid-ui{position:absolute;left:0;right:0;bottom:0;height:20dvh;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px calc(6px + env(safe-area-inset-bottom));z-index:2;background:rgba(14,12,10,.42);border-top:1px solid var(--line)}
+  .vid-ui{position:absolute;left:0;right:0;bottom:0;height:20dvh;display:flex;align-items:center;justify-content:space-between;gap:8px;padding:6px 10px calc(6px + env(safe-area-inset-bottom));z-index:2;background:#100c0a;border-top:1px solid var(--line)}
+  .vid-ui .btn{flex:1}
   #vidTitle{position:absolute;left:12px;top:8px;z-index:2;margin:0;color:var(--gold);letter-spacing:.12em;font:800 12px/1 system-ui;text-shadow:0 1px 6px #000}
   #miniStage{margin:12px 0;min-height:120px}
   .track{position:relative;height:28px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
@@ -358,6 +360,7 @@
   <img id="vidPoster" alt="" hidden>
   <video id="vid" playsinline webkit-playsinline muted preload="none"></video>
   <div class="vid-ui">
+    <button type="button" class="btn" id="btnVidReplay" hidden>Replay</button>
     <button type="button" class="btn" id="btnVidSound">Tap for sound</button>
     <button type="button" class="btn pri" id="btnVidSkip">Skip</button>
   </div>
@@ -443,7 +446,7 @@ window.addEventListener('unhandledrejection', function (e) {
   el.textContent = (r && (r.message || r)) || 'Script error';
 });
 </script>
-<script src="story.js?v=5"></script>
-<script src="engine.js?v=5"></script>
+<script src="story.js?v=7"></script>
+<script src="engine.js?v=7"></script>
 </body>
 </html>

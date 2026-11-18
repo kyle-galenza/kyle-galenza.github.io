@@ -13,8 +13,16 @@
     'aelith.swim.pose2': 'art/aelith_swim_pose2.jpg',
     'aelith.date': 'art/aelith_date.jpg',
     'aelith.date.pose2': 'art/aelith_date_pose2.jpg',
-    'aelith.night': 'art/aelith_night.jpg',
+    'aelith.night': 'art/aelith_night_pose2.jpg',
+    'aelith.night.pose1': 'art/aelith_night_pose1.jpg',
     'aelith.night.pose2': 'art/aelith_night_pose2.jpg',
+    'aelith.night.pose3': 'art/aelith_night_pose3.jpg',
+    'aelith.night.pose4': 'art/aelith_night_pose4.jpg',
+    'aelith.festival.close': 'art/aelith_waistup_festival.jpg',
+    'aelith.night.close': 'art/aelith_waistup_lingerie.jpg',
+    'aelith.night.clipa': 'art/video/aelith_night_a_poster.jpg',
+    'aelith.night.clipb': 'art/video/aelith_night_b_poster.jpg',
+    'aelith.night.clipc': 'art/video/aelith_night_c_poster.jpg',
     'nyssa.default': 'art/nyssa.jpg',
     'nyssa.default.pose2': 'art/nyssa_pose2.jpg',
     'nyssa.festival': 'art/nyssa_festival.jpg',
@@ -23,16 +31,31 @@
     'nyssa.swim.pose2': 'art/nyssa_swim_pose2.jpg',
     'nyssa.date': 'art/nyssa_date.jpg',
     'nyssa.date.pose2': 'art/nyssa_date_pose2.jpg',
-    'nyssa.night': 'art/nyssa_night.jpg',
+    'nyssa.night': 'art/nyssa_night_pose2.jpg',
+    'nyssa.night.pose1': 'art/nyssa_night_pose1.jpg',
     'nyssa.night.pose2': 'art/nyssa_night_pose2.jpg',
+    'nyssa.night.pose3': 'art/nyssa_night_pose3.jpg',
+    'nyssa.night.pose4': 'art/nyssa_night_pose4.jpg',
+    'nyssa.festival.close': 'art/nyssa_waistup_festival.jpg',
+    'nyssa.night.close': 'art/nyssa_waistup_lingerie.jpg',
+    'nyssa.night.clipa': 'art/video/nyssa_night_a_poster.jpg',
+    'nyssa.night.clipb': 'art/video/nyssa_night_b_poster.jpg',
+    'nyssa.night.clipc': 'art/video/nyssa_night_c_poster.jpg',
     'lirael.default': 'art/lirael.jpg',
     'lirael.default.pose2': 'art/lirael_pose2.jpg',
     'lirael.festival': 'art/lirael_festival.jpg',
     'lirael.festival.pose2': 'art/lirael_festival_pose2.jpg',
     'lirael.date': 'art/lirael_date.jpg',
     'lirael.date.pose2': 'art/lirael_date_pose2.jpg',
-    'lirael.night': 'art/lirael_night.jpg',
-    'lirael.night.pose2': 'art/lirael_night_pose2.jpg'
+    'lirael.night': 'art/lirael_night_pose2.jpg',
+    'lirael.night.pose1': 'art/lirael_night_pose1.jpg',
+    'lirael.night.pose2': 'art/lirael_night_pose2.jpg',
+    'lirael.night.pose3': 'art/lirael_night_pose3.jpg',
+    'lirael.night.pose4': 'art/lirael_night_pose4.jpg',
+    'lirael.festival.close': 'art/lirael_waistup_festival.jpg',
+    'lirael.night.clipa': 'art/video/lirael_night_a_poster.jpg',
+    'lirael.night.clipb': 'art/video/lirael_night_b_poster.jpg',
+    'lirael.night.clipc': 'art/video/lirael_night_c_poster.jpg'
   };
 
   const VIDEOS = {
@@ -77,6 +100,69 @@
       still: 'art/lirael_date.jpg',
       title: 'Firefly Walk',
       who: 'lirael'
+    },
+    'aelith.night.a': {
+      src: 'art/video/aelith_night_a.mp4',
+      poster: 'art/video/aelith_night_a_poster.jpg',
+      still: 'art/aelith_night_pose1.jpg',
+      title: 'The Turn',
+      who: 'aelith'
+    },
+    'aelith.night.b': {
+      src: 'art/video/aelith_night_b.mp4',
+      poster: 'art/video/aelith_night_b_poster.jpg',
+      still: 'art/aelith_night_pose2.jpg',
+      title: 'The Laugh',
+      who: 'aelith'
+    },
+    'aelith.night.c': {
+      src: 'art/video/aelith_night_c.mp4',
+      poster: 'art/video/aelith_night_c_poster.jpg',
+      still: 'art/aelith_night_pose4.jpg',
+      title: 'Blown Kiss',
+      who: 'aelith'
+    },
+    'nyssa.night.a': {
+      src: 'art/video/nyssa_night_a.mp4',
+      poster: 'art/video/nyssa_night_a_poster.jpg',
+      still: 'art/nyssa_night_pose1.jpg',
+      title: 'The Window',
+      who: 'nyssa'
+    },
+    'nyssa.night.b': {
+      src: 'art/video/nyssa_night_b.mp4',
+      poster: 'art/video/nyssa_night_b_poster.jpg',
+      still: 'art/nyssa_night_pose2.jpg',
+      title: 'Slow Blink',
+      who: 'nyssa'
+    },
+    'nyssa.night.c': {
+      src: 'art/video/nyssa_night_c.mp4',
+      poster: 'art/video/nyssa_night_c_poster.jpg',
+      still: 'art/nyssa_night_pose4.jpg',
+      title: 'Blown Kiss',
+      who: 'nyssa'
+    },
+    'lirael.night.a': {
+      src: 'art/video/lirael_night_a.mp4',
+      poster: 'art/video/lirael_night_a_poster.jpg',
+      still: 'art/lirael_night_pose1.jpg',
+      title: 'Hair Toss',
+      who: 'lirael'
+    },
+    'lirael.night.b': {
+      src: 'art/video/lirael_night_b.mp4',
+      poster: 'art/video/lirael_night_b_poster.jpg',
+      still: 'art/lirael_night_pose2.jpg',
+      title: 'The Bite',
+      who: 'lirael'
+    },
+    'lirael.night.c': {
+      src: 'art/video/lirael_night_c.mp4',
+      poster: 'art/video/lirael_night_c_poster.jpg',
+      still: 'art/lirael_night_pose4.jpg',
+      title: 'Blown Kiss',
+      who: 'lirael'
     }
   };
 
@@ -85,16 +171,30 @@
     'art/aelith.jpg',
     'art/aelith_festival.jpg',
     'art/aelith_swim.jpg',
-    'art/aelith_night.jpg',
+    'art/aelith_night_pose1.jpg',
+    'art/aelith_night_pose2.jpg',
+    'art/aelith_night_pose3.jpg',
+    'art/aelith_night_pose4.jpg',
+    'art/aelith_waistup_festival.jpg',
+    'art/aelith_waistup_lingerie.jpg',
     'art/aelith_date.jpg',
     'art/nyssa.jpg',
     'art/nyssa_festival.jpg',
     'art/nyssa_swim.jpg',
-    'art/nyssa_night.jpg',
+    'art/nyssa_night_pose1.jpg',
+    'art/nyssa_night_pose2.jpg',
+    'art/nyssa_night_pose3.jpg',
+    'art/nyssa_night_pose4.jpg',
+    'art/nyssa_waistup_festival.jpg',
+    'art/nyssa_waistup_lingerie.jpg',
     'art/nyssa_date.jpg',
     'art/lirael.jpg',
     'art/lirael_festival.jpg',
-    'art/lirael_night.jpg',
+    'art/lirael_night_pose1.jpg',
+    'art/lirael_night_pose2.jpg',
+    'art/lirael_night_pose3.jpg',
+    'art/lirael_night_pose4.jpg',
+    'art/lirael_waistup_festival.jpg',
     'art/lirael_date.jpg',
     'art/video/aelith_festival.mp4',
     'art/video/aelith_festival_poster.jpg',
@@ -107,7 +207,25 @@
     'art/video/lirael_festival.mp4',
     'art/video/lirael_festival_poster.jpg',
     'art/video/lirael_date.mp4',
-    'art/video/lirael_date_poster.jpg'
+    'art/video/lirael_date_poster.jpg',
+    'art/video/aelith_night_a.mp4',
+    'art/video/aelith_night_a_poster.jpg',
+    'art/video/aelith_night_b.mp4',
+    'art/video/aelith_night_b_poster.jpg',
+    'art/video/aelith_night_c.mp4',
+    'art/video/aelith_night_c_poster.jpg',
+    'art/video/nyssa_night_a.mp4',
+    'art/video/nyssa_night_a_poster.jpg',
+    'art/video/nyssa_night_b.mp4',
+    'art/video/nyssa_night_b_poster.jpg',
+    'art/video/nyssa_night_c.mp4',
+    'art/video/nyssa_night_c_poster.jpg',
+    'art/video/lirael_night_a.mp4',
+    'art/video/lirael_night_a_poster.jpg',
+    'art/video/lirael_night_b.mp4',
+    'art/video/lirael_night_b_poster.jpg',
+    'art/video/lirael_night_c.mp4',
+    'art/video/lirael_night_c_poster.jpg'
   ];
 
   const CAST = {
@@ -137,20 +255,20 @@
       { id: 'festival', name: 'Lantern Gown', hint: 'Unlocked when you dance.', sprite: 'aelith.festival' },
       { id: 'swim', name: 'Bathing Dress', hint: 'Unlocked at the spa pool.', sprite: 'aelith.swim' },
       { id: 'date', name: 'Date Dress', hint: 'Unlocked on your lantern date.', sprite: 'aelith.date' },
-      { id: 'night', name: 'Nightgown', hint: 'Unlocked at her promise.', sprite: 'aelith.night' }
+      { id: 'night', name: 'Night Lingerie', hint: 'Unlocked on the last nights. Facing you.', sprite: 'aelith.night' }
     ],
     nyssa: [
       { id: 'default', name: 'Midnight Velvet', hint: 'What she wears on the balcony.', sprite: 'nyssa.default' },
       { id: 'festival', name: 'Starlight Gown', hint: 'Unlocked under the stars.', sprite: 'nyssa.festival' },
       { id: 'swim', name: 'Lake Suit', hint: 'Unlocked at the moonlit lake.', sprite: 'nyssa.swim' },
       { id: 'date', name: 'Date Night', hint: 'Unlocked on your night together.', sprite: 'nyssa.date' },
-      { id: 'night', name: 'Night Silk', hint: 'Unlocked at her promise.', sprite: 'nyssa.night' }
+      { id: 'night', name: 'Night Lingerie', hint: 'Unlocked on the last nights. Facing you.', sprite: 'nyssa.night' }
     ],
     lirael: [
       { id: 'default', name: 'Ranger Leaves', hint: 'Leaf-leather and freckles.', sprite: 'lirael.default' },
       { id: 'festival', name: 'Festival Leathers', hint: 'Unlocked at the range.', sprite: 'lirael.festival' },
       { id: 'date', name: 'Stream Dress', hint: 'Unlocked by the mossy stream.', sprite: 'lirael.date' },
-      { id: 'night', name: 'Cabin Shawl', hint: 'Unlocked by her fireplace.', sprite: 'lirael.night' }
+      { id: 'night', name: 'Night Lingerie', hint: 'Unlocked by the campfire. Facing you.', sprite: 'lirael.night' }
     ]
   };
 
@@ -160,25 +278,54 @@
     aelith_spa: { who: 'aelith', title: 'The Spa Pool', caption: 'A bathing dress, steam, and a quiet kiss.', sprite: 'aelith.swim', bg: 'pool' },
     aelith_date: { who: 'aelith', title: 'The Courtyard', caption: 'She twirls in the sun and laughs in her date dress.', sprite: 'aelith.date', bg: 'date', video: 'aelith.date' },
     aelith_vow: { who: 'aelith', title: 'Dawn Promise', caption: 'She will argue with a gate, if you stay.', sprite: 'aelith.night', bg: 'gardens' },
+    aelith_close_fest: { who: 'aelith', title: 'Lantern Close', caption: 'Waist-up, under the festival lanterns.', sprite: 'aelith.festival.close', bg: 'festival' },
+    aelith_close_night: { who: 'aelith', title: 'Night Close', caption: 'Waist-up, in the new night lingerie.', sprite: 'aelith.night.close', bg: 'gardens' },
+    aelith_night_p1: { who: 'aelith', title: 'Over Her Shoulder', caption: 'The first night pose, looking back.', sprite: 'aelith.night.pose1', bg: 'gardens' },
+    aelith_night_p2: { who: 'aelith', title: 'Facing You', caption: 'She stands in the night lingerie and faces you.', sprite: 'aelith.night.pose2', bg: 'gardens' },
+    aelith_night_p3: { who: 'aelith', title: 'At Ease', caption: 'Sitting, the night grown quiet.', sprite: 'aelith.night.pose3', bg: 'gardens' },
+    aelith_night_p4: { who: 'aelith', title: 'The Lean', caption: 'A playful lean, close enough to kiss.', sprite: 'aelith.night.pose4', bg: 'gardens' },
+    aelith_night_a: { who: 'aelith', title: 'The Turn', caption: 'She turns her head and smiles.', sprite: 'aelith.night.clipa', bg: 'gardens', video: 'aelith.night.a' },
+    aelith_night_b: { who: 'aelith', title: 'The Laugh', caption: 'A wink, then the laugh she does not hide.', sprite: 'aelith.night.clipb', bg: 'gardens', video: 'aelith.night.b' },
+    aelith_night_c: { who: 'aelith', title: 'Blown Kiss', caption: 'The last thing she gives the night.', sprite: 'aelith.night.clipc', bg: 'gardens', video: 'aelith.night.c' },
     end_aelith: { who: 'aelith', title: 'The Gate Stays Open', caption: 'The kingdom learns your name.', sprite: 'aelith.date.pose2', bg: 'gate' },
     nyssa_meet: { who: 'nyssa', title: 'Off Duty Moon', caption: 'The balcony, and a chair that does not face the drop.', sprite: 'nyssa.default', bg: 'tower' },
     nyssa_fest: { who: 'nyssa', title: 'Starlight', caption: 'She lets you map her sky.', sprite: 'nyssa.festival', bg: 'tower', video: 'nyssa.festival' },
     nyssa_pool: { who: 'nyssa', title: 'Moonlit Lake', caption: 'A still of the lake, and her suit dark as the water.', sprite: 'nyssa.swim', bg: 'pool' },
     nyssa_date: { who: 'nyssa', title: 'The Balcony', caption: 'She turns in her date dress, smiles, and winks.', sprite: 'nyssa.date', bg: 'tower', video: 'nyssa.date' },
     nyssa_vow: { who: 'nyssa', title: 'A Plain Truth', caption: 'She would like, for one night, to be plain.', sprite: 'nyssa.night', bg: 'tower' },
+    nyssa_close_fest: { who: 'nyssa', title: 'Starlight Close', caption: 'Waist-up, dressed for the stars.', sprite: 'nyssa.festival.close', bg: 'tower' },
+    nyssa_close_night: { who: 'nyssa', title: 'Night Close', caption: 'Waist-up, in the new night lingerie.', sprite: 'nyssa.night.close', bg: 'tower' },
+    nyssa_night_p1: { who: 'nyssa', title: 'Over Her Shoulder', caption: 'She looks back, the joke set down.', sprite: 'nyssa.night.pose1', bg: 'tower' },
+    nyssa_night_p2: { who: 'nyssa', title: 'Facing You', caption: 'She stands in the night lingerie and faces you.', sprite: 'nyssa.night.pose2', bg: 'tower' },
+    nyssa_night_p3: { who: 'nyssa', title: 'Lounging', caption: 'The balcony, and no performance left.', sprite: 'nyssa.night.pose3', bg: 'tower' },
+    nyssa_night_p4: { who: 'nyssa', title: 'The Lean', caption: 'A playful lean in the moonlight.', sprite: 'nyssa.night.pose4', bg: 'tower' },
+    nyssa_night_a: { who: 'nyssa', title: 'The Window', caption: 'She watches the night, then glances back.', sprite: 'nyssa.night.clipa', bg: 'tower', video: 'nyssa.night.a' },
+    nyssa_night_b: { who: 'nyssa', title: 'Slow Blink', caption: 'A tilt of her head, a sly smile, a slow blink.', sprite: 'nyssa.night.clipb', bg: 'tower', video: 'nyssa.night.b' },
+    nyssa_night_c: { who: 'nyssa', title: 'Blown Kiss', caption: 'She sends the kiss and does not joke about it.', sprite: 'nyssa.night.clipc', bg: 'tower', video: 'nyssa.night.c' },
     end_nyssa: { who: 'nyssa', title: 'Plain as Moonlight', caption: 'You stay where the moon can see you both.', sprite: 'nyssa.date.pose2', bg: 'gate' },
     lirael_meet: { who: 'lirael', title: 'Slippery Path', caption: 'She was not waiting. She was also waiting.', sprite: 'lirael.default', bg: 'falls' },
     lirael_fest: { who: 'lirael', title: 'The Range', caption: 'The target was never the point.', sprite: 'lirael.festival', bg: 'falls', video: 'lirael.festival' },
     lirael_date: { who: 'lirael', title: 'By the Stream', caption: 'On the mossy rock she turns and blows a kiss.', sprite: 'lirael.date', bg: 'falls', video: 'lirael.date' },
     lirael_vow: { who: 'lirael', title: 'Footsteps', caption: 'The forest is asked not to forget you.', sprite: 'lirael.night', bg: 'camp' },
+    lirael_close_fest: { who: 'lirael', title: 'Range Close', caption: 'Waist-up, in her festival leathers.', sprite: 'lirael.festival.close', bg: 'falls' },
+    lirael_night_p1: { who: 'lirael', title: 'Over Her Shoulder', caption: 'She looks back from the firelight.', sprite: 'lirael.night.pose1', bg: 'camp' },
+    lirael_night_p2: { who: 'lirael', title: 'Facing You', caption: 'She stands in the night lingerie and faces you.', sprite: 'lirael.night.pose2', bg: 'camp' },
+    lirael_night_p3: { who: 'lirael', title: 'By the Fire', caption: 'Sitting close, the cup forgotten.', sprite: 'lirael.night.pose3', bg: 'camp' },
+    lirael_night_p4: { who: 'lirael', title: 'The Lean', caption: 'A shy, playful lean.', sprite: 'lirael.night.pose4', bg: 'camp' },
+    lirael_night_a: { who: 'lirael', title: 'Hair Toss', caption: 'She tosses her hair and grins.', sprite: 'lirael.night.clipa', bg: 'camp', video: 'lirael.night.a' },
+    lirael_night_b: { who: 'lirael', title: 'The Bite', caption: 'She bites her lip, then laughs.', sprite: 'lirael.night.clipb', bg: 'camp', video: 'lirael.night.b' },
+    lirael_night_c: { who: 'lirael', title: 'Blown Kiss', caption: 'Shy, and meant for you.', sprite: 'lirael.night.clipc', bg: 'camp', video: 'lirael.night.c' },
     end_lirael: { who: 'lirael', title: 'What the Forest Kept', caption: 'She does not hide behind the tree.', sprite: 'lirael.date.pose2', bg: 'gate' },
     end_neutral: { who: 'narr', title: 'When the Lanterns Go Out', caption: 'The road home is ordinary. The names are not.', sprite: 'aelith.default', bg: 'gate' }
   };
 
   const GALLERY_ORDER = [
-    'aelith_meet', 'aelith_fest', 'aelith_spa', 'aelith_date', 'aelith_vow', 'end_aelith',
-    'nyssa_meet', 'nyssa_fest', 'nyssa_pool', 'nyssa_date', 'nyssa_vow', 'end_nyssa',
-    'lirael_meet', 'lirael_fest', 'lirael_date', 'lirael_vow', 'end_lirael',
+    'aelith_meet', 'aelith_fest', 'aelith_close_fest', 'aelith_spa', 'aelith_date', 'aelith_vow',
+    'aelith_night_p1', 'aelith_night_a', 'aelith_night_p2', 'aelith_close_night', 'aelith_night_b', 'aelith_night_p3', 'aelith_night_p4', 'aelith_night_c', 'end_aelith',
+    'nyssa_meet', 'nyssa_fest', 'nyssa_close_fest', 'nyssa_pool', 'nyssa_date', 'nyssa_vow',
+    'nyssa_night_p1', 'nyssa_night_a', 'nyssa_night_p2', 'nyssa_close_night', 'nyssa_night_b', 'nyssa_night_p3', 'nyssa_night_p4', 'nyssa_night_c', 'end_nyssa',
+    'lirael_meet', 'lirael_fest', 'lirael_close_fest', 'lirael_date', 'lirael_vow',
+    'lirael_night_p1', 'lirael_night_a', 'lirael_night_p2', 'lirael_night_b', 'lirael_night_p3', 'lirael_night_p4', 'lirael_night_c', 'end_lirael',
     'end_neutral'
   ];
 
@@ -250,8 +397,9 @@
     id: 'aelith_fest', who: 'aelith', minDay: 5, minAff: 16, need: ['aelith_sun'], bg: 'festival',
     steps: [
       say('ae_f1', 'narr', 'At dusk the lantern court is a floor of light. Aelith offers her hand as if the offer were a decree.'),
-      say('ae_f2', 'aelith', 'Hold my waist. The court is watching, which is why you will not look at the court.', { sprite: 'aelith.default' }),
+      say('ae_f2', 'aelith', 'Hold my waist. The court is watching, which is why you will not look at the court.', { sprite: 'aelith.festival.close' }),
       { op: 'unlock', id: 'ae_f3', who: 'aelith', outfit: 'festival', gallery: 'aelith_fest' },
+      { op: 'unlock', id: 'ae_f3b', who: 'aelith', gallery: 'aelith_close_fest' },
       { op: 'mini', id: 'ae_f4', game: 'dance', who: 'aelith', sprite: 'aelith.festival' },
       {
         op: 'video', id: 'ae_f5', video: 'aelith.festival', who: 'aelith', sprite: 'aelith.festival.pose2', cg: true,
@@ -300,16 +448,38 @@
   ev({
     id: 'aelith_vow_ev', who: 'aelith', minDay: 15, minAff: 48, need: ['aelith_date_ev'], bg: 'gardens',
     steps: [
-      say('ae_v1', 'narr', 'Near the end of the festival she finds you at dawn, hair down, a silk robe the color of banked embers. The palace is quiet enough to hear the gate thinking about closing.'),
-      say('ae_v2', 'aelith', 'I have argued with kings and with weather. I would like to argue with a gate, on your behalf.', { sprite: 'aelith.night' }),
-      say('ae_v3', 'aelith', 'Stay. When the lanterns go out, stay anyway. I will teach the kingdom your name until it sticks.', { pose: 'pose2' }),
+      say('ae_v1', 'narr', 'Near the end of the festival she finds you at dawn. She looks back over her shoulder, hair down, the new night lingerie catching the first light.', { sprite: 'aelith.night.pose1' }),
+      { op: 'unlock', id: 'ae_v1u', who: 'aelith', gallery: 'aelith_night_p1' },
+      { op: 'unlock', id: 'ae_vau', who: 'aelith', gallery: 'aelith_night_a' },
+      {
+        op: 'video', id: 'ae_va', video: 'aelith.night.a', who: 'aelith', sprite: 'aelith.night.pose1', cg: true,
+        fallback: 'She turns her head and smiles, as if the night had asked and she had already answered.'
+      },
+      say('ae_v2', 'aelith', 'I have argued with kings and with weather. I would like to argue with a gate, on your behalf.', { sprite: 'aelith.night.pose2' }),
+      { op: 'unlock', id: 'ae_v2u', who: 'aelith', gallery: 'aelith_night_p2' },
+      say('ae_v2b', 'narr', 'She steps closer. From here the lace is a quiet fact, not a costume.', { sprite: 'aelith.night.close' }),
+      { op: 'unlock', id: 'ae_v2c', who: 'aelith', gallery: 'aelith_close_night' },
+      { op: 'unlock', id: 'ae_vbu', who: 'aelith', gallery: 'aelith_night_b' },
+      {
+        op: 'video', id: 'ae_vb', video: 'aelith.night.b', who: 'aelith', sprite: 'aelith.night.close', cg: true,
+        fallback: 'She winks, then laughs, and does not look away while she does it.'
+      },
+      say('ae_v3', 'aelith', 'Stay. When the lanterns go out, stay anyway. I will teach the kingdom your name until it sticks.', { sprite: 'aelith.night.pose3' }),
+      { op: 'unlock', id: 'ae_v3u', who: 'aelith', gallery: 'aelith_night_p3' },
       choice('ae_v4', 'aelith', [
-        { text: 'Then I stay.', aff: 6, flag: 'aelith_vow', reply: 'Say it again tomorrow, and the day after. I will not tire of it.' },
-        { text: 'Ask me on the last night, and I will.', aff: 4, flag: 'aelith_vow', reply: 'I am asking now so your courage has time to catch up. I will ask again.' },
-        { text: 'The road home is still there.', aff: 0, reply: 'It is. I am better company than a road. Think quickly, {name}.' }
+        { text: 'Then I stay.', aff: 6, flag: 'aelith_vow', reply: 'Say it again tomorrow, and the day after. I will not tire of it.', sprite: 'aelith.night.pose3' },
+        { text: 'Ask me on the last night, and I will.', aff: 4, flag: 'aelith_vow', reply: 'I am asking now so your courage has time to catch up. I will ask again.', sprite: 'aelith.night.pose3' },
+        { text: 'The road home is still there.', aff: 0, reply: 'It is. I am better company than a road. Think quickly, {name}.', sprite: 'aelith.night.pose3' }
       ]),
       { op: 'unlock', id: 'ae_v5', who: 'aelith', outfit: 'night', gallery: 'aelith_vow' },
-      say('ae_v6', 'narr', 'She kisses you once, brief and certain, and the dawn takes the rest of the sentence away.', { sprite: 'aelith.night.pose2', cg: true, fade: true }),
+      say('ae_v6', 'narr', 'She leans in, playful and sure.', { sprite: 'aelith.night.pose4' }),
+      { op: 'unlock', id: 'ae_v6u', who: 'aelith', gallery: 'aelith_night_p4' },
+      { op: 'unlock', id: 'ae_vcu', who: 'aelith', gallery: 'aelith_night_c' },
+      {
+        op: 'video', id: 'ae_vc', video: 'aelith.night.c', who: 'aelith', sprite: 'aelith.night.pose4', cg: true,
+        fallback: 'She blows a kiss, light as the first of the dawn.'
+      },
+      say('ae_v6f', 'narr', 'The night fades on the shape of it.', { sprite: 'aelith.night.pose4', cg: true, fade: true }),
       { op: 'aff', id: 'ae_v7', who: 'aelith', n: 2 }
     ]
   });
@@ -348,8 +518,9 @@
     id: 'nyssa_fest', who: 'nyssa', minDay: 5, minAff: 16, need: ['nyssa_riddle'], bg: 'tower',
     steps: [
       say('ny_f1', 'narr', 'Festival night doubles the stars. Nyssa has dressed for them, silver on indigo, and saved you the place at her elbow.'),
-      say('ny_f2', 'nyssa', 'Watch the order I touch them. Then do it yourself, and I will decide whether you were listening to the sky or to me.', { sprite: 'nyssa.default' }),
+      say('ny_f2', 'nyssa', 'Watch the order I touch them. Then do it yourself, and I will decide whether you were listening to the sky or to me.', { sprite: 'nyssa.festival.close' }),
       { op: 'unlock', id: 'ny_f3', who: 'nyssa', outfit: 'festival', gallery: 'nyssa_fest' },
+      { op: 'unlock', id: 'ny_f3b', who: 'nyssa', gallery: 'nyssa_close_fest' },
       { op: 'mini', id: 'ny_f4', game: 'stars', who: 'nyssa', sprite: 'nyssa.festival' },
       {
         op: 'video', id: 'ny_f5', video: 'nyssa.festival', who: 'nyssa', sprite: 'nyssa.festival.pose2', cg: true,
@@ -397,16 +568,38 @@
   ev({
     id: 'nyssa_vow_ev', who: 'nyssa', minDay: 15, minAff: 50, need: ['nyssa_date_ev'], bg: 'tower',
     steps: [
-      say('ny_v1', 'narr', 'She is in pale silk, hair loose, the performance folded and set aside on a chair.'),
-      say('ny_v2', 'nyssa', 'I have spent a long time being clever. I would like, for what is left of this festival, to be plain.', { sprite: 'nyssa.night' }),
-      say('ny_v3', 'nyssa', 'Stay. When the gate forgets the road, let it forget. I will remember you on purpose.', { pose: 'pose2' }),
+      say('ny_v1', 'narr', 'She looks back over her shoulder. The night lingerie is new, and for once she does not introduce it with a joke.', { sprite: 'nyssa.night.pose1' }),
+      { op: 'unlock', id: 'ny_v1u', who: 'nyssa', gallery: 'nyssa_night_p1' },
+      { op: 'unlock', id: 'ny_vau', who: 'nyssa', gallery: 'nyssa_night_a' },
+      {
+        op: 'video', id: 'ny_va', video: 'nyssa.night.a', who: 'nyssa', sprite: 'nyssa.night.pose1', cg: true,
+        fallback: 'She watches the night from the window, then glances back as if you were the view she meant.'
+      },
+      say('ny_v2', 'nyssa', 'I have spent a long time being clever. I would like, for what is left of this festival, to be plain.', { sprite: 'nyssa.night.pose2' }),
+      { op: 'unlock', id: 'ny_v2u', who: 'nyssa', gallery: 'nyssa_night_p2' },
+      say('ny_v2b', 'narr', 'Up close, the lace is just fabric, and her face is the point.', { sprite: 'nyssa.night.close' }),
+      { op: 'unlock', id: 'ny_v2c', who: 'nyssa', gallery: 'nyssa_close_night' },
+      { op: 'unlock', id: 'ny_vbu', who: 'nyssa', gallery: 'nyssa_night_b' },
+      {
+        op: 'video', id: 'ny_vb', video: 'nyssa.night.b', who: 'nyssa', sprite: 'nyssa.night.close', cg: true,
+        fallback: 'She tilts her head, smiles the sly one, and blinks slowly enough that you feel it.'
+      },
+      say('ny_v3', 'nyssa', 'Stay. When the gate forgets the road, let it forget. I will remember you on purpose.', { sprite: 'nyssa.night.pose3' }),
+      { op: 'unlock', id: 'ny_v3u', who: 'nyssa', gallery: 'nyssa_night_p3' },
       choice('ny_v4', 'nyssa', [
-        { text: 'Then I stay. Plainly.', aff: 6, flag: 'nyssa_vow', reply: 'Good. Do not decorate it. I heard you.' },
-        { text: 'Ask me once more at the end, and I am yours.', aff: 4, flag: 'nyssa_vow', reply: 'I will. I am unbearable when I want something. You have been warned, which is to say invited.' },
-        { text: 'I do not know if I can.', aff: 0, reply: 'Then do not kiss me goodnight and pretend it was weather. Decide, {name}.' }
+        { text: 'Then I stay. Plainly.', aff: 6, flag: 'nyssa_vow', reply: 'Good. Do not decorate it. I heard you.', sprite: 'nyssa.night.pose3' },
+        { text: 'Ask me once more at the end, and I am yours.', aff: 4, flag: 'nyssa_vow', reply: 'I will. I am unbearable when I want something. You have been warned, which is to say invited.', sprite: 'nyssa.night.pose3' },
+        { text: 'I do not know if I can.', aff: 0, reply: 'Then do not kiss me goodnight and pretend it was weather. Decide, {name}.', sprite: 'nyssa.night.pose3' }
       ]),
       { op: 'unlock', id: 'ny_v5', who: 'nyssa', outfit: 'night', gallery: 'nyssa_vow' },
-      say('ny_v6', 'narr', 'She kisses you without a quip in reach, and the moon keeps the rest of it.', { cg: true, fade: true, sprite: 'nyssa.night.pose2' }),
+      say('ny_v6', 'narr', 'She leans in. The wink is gone.', { sprite: 'nyssa.night.pose4' }),
+      { op: 'unlock', id: 'ny_v6u', who: 'nyssa', gallery: 'nyssa_night_p4' },
+      { op: 'unlock', id: 'ny_vcu', who: 'nyssa', gallery: 'nyssa_night_c' },
+      {
+        op: 'video', id: 'ny_vc', video: 'nyssa.night.c', who: 'nyssa', sprite: 'nyssa.night.pose4', cg: true,
+        fallback: 'She blows a kiss, and for once there is no joke riding after it.'
+      },
+      say('ny_v6f', 'narr', 'The night fades before she can take it back.', { sprite: 'nyssa.night.pose4', cg: true, fade: true }),
       { op: 'aff', id: 'ny_v7', who: 'nyssa', n: 2 }
     ]
   });
@@ -445,8 +638,9 @@
     id: 'lirael_fest', who: 'lirael', minDay: 5, minAff: 16, need: ['lirael_trail'], bg: 'falls',
     steps: [
       say('li_f1', 'narr', 'Festival ribbons have found even the range. Lirael has set three arrows in the ground and is trying not to grin.'),
-      say('li_f2', 'lirael', 'You do not have to be good. You have to stand where I can look at you without pretending I am watching the target. Also, please loose when the spark is gold. That part is real.', { sprite: 'lirael.default' }),
+      say('li_f2', 'lirael', 'You do not have to be good. You have to stand where I can look at you without pretending I am watching the target. Also, please loose when the spark is gold. That part is real.', { sprite: 'lirael.festival.close' }),
       { op: 'unlock', id: 'li_f3', who: 'lirael', outfit: 'festival', gallery: 'lirael_fest' },
+      { op: 'unlock', id: 'li_f3b', who: 'lirael', gallery: 'lirael_close_fest' },
       { op: 'mini', id: 'li_f4', game: 'archery', who: 'lirael', sprite: 'lirael.festival' },
       {
         op: 'video', id: 'li_f5', video: 'lirael.festival', who: 'lirael', sprite: 'lirael.festival.pose2', cg: true,
@@ -478,16 +672,36 @@
   ev({
     id: 'lirael_vow_ev', who: 'lirael', minDay: 15, minAff: 48, need: ['lirael_date_ev'], bg: 'camp',
     steps: [
-      say('li_v1', 'narr', 'Her camp is a ring of quiet fire. She has a shawl around her shoulders and both hands around a cup she is not drinking.'),
-      say('li_v2', 'lirael', 'I do not want the forest to forget your footsteps. I practiced this too. It went better in my head, and also fine, because you are still here.', { sprite: 'lirael.night' }),
-      say('li_v3', 'lirael', 'Stay. I will learn how to say it without a tree between us.', { pose: 'pose2' }),
+      say('li_v1', 'narr', 'Her camp is a ring of quiet fire. She looks back over her shoulder, the new night lingerie brighter than the shawl she used to hide in.', { sprite: 'lirael.night.pose1' }),
+      { op: 'unlock', id: 'li_v1u', who: 'lirael', gallery: 'lirael_night_p1' },
+      { op: 'unlock', id: 'li_vau', who: 'lirael', gallery: 'lirael_night_a' },
+      {
+        op: 'video', id: 'li_va', video: 'lirael.night.a', who: 'lirael', sprite: 'lirael.night.pose1', cg: true,
+        fallback: 'She tosses her hair and grins, braver than the line she practiced.'
+      },
+      say('li_v2', 'lirael', 'I do not want the forest to forget your footsteps. I practiced this too. It went better in my head, and also fine, because you are still here.', { sprite: 'lirael.night.pose2' }),
+      { op: 'unlock', id: 'li_v2u', who: 'lirael', gallery: 'lirael_night_p2' },
+      { op: 'unlock', id: 'li_vbu', who: 'lirael', gallery: 'lirael_night_b' },
+      {
+        op: 'video', id: 'li_vb', video: 'lirael.night.b', who: 'lirael', sprite: 'lirael.night.pose2', cg: true,
+        fallback: 'She bites her lip, then laughs, and the fire laughs with her.'
+      },
+      say('li_v3', 'lirael', 'Stay. I will learn how to say it without a tree between us.', { sprite: 'lirael.night.pose3' }),
+      { op: 'unlock', id: 'li_v3u', who: 'lirael', gallery: 'lirael_night_p3' },
       choice('li_v4', 'lirael', [
-        { text: 'I will stay. No tree required.', aff: 6, flag: 'lirael_vow', reply: 'Okay. Then I am going to kiss you on purpose, and not apologize after. Much.' },
-        { text: 'Ask me on the last morning. I want to say yes.', aff: 4, flag: 'lirael_vow', reply: 'I can wait until morning. I might vibrate. Ignore that.' },
-        { text: 'I think the gate expects me to leave.', aff: 0, reply: 'The gate expects a lot of things. I expected to be braver. We can both be surprised. Think about it. Please.' }
+        { text: 'I will stay. No tree required.', aff: 6, flag: 'lirael_vow', reply: 'Okay. Then I am going to kiss you on purpose, and not apologize after. Much.', sprite: 'lirael.night.pose3' },
+        { text: 'Ask me on the last morning. I want to say yes.', aff: 4, flag: 'lirael_vow', reply: 'I can wait until morning. I might vibrate. Ignore that.', sprite: 'lirael.night.pose3' },
+        { text: 'I think the gate expects me to leave.', aff: 0, reply: 'The gate expects a lot of things. I expected to be braver. We can both be surprised. Think about it. Please.', sprite: 'lirael.night.pose3' }
       ]),
       { op: 'unlock', id: 'li_v5', who: 'lirael', outfit: 'night', gallery: 'lirael_vow' },
-      say('li_v6', 'narr', 'She kisses you by the fire, sweet and a little shaky, and the shawl slips only as far as her shoulder before she pulls it close again and stays in your arms.', { sprite: 'lirael.night.pose2', cg: true, fade: true }),
+      say('li_v6', 'narr', 'She leans in, sweet and a little shaky.', { sprite: 'lirael.night.pose4' }),
+      { op: 'unlock', id: 'li_v6u', who: 'lirael', gallery: 'lirael_night_p4' },
+      { op: 'unlock', id: 'li_vcu', who: 'lirael', gallery: 'lirael_night_c' },
+      {
+        op: 'video', id: 'li_vc', video: 'lirael.night.c', who: 'lirael', sprite: 'lirael.night.pose4', cg: true,
+        fallback: 'She blows a kiss across the fire, shy and entirely on purpose.'
+      },
+      say('li_v6f', 'narr', 'The night fades. She does not hide behind it.', { sprite: 'lirael.night.pose4', cg: true, fade: true }),
       { op: 'aff', id: 'li_v7', who: 'lirael', n: 2 }
     ]
   });
