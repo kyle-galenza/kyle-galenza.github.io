@@ -73,9 +73,12 @@
   .card:nth-child(4){animation-delay:.24s}
   .card:nth-child(5){animation-delay:.32s}
   .card:nth-child(6){animation-delay:.40s}
+  .card:nth-child(7){animation-delay:.48s}
+  .card:nth-child(8){animation-delay:.56s}
+  .card:nth-child(9){animation-delay:.64s}
   @keyframes cardIn{to{opacity:1;transform:none}}
   .art{height:200px;position:relative;overflow:hidden;border-radius:var(--r) var(--r) 0 0}
-  .art canvas{display:block;width:100%;height:100%}
+  .art canvas,.art img{display:block;width:100%;height:100%;object-fit:cover;object-position:center}
   .tag{
     position:absolute;top:10px;left:10px;
     font-size:11px;font-weight:700;letter-spacing:.1em;
@@ -84,7 +87,7 @@
     -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px);
     border:1px solid rgb(255 255 255 / 0.18);color:#fff
   }
-  .mature{position:absolute;bottom:10px;right:10px;font-size:11px;font-weight:800;letter-spacing:.06em;padding:4px 8px;border-radius:999px;background:rgb(0 0 0 / .6);border:1px solid rgb(232 104 90 / .7);color:#ffd2c8}
+  .mature{position:absolute;left:10px;right:10px;bottom:10px;font-size:11px;font-weight:800;letter-spacing:.04em;line-height:1.3;padding:5px 8px;border-radius:999px;background:rgb(0 0 0 / .6);border:1px solid rgb(232 104 90 / .7);color:#ffd2c8;text-align:center}
   .body{padding:var(--pad);display:flex;flex-direction:column;flex:1;gap:0}
   .name{font-weight:800;letter-spacing:-0.02em;font-size:22px;margin:0 0 2px;line-height:1.15}
   .sub{font-size:11px;letter-spacing:.12em;color:var(--dim);text-transform:uppercase;margin:0 0 8px}
@@ -215,6 +218,39 @@ const GAMES = [
     accent: '#ff9a4a',
     tag: 'WEIRD WEST ROGUELITE',
     art: 'sorrow'
+  },
+  {
+    id: 'coral-key',
+    name: 'CORAL KEY',
+    subtitle: 'A Summer Weekend',
+    blurb: 'A flirty weekend at an island resort. Four women, one ferry, and a Sunday that does not want to end.',
+    href: './beach/',
+    accent: '#ffd27a',
+    tag: 'VISUAL NOVEL',
+    password: true,
+    thumb: 'img/coral-key.webp'
+  },
+  {
+    id: 'lanternveil',
+    name: 'LANTERNVEIL',
+    subtitle: 'Festival of Lights',
+    blurb: 'Twenty-one days in Moonpetal. Three elf women, lanterns, and a road home that can wait.',
+    href: './elves/',
+    accent: '#9dce8a',
+    tag: 'VISUAL NOVEL',
+    password: true,
+    thumb: 'img/lanternveil.webp'
+  },
+  {
+    id: 'lounge',
+    name: 'THE LOUNGE',
+    subtitle: 'Private Door',
+    blurb: 'The door between Coral Key and Lanternveil. The same password opens all three.',
+    href: './lounge/',
+    accent: '#e7c98a',
+    tag: 'STORY HUB',
+    password: true,
+    thumb: 'img/lounge.webp'
   }
 ];
 
@@ -229,8 +265,11 @@ GAMES.forEach((g, i) => {
   card.dataset.id = g.id;
   card.innerHTML = `
     <div class="art" style="--accent:${g.accent}">
-      <canvas width="720" height="400" aria-hidden="true"></canvas>
+      ${g.thumb
+        ? `<img src="${g.thumb}" alt="" width="720" height="400">`
+        : '<canvas width="720" height="400" aria-hidden="true"></canvas>'}
       <div class="tag">${g.tag}</div>
+      ${g.password ? '<div class="mature">18+, password required</div>' : ''}
     </div>
     <div class="body">
       ${g.id === lastId ? '<p class="recent">KEEP PLAYING</p>' : ''}
@@ -240,7 +279,8 @@ GAMES.forEach((g, i) => {
       <a class="play" style="--accent:${g.accent}" href="${g.href}" data-id="${g.id}"><span class="tri" aria-hidden="true"></span>PLAY</a>
     </div>`;
   grid.appendChild(card);
-  paintArt(card.querySelector('canvas'), g.art, g.accent);
+  const canvas = card.querySelector('canvas');
+  if (canvas) paintArt(canvas, g.art, g.accent);
 });
 
 grid.addEventListener('click', (e) => {
@@ -271,6 +311,9 @@ if (lastId) {
       :last.id==='lumenspire'?(spireBest?'Best floor  '+spireBest:'Climb the tower')
       :last.id==='starfall-vale'?(valeLv?(valeBoss?'Barrow King slain  ·  Lv '+valeLv:'Level '+valeLv):'Cross the moor')
       :last.id==='six-for-sorrow'?'Ride the Dry Mile'
+      :last.id==='coral-key'?'A weekend at the resort'
+      :last.id==='lanternveil'?'Twenty-one festival days'
+      :last.id==='lounge'?'The private door'
       :(siegeBest?'Furthest level  '+siegeBest:'Storm the keep');
     html+=`<a class="continue" href="${last.href}" data-id="${last.id}" style="--accent:${last.accent}">
       <div class="meta"><div class="k">CONTINUE</div><div class="n" style="color:${last.accent}">${last.name}</div><div class="s">${score}</div></div>
