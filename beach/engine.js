@@ -791,6 +791,7 @@
     v.onerror = null;
     try { v.pause(); } catch (e) {}
     v.removeAttribute('src');
+    try { v.load(); } catch (e) {}
     const poster = $('vidPoster');
     if (poster) {
       poster.hidden = true;
@@ -829,11 +830,20 @@
     $('vidTitle').textContent = vmeta.title || 'Memory';
     $('btnVidSound').textContent = 'Tap for sound';
     showOverlay('video');
-    v.onended = function () { finishVideo(); };
+    const arm = Date.now();
+    v.onended = function () {
+      if (Date.now() - arm < 500) return;
+      finishVideo();
+    };
     v.onerror = function () { finishVideo(); };
     v.src = withV(src);
-    const p = v.play();
-    if (p && p.catch) p.catch(function () {});
+    const start = function () {
+      try { if (v.currentTime > 0.05) v.currentTime = 0; } catch (e) {}
+      const p = v.play();
+      if (p && p.catch) p.catch(function () {});
+    };
+    v.onloadeddata = start;
+    start();
   }
   function unmuteVid() {
     const v = $('vid');
@@ -871,7 +881,7 @@
     openVideo(vmeta, src, function () {
       stepIndex += 1;
       if (state && state.play) state.play.step = stepIndex;
-      present();
+      setTimeout(function () { present(); }, 0);
     });
   }
 
