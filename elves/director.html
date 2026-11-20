@@ -32,7 +32,7 @@
   #dock button,#dock a{min-height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:rgba(16,12,10,.55);color:var(--gold);font:700 12px/1 system-ui;text-decoration:none;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
   #dock button.on{background:linear-gradient(180deg,#f3ddb0,#c9964a);color:#24180c;border-color:transparent}
   #dock button:disabled{opacity:.4}
-  #dock a{font-size:11px;padding:0 9px;opacity:.82}
+  #dock a{display:inline-flex;align-items:center;justify-content:center;min-height:32px;height:32px;padding:0 10px;font:700 12px/1 system-ui;opacity:.82}
   #whisper{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 162px);z-index:29;margin:0;max-width:calc(100vw - 28px);text-align:center;color:var(--gold);font:italic 13px/1.3 Georgia,serif;text-shadow:0 1px 8px #000;opacity:0;pointer-events:none;transition:opacity .5s ease}
   #whisper.on{opacity:1}
   #pill{position:fixed;z-index:28;left:50%;top:calc(env(safe-area-inset-top, 0px) + 68px);transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(16,12,10,.55);border:1px solid var(--line);color:var(--gold);font:700 12px/1 system-ui;letter-spacing:.06em}
@@ -116,24 +116,32 @@
       hello: "The balcony was waiting for you.",
       poses: ["stand", "sit"],
       actions: ["smile"],
+      loops: ["lean", "wink", "sway"],
       clips: {
         stand: clip("nyssa", "idle_stand", true, "stand", "Moonlight finds me faster when you look.", "4"),
         sit: clip("nyssa", "idle_sit", true, "sit", "The moonlight suits you better from here.", "4"),
-        smile: clip("nyssa", "action_smile", false, "smile", "Don't blink. This one is yours.", "4")
+        smile: clip("nyssa", "action_smile", false, "smile", "Don't blink. This one is yours.", "4"),
+        lean: clip("nyssa", "pose_lean", true, "lean", "Come lean with me", "1"),
+        wink: clip("nyssa", "action_wink", true, "wink", "A secret little smile", "1"),
+        sway: clip("nyssa", "action_sway", true, "sway", "A slow hip sway", "1")
       }
     },
     lirael: {
       hello: "I kept the lantern low for you.",
       poses: ["stand", "sit"],
       actions: ["smile"],
+      loops: ["lean", "wink", "hairflip"],
       clips: {
         stand: clip("lirael", "idle_stand", true, "stand", "I stepped into the light so you could find me.", "4"),
         sit: clip("lirael", "idle_sit", true, "sit", "Sit close. The falls can wait.", "6"),
-        smile: clip("lirael", "action_smile", false, "smile", "You always know how to make me blush.", "4")
+        smile: clip("lirael", "action_smile", false, "smile", "You always know how to make me blush.", "4"),
+        lean: clip("lirael", "pose_lean", true, "lean", "Lean in a little", "1"),
+        wink: clip("lirael", "action_wink", true, "wink", "Caught you looking, love", "1"),
+        hairflip: clip("lirael", "action_hairflip", true, "hairflip", "Let the copper fall", "1")
       }
     }
   };
-  var LABELS = { stand: "Stand", sit: "Sit", recline: "Recline", smile: "Flirty smile", beckon: "Come closer", lean: "Lean", kneel: "Kneel", sway: "Sway", wink: "Wink" };
+  var LABELS = { stand: "Stand", sit: "Sit", recline: "Recline", smile: "Flirty smile", beckon: "Come closer", lean: "Lean", kneel: "Kneel", sway: "Sway", wink: "Wink", hairflip: "Hairflip" };
   var who = "aelith";
   var pose = "stand";
   var liveAction = "";
@@ -298,7 +306,7 @@
     var ease = seam ? "ease-out" : "cubic-bezier(0.22, 1, 0.36, 1)";
     var glide = 0;
     if (kind === "glide") {
-      var order = { stand: 0, lean: 0, sway: 0, wink: 0, sit: 1, kneel: 2, recline: 2 };
+      var order = { stand: 0, lean: 0, sway: 0, wink: 0, hairflip: 0, sit: 1, kneel: 2, recline: 2 };
       var nextRank = order[clip.key] || 0;
       var curRank = order[pose] || 0;
       glide = nextRank >= curRank ? 1 : -1;
