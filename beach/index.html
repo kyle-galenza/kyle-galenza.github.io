@@ -45,7 +45,7 @@
   body[data-screen="map"] #toast,body[data-screen="ending"] #toast,body[data-screen="title"] #toast{top:calc(10px + env(safe-area-inset-top));bottom:auto}
   #toast.show{opacity:1;transform:translate(-50%,0)}
   #crash{position:fixed;z-index:90;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));max-height:34dvh;overflow:auto;padding:8px 10px;border-radius:10px;background:#3a1020;color:#ffd0d8;font:600 12px/1.35 ui-monospace,monospace;white-space:pre-wrap}
-  .screen{position:absolute;top:0;left:0;width:100%;height:var(--app-h, 100dvh);z-index:6;overflow:auto;-webkit-overflow-scrolling:touch;
+  .screen{position:fixed;inset:0;width:100%;height:100%;height:100dvh;z-index:8;overflow:auto;-webkit-overflow-scrolling:touch;
     padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
     display:flex;flex-direction:column;justify-content:flex-end}
   .panel{width:min(560px,100%);margin:0 auto;padding:16px 16px 14px;border-radius:24px;background:rgba(4,22,28,.78);border:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
@@ -158,7 +158,7 @@
     .btn:active,.choice:active,.place:active{transform:none}
   }
   :root{--topbar:0px;--dock:15%;--vidband:20%;--side:42vw}
-  html,body{margin:0;padding:0;width:100%;min-height:100%;height:auto}
+  html,body{margin:0;padding:0;width:100%;min-height:100%;height:100%;height:100dvh}
   html{overflow:hidden}
   body{position:relative;overflow:hidden;overscroll-behavior:none}
   #stage,#scene{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
