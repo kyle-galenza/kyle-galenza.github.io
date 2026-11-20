@@ -395,28 +395,28 @@
     });
   }
   var SUBJECT = {
-    aelith: { h: 0.069, t: 0.62 },
-    nyssa: { h: 0.188, t: 0.68 },
-    lirael: { h: 0.306, t: 0.72 }
+    aelith: { h: 0.01 },
+    nyssa: { h: 0.12 },
+    lirael: { h: 0.20 }
   };
   function layoutMedia() {
     var media = document.getElementById("media");
     if (!media || !media.dataset.head) return;
     var head = parseFloat(media.dataset.head);
-    var thigh = parseFloat(media.dataset.thigh);
-    if (thigh < head + 0.42) thigh = head + 0.5;
     var iw = 720, ih = 1280;
     var r = media.getBoundingClientRect();
     var bw = r.width, bh = r.height;
     if (bh < 40) return;
     var s0 = Math.max(bw / iw, bh / ih);
     var rh = ih * s0;
-    var p = (0.045 * bh - head * rh) / (bh - rh);
-    if (!isFinite(p)) p = head;
-    var headY = (bh - rh) * p + head * rh;
-    if (headY < 0.02 * bh) p = (0.03 * bh - head * rh) / (bh - rh);
-    if (p < 0) p = 0;
-    if (p > 1) p = 1;
+    var p = 0;
+    if (rh > bh + 1) {
+      var den = bh - rh;
+      function pFor(frac) { return (frac * bh - head * rh) / den; }
+      var pMax = pFor(0.03);
+      p = Math.min(pFor(0.05), pMax);
+      if (p < 0 || p > 1 || den * p + head * rh < 0.03 * bh) p = 0;
+    }
     media.style.setProperty("--fy", (p * 100).toFixed(2) + "%");
   }
   function applyFocus() {
@@ -425,7 +425,6 @@
     media.setAttribute("data-who", who);
     var s = SUBJECT[who] || SUBJECT.aelith;
     media.dataset.head = s.h;
-    media.dataset.thigh = s.t;
     layoutMedia();
   }
   function syncBand() {

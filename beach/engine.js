@@ -407,8 +407,6 @@
     var stage = $('stage');
     if (!box || !stage || !box.dataset.head) return;
     var head = parseFloat(box.dataset.head);
-    var thigh = parseFloat(box.dataset.thigh);
-    if (thigh < head + 0.42) thigh = head + 0.5;
     var iw = parseFloat(box.dataset.iw || '720');
     var ih = parseFloat(box.dataset.ih || '1280');
     var r = stage.getBoundingClientRect();
@@ -416,12 +414,16 @@
     if (bh < 40) return;
     var s0 = Math.max(bw / iw, bh / ih);
     var rh = ih * s0;
-    var p = (0.045 * bh - head * rh) / (bh - rh);
-    if (!isFinite(p)) p = head;
-    var headY = (bh - rh) * p + head * rh;
-    if (headY < 0.02 * bh) p = (0.03 * bh - head * rh) / (bh - rh);
-    if (p < 0) p = 0;
-    if (p > 1) p = 1;
+    var p = 0;
+    if (rh > bh + 1) {
+      var den = bh - rh;
+      function pFor(frac) { return (frac * bh - head * rh) / den; }
+      var pMax = pFor(0.03);
+      p = Math.min(pFor(0.05), pMax);
+      if (p < 0) p = 0;
+      if (p > pMax || p > 1) p = Math.max(0, Math.min(pMax, 1));
+      if (den * p + head * rh < 0.03 * bh) p = 0;
+    }
     box.style.setProperty('--fy', (p * 100).toFixed(2) + '%');
   }
   function applyFocus(who) {
