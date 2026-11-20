@@ -12,18 +12,23 @@
 <style>
   :root{--gold:#e7c98a;--line:rgba(231,201,138,.4)}
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;width:100%;min-height:100%;background:#100e0c}
+  html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;background:#100e0c}
   html{overflow:hidden}
-  body{position:relative;overflow:hidden;overscroll-behavior:none;color:#f6f1e6;font:500 16px/1.4 system-ui,-apple-system,sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
+  body{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none;color:#f6f1e6;font:500 16px/1.4 system-ui,-apple-system,sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
   input{font-size:16px}
   button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
   [hidden]{display:none !important}
-  #stage{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;background:#100e0c}
-  #poster,#layerA,#layerB{position:absolute;top:clamp(56px, 8vh, 84px);left:0;right:0;bottom:0;width:100%;height:calc(100% - clamp(56px, 8vh, 84px));object-fit:cover;object-position:center top;background:#100e0c}
-  #layerA,#layerB{opacity:0;z-index:1;transform-origin:center 28%;will-change:opacity,transform}
+  #stage{position:fixed;inset:0;width:100%;height:100%;height:100dvh;overflow:hidden;background:#100e0c}
+  #media{position:absolute;top:0;left:0;right:0;bottom:var(--band,128px);overflow:hidden;--zoom:1.4;--lift:-4%}
+  #media[data-who="nyssa"]{--zoom:1.52;--lift:-12%}
+  #media[data-who="lirael"]{--zoom:1.58;--lift:-16%}
+  #fit{position:absolute;inset:0;transform:translateY(var(--lift)) scale(var(--zoom));transform-origin:center top}
+  #poster,#layerA,#layerB{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;background:#100e0c}
+  #layerA,#layerB{opacity:0;z-index:1;transform-origin:center top;will-change:opacity,transform}
   #poster{z-index:0}
-  #veil{position:absolute;top:0;left:0;right:0;height:90px;z-index:5;pointer-events:none;background:linear-gradient(#100e0c, transparent)}
-  #dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 78px);z-index:30;display:flex;flex-direction:column;gap:6px;align-items:stretch;width:calc(100vw - 12px);max-width:calc(100vw - 12px)}
+  #veil{position:absolute;left:0;right:0;bottom:0;height:14%;z-index:5;pointer-events:none;background:linear-gradient(transparent, rgba(16,14,12,.45))}
+  #band{position:absolute;left:0;right:0;bottom:0;z-index:6;background:#100e0c;padding:6px 8px calc(max(env(safe-area-inset-bottom, 0px), 8px) + 6px)}
+  #dock{position:relative;left:auto;transform:none;bottom:auto;z-index:6;display:flex;flex-direction:column;gap:6px;align-items:stretch;width:100%;max-width:100%}
   #dock .row{display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap}
   #rowWho{align-self:center;width:auto;max-width:100%}
   #dock #rowDo{min-width:0;width:100%;justify-content:flex-start;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x}
@@ -33,8 +38,8 @@
   #dock button.on{background:linear-gradient(180deg,#f3ddb0,#c9964a);color:#24180c;border-color:transparent}
   #dock button:disabled{opacity:.4}
   #dock a{display:inline-flex;align-items:center;justify-content:center;min-height:32px;height:32px;padding:0 10px;font:700 12px/1 system-ui;opacity:.82}
-  #whisper{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 162px);z-index:29;margin:0;max-width:calc(100vw - 28px);text-align:center;color:var(--gold);font:italic 13px/1.3 Georgia,serif;text-shadow:0 1px 8px #000;opacity:0;pointer-events:none;transition:opacity .5s ease}
-  #whisper.on{opacity:1}
+  #whisper{position:relative;left:auto;transform:none;bottom:auto;z-index:6;margin:0;max-height:0;overflow:hidden;padding:0 12px;text-align:center;color:var(--gold);font:italic 13px/1.3 Georgia,serif;opacity:0;pointer-events:none;transition:opacity .5s ease,max-height .35s ease}
+  #whisper.on{opacity:1;max-height:2.6em;padding-top:2px}
   #pill{position:fixed;z-index:28;left:50%;top:calc(env(safe-area-inset-top, 0px) + 68px);transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(16,12,10,.55);border:1px solid var(--line);color:var(--gold);font:700 12px/1 system-ui;letter-spacing:.06em}
   html:not([data-unlocked]) body > :not(#lock){display:none !important}
   #lock{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;justify-content:flex-end;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));background:#100e0c}
@@ -66,11 +71,15 @@
   </form>
 </section>
 <div id="stage">
-  <img id="poster" alt="" src="director/idle_stand_poster.jpg?v=2">
-  <video id="layerA" muted autoplay playsinline webkit-playsinline preload="auto"></video>
-  <video id="layerB" muted autoplay playsinline webkit-playsinline preload="auto"></video>
-  <div id="veil"></div>
-</div>
+  <div id="media" data-who="aelith">
+    <div id="fit">
+      <img id="poster" alt="" src="director/idle_stand_poster.jpg?v=2">
+      <video id="layerA" muted autoplay playsinline webkit-playsinline preload="auto"></video>
+      <video id="layerB" muted autoplay playsinline webkit-playsinline preload="auto"></video>
+    </div>
+    <div id="veil"></div>
+  </div>
+  <div id="band">
 <p id="whisper" aria-live="polite"></p>
 <nav id="dock" aria-label="Director">
   <div class="row" id="rowWho">
@@ -81,6 +90,8 @@
   </div>
   <div class="row" id="rowDo"></div>
 </nav>
+  </div>
+</div>
 <div id="pill" hidden></div>
 <div id="preload" hidden></div>
 <script>
@@ -385,9 +396,19 @@
       paint();
     });
   }
+  function applyFocus() {
+    var media = document.getElementById("media");
+    if (media) media.setAttribute("data-who", who);
+  }
+  function syncBand() {
+    var band = document.getElementById("band");
+    if (!band) return;
+    document.documentElement.style.setProperty("--band", band.offsetHeight + "px");
+  }
   function switchWho(id) {
     if (!CAST[id] || (id === who && pose === "stand" && !liveAction)) return;
     who = id;
+    applyFocus();
     pose = "stand";
     liveAction = "";
     whisper(CAST[id].hello);
@@ -403,6 +424,9 @@
     document.documentElement.dataset.unlocked = "1";
     preload(who);
     paint();
+    applyFocus();
+    if (window.ResizeObserver) new ResizeObserver(syncBand).observe(document.getElementById("band"));
+    syncBand();
     syncViewport();
     document.addEventListener("focusout", pinAfterBlur, true);
     document.addEventListener("pointerup", function () {

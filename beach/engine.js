@@ -331,6 +331,8 @@
     } else kick();
   }
   function setVisual(step) {
+    var who = (step && (step.who || (lineSprite(step) || '').split('.')[0])) || (state && state.sceneWho) || '';
+    applyFocus(who);
     if (step && step.bg) setBg(step.bg);
     else if (state && state.play && state.play.bg) setBg(state.play.bg);
     const loop = loopFor(step);
@@ -386,6 +388,27 @@
     document.body.classList.remove('choosing');
     if (name !== 'scene') hideLoops();
     syncViewport();
+    syncBand();
+  }
+  function syncBand() {
+    var scene = $('scene');
+    var box = $('box');
+    var on = scene && !scene.hidden && document.body.dataset.screen === 'scene' && box;
+    var h = on ? box.offsetHeight : 0;
+    document.documentElement.style.setProperty('--band', (h || 0) + 'px');
+  }
+  function applyFocus(who) {
+    var stage = $('stage');
+    if (!stage) return;
+    var map = {
+      aurelia: ['1.42', '-4%'],
+      mika: ['1.38', '-6%'],
+      celeste: ['1.3', '-4%'],
+      sable: ['1.32', '-5%']
+    };
+    var f = map[who] || ['1.28', '-3%'];
+    stage.style.setProperty('--zoom', f[0]);
+    stage.style.setProperty('--lift', f[1]);
   }
   function overlayName() { return document.body.dataset.overlay || ''; }
   function showOverlay(name) {
@@ -1678,6 +1701,8 @@
     const problems = selfCheck();
     if (problems.length) showCrash(problems.join('\n'));
     bootGate();
+    if (window.ResizeObserver && $('box')) new ResizeObserver(syncBand).observe($('box'));
+    syncBand();
     document.body.dataset.ready = '1';
   }
 

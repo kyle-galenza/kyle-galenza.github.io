@@ -23,13 +23,14 @@
   button{cursor:pointer;touch-action:manipulation}
   [hidden]{display:none !important}
   #stage{position:fixed;inset:0;width:100%;height:100%;height:100dvh;overflow:hidden;background:#07040e}
-  #media{position:absolute;top:0;left:0;right:0;bottom:var(--band,96px);overflow:hidden}
+  #media{position:absolute;top:0;left:0;right:0;bottom:var(--band,96px);overflow:hidden;--zoom:1.4;--lift:0%}
+  #fit{position:absolute;inset:0;transform:translateY(var(--lift)) scale(var(--zoom));transform-origin:center top}
   #poster,#layerA,#layerB,#still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;background:#07040e}
   #veil{position:absolute;left:0;right:0;bottom:0;height:16%;z-index:5;pointer-events:none;background:linear-gradient(transparent, rgba(7,4,14,.5))}
   #layerA,#layerB,#still{opacity:0;transition:opacity .3s ease}
-  #still{z-index:4;transform-origin:center 28%}
+  #still{z-index:4}
   #still.breath{animation:breath 8s ease-in-out infinite}
-  @keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.03) translateY(-0.8%)}}
+  @keyframes breath{0%,100%{transform:none}50%{transform:scale(1.02) translateY(-0.6%)}}
   @media (prefers-reduced-motion:reduce){#still.breath{animation:none}#layerA,#layerB,#still{transition:none}}
   #spark{position:absolute;z-index:8;top:calc(var(--st) + 8px);right:calc(8px + var(--sr));width:42px;height:42px;min-height:42px;padding:0;border-radius:50%;border:1px solid var(--line);background:rgba(10,6,16,.72);color:var(--gold);font:700 18px/1 Georgia,serif}
   #drawer{position:fixed;z-index:29;top:calc(var(--st) + 58px);right:calc(8px + var(--sr));width:min(232px,78vw);max-height:46%;overflow:auto;padding:8px;border-radius:16px;background:rgba(10,6,16,.94);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
@@ -93,10 +94,12 @@
 </section>
 <div id="stage">
   <div id="media">
-    <img id="poster" alt="" src="video/kael_poster.jpg?v=1">
-    <video id="layerA" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
-    <video id="layerB" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
-    <img id="still" alt="">
+    <div id="fit">
+      <img id="poster" alt="" src="video/kael_poster.jpg?v=1">
+      <video id="layerA" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
+      <video id="layerB" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
+      <img id="still" alt="">
+    </div>
     <div id="veil"></div>
   </div>
 <button type="button" id="spark" aria-label="Suites" hidden>✦</button>
@@ -391,10 +394,40 @@
     for (var i = 0; i < set.clips.length; i++) if (set.clips[i].id === wear[girl].clip) return set.clips[i];
     return set.clips[0];
   }
+  var FOCUS = {
+    kael: { zoom: "1.42", lift: "-6%" },
+    lyra: { zoom: "1.4", lift: "-7%" },
+    sera: { zoom: "1.18", lift: "0%" },
+    vesper: { zoom: "1.5", lift: "-9%" }
+  };
+  var CLIP_FOCUS = {
+    "kael:a_hairwhip": { zoom: "1.36", lift: "-4%" },
+    "kael:b_lean": { zoom: "1.4", lift: "-8%" },
+    "kael:b_shimmy": { zoom: "1.38", lift: "-6%" },
+    "kael:c_tease": { zoom: "1.4", lift: "-6%" },
+    "lyra:a_sway": { zoom: "1.36", lift: "-5%" },
+    "lyra:b_lean": { zoom: "1.45", lift: "-10%" },
+    "lyra:c_sway": { zoom: "1.36", lift: "-5%" },
+    "sera:a_bounce": { zoom: "1.16", lift: "0%" },
+    "sera:b_shimmy": { zoom: "1.22", lift: "0%" },
+    "sera:c_wink": { zoom: "1.18", lift: "0%" },
+    "vesper:a_sway": { zoom: "1.48", lift: "-8%" },
+    "vesper:b_lean": { zoom: "1.5", lift: "-10%" },
+    "vesper:b_sway": { zoom: "1.42", lift: "-12%" },
+    "vesper:c_sway": { zoom: "1.4", lift: "-14%" }
+  };
+  function applyFocus(girl, clip) {
+    var media = $("media");
+    if (!media) return;
+    var pick = (clip && CLIP_FOCUS[girl + ":" + clip.id]) || FOCUS[girl] || { zoom: "1.35", lift: "-4%" };
+    media.style.setProperty("--zoom", pick.zoom);
+    media.style.setProperty("--lift", pick.lift);
+  }
   function showVisual(girl) {
     var g = GIRLS[girl];
     var mode = (state.fits && state.fits[girl]) || "loop";
     var clip = mode === "loop" ? currentClip(girl) : null;
+    applyFocus(girl, clip);
     var useVideo = mode === "loop" && !!(clip || g.video);
     var key = girl + ":" + (clip ? clip.id : (useVideo ? "loop" : "still"));
     if (key === shown) return;

@@ -195,13 +195,13 @@
     .lanterns i{animation:none}
     #fade{transition:none}
   }
-  :root{--topbar:0px;--dock:15%;--vidband:20%;--side:42vw}
+  :root{--topbar:0px;--dock:15%;--vidband:20%;--side:42vw;--band:0px}
   html,body{margin:0;padding:0;width:100%;min-height:100%;height:100%;height:100dvh}
   html{overflow:hidden}
   body{position:relative;overflow:hidden;overscroll-behavior:none}
   #bg,#scene,#figure,#figure.cg{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
   .meters,#hud,#mapActions{display:none !important}
-  #toast{top:auto;bottom:calc(var(--dock) + 8px);max-width:min(280px,70vw)}
+  #toast{top:calc(8px + env(safe-area-inset-top));bottom:auto;max-width:min(280px,70vw)}
   body.choosing #toast{bottom:auto;top:calc(8px + env(safe-area-inset-top));max-width:min(240px,68vw)}
   #vidTitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .vid-ui{overflow:hidden}
@@ -221,14 +221,16 @@
   #box,.dlg{background:#14110e}
   .dlg{backdrop-filter:none;-webkit-backdrop-filter:none}
   body:not([data-screen="scene"]):not([data-screen="map"]) #btnPeek{visibility:hidden;pointer-events:none}
-  #figure,#figure.cg{top:0;right:0;bottom:0;left:0;width:100%;height:100%}
+  #figure,#figure.cg{top:0;right:0;bottom:var(--band,0px);left:0;width:100%;height:auto;--zoom:1.4;--lift:-6%}
+  #figure[data-who="nyssa"]{--zoom:1.5;--lift:-12%}
+  #figure[data-who="lirael"]{--zoom:1.58;--lift:-16%}
   #figure{overflow:hidden}
-  #sprite{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;object-position:center 22%;filter:none}
-  #box{min-height:0;height:auto;bottom:env(safe-area-inset-bottom, 0px);max-height:var(--dock);padding:0 0 env(safe-area-inset-bottom);overflow:hidden}
-  body.choosing #box{height:auto;min-height:0;max-height:34dvh;overflow:hidden;background:rgba(20,16,14,.88)}
+  #sprite{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;object-position:center top;filter:none;transform:translateY(var(--lift)) scale(var(--zoom));transform-origin:center top}
+  #box{position:absolute;left:0;right:0;bottom:0;min-height:0;height:auto;max-height:none;z-index:8;padding:6px 8px calc(max(env(safe-area-inset-bottom, 0px), 8px) + 6px);overflow:visible;background:#14110e;border-radius:16px 16px 0 0}
+  body.choosing #box{height:auto;min-height:0;max-height:62%;overflow:auto;background:#14110e}
   .dlg{height:auto;max-height:100%;overflow:hidden}
   body.choosing .dlg{height:auto;max-height:34dvh;overflow:hidden;background:transparent}
-  body.choosing #choices{display:flex;flex-direction:column;gap:4px;max-height:144px;overflow-x:hidden;overflow-y:auto}
+  body.choosing #choices{display:flex;flex-direction:column;gap:4px;max-height:none;overflow:visible}
   body.choosing #btnPeek{visibility:hidden}
   #menu.overlay,#log.overlay,#saves.overlay,#settings.overlay,#mini.overlay{top:auto;bottom:0;left:0;right:0;height:20dvh;max-height:20dvh;background:transparent;padding:6px 8px calc(6px + env(safe-area-inset-bottom));align-items:stretch}
   #menu .sheet,#log .sheet,#saves .sheet,#settings .sheet,#mini .sheet{width:100%;max-height:100%;border-radius:16px 16px 0 0}
@@ -245,7 +247,7 @@
   #viewStage.full img{object-fit:contain;object-position:center center}
   .gal-sec{margin:14px 0 2px;color:var(--gold);font:800 12px/1 system-ui;letter-spacing:.14em}
   @media (orientation:landscape){
-    #figure,#figure.cg{top:0;bottom:0;right:var(--side);left:0}
+    #figure,#figure.cg{top:0;bottom:0;right:var(--side);left:0;height:auto}
     #video video,#vidPoster{top:0;left:0;right:auto;bottom:auto;width:calc(100vw - var(--side));height:100dvh}
     #box,.vid-ui,#menu.overlay,#log.overlay,#saves.overlay,#settings.overlay,#mini.overlay{left:auto;right:0;top:0;width:var(--side);height:100%;max-height:none;padding-top:52px}
     #btnPeek{top:calc(8px + env(safe-area-inset-top));bottom:auto;left:calc(58vw + 8px);right:auto}

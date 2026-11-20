@@ -301,6 +301,14 @@
     document.body.classList.remove('fade-out');
     document.body.classList.remove('choosing');
     syncViewport();
+    syncBand();
+  }
+  function syncBand() {
+    var scene = $('scene');
+    var box = $('box');
+    var on = scene && !scene.hidden && document.body.dataset.screen === 'scene' && box;
+    var h = on ? box.offsetHeight : 0;
+    document.documentElement.style.setProperty('--band', (h || 0) + 'px');
   }
   function overlayName() { return document.body.dataset.overlay || ''; }
   function showOverlay(name) {
@@ -1854,6 +1862,8 @@
     const problems = selfCheck();
     if (problems.length) showCrash(problems.join('\n'));
     showTitle();
+    if (window.ResizeObserver && $('box')) new ResizeObserver(syncBand).observe($('box'));
+    syncBand();
   }
 
   window.__ELVES = {
