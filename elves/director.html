@@ -85,9 +85,10 @@
   var SALT = "063edc75bd4b4e1301828dec7215c277";
   var HASH = "11b89436d8911e64c493f89db68f014d5ed19db80d319f78e92fab7f8179f6f9";
   var V = "3";
-  function clip(folder, file, loop, key, line) {
+  function clip(folder, file, loop, key, line, ver) {
     var base = "director/" + (folder ? folder + "/" : "") + file;
-    return { src: base + ".mp4?v=" + V, poster: base + "_poster.jpg?v=" + V, loop: loop, key: key, line: line };
+    var v = ver || V;
+    return { src: base + ".mp4?v=" + v, poster: base + "_poster.jpg?v=" + v, loop: loop, key: key, line: line };
   }
   var CAST = {
     aelith: {
@@ -107,9 +108,9 @@
       poses: ["stand", "sit"],
       actions: ["smile"],
       clips: {
-        stand: clip("nyssa", "idle_stand", true, "stand", "Moonlight finds me faster when you look."),
-        sit: clip("nyssa", "idle_sit", true, "sit", "The moonlight suits you better from here."),
-        smile: clip("nyssa", "action_smile", false, "smile", "Don't blink. This one is yours.")
+        stand: clip("nyssa", "idle_stand", true, "stand", "Moonlight finds me faster when you look.", "4"),
+        sit: clip("nyssa", "idle_sit", true, "sit", "The moonlight suits you better from here.", "4"),
+        smile: clip("nyssa", "action_smile", false, "smile", "Don't blink. This one is yours.", "4")
       }
     },
     lirael: {
@@ -117,9 +118,9 @@
       poses: ["stand", "sit"],
       actions: ["smile"],
       clips: {
-        stand: clip("lirael", "idle_stand", true, "stand", "I stepped into the light so you could find me."),
-        sit: clip("lirael", "idle_sit", true, "sit", "Sit close. The falls can wait."),
-        smile: clip("lirael", "action_smile", false, "smile", "You always know how to make me blush.")
+        stand: clip("lirael", "idle_stand", true, "stand", "I stepped into the light so you could find me.", "4"),
+        sit: clip("lirael", "idle_sit", true, "sit", "Sit close. The falls can wait.", "4"),
+        smile: clip("lirael", "action_smile", false, "smile", "You always know how to make me blush.", "4")
       }
     }
   };
