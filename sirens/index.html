@@ -12,33 +12,34 @@
 <title>Sirens of the Hollow Spire</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' rx='3' fill='%2307040e'/%3E%3Cpath fill='%23e7b0ff' d='M8 1l1.1 3.2H12L9.6 6.2 10.5 9.5 8 7.8 5.5 9.5 6.4 6.2 4 4.2h2.9z'/%3E%3C/svg%3E">
 <style>
-  :root{--ink:#f7f1ea;--dim:#cbbcd4;--gold:#f0c27a;--line:rgba(231,176,255,.38);--glass:rgba(10,6,16,.9)}
+  :root{--ink:#f7f1ea;--dim:#cbbcd4;--gold:#f0c27a;--line:rgba(231,176,255,.38);--glass:rgba(10,6,16,.9);
+    --st:env(safe-area-inset-top);--sb:env(safe-area-inset-bottom);--sl:env(safe-area-inset-left);--sr:env(safe-area-inset-right);--band:96px}
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;width:100%;min-height:100%;background:#07040e}
+  html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;background:#07040e}
   html{overflow:hidden}
-  body{position:relative;overflow:hidden;overscroll-behavior:none;color:var(--ink);font:500 16px/1.4 system-ui,-apple-system,sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
+  body{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none;color:var(--ink);font:500 16px/1.4 system-ui,-apple-system,sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
   button,input{font:inherit;color:inherit}
   input{font-size:16px}
   button{cursor:pointer;touch-action:manipulation}
   [hidden]{display:none !important}
-  #stage{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;background:#07040e}
-  #poster,#layerA,#layerB,#still{position:absolute;top:96px;left:0;right:0;bottom:0;width:100%;height:calc(100% - 96px);object-fit:cover;object-position:center top;background:#07040e}
-  #veil{position:absolute;top:0;left:0;right:0;height:110px;z-index:5;pointer-events:none;background:linear-gradient(#07040e, transparent)}
+  #stage{position:fixed;inset:0;width:100%;height:100%;height:100dvh;overflow:hidden;background:#07040e}
+  #media{position:absolute;top:0;left:0;right:0;bottom:var(--band,96px);overflow:hidden}
+  #poster,#layerA,#layerB,#still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;background:#07040e}
+  #veil{position:absolute;left:0;right:0;bottom:0;height:16%;z-index:5;pointer-events:none;background:linear-gradient(transparent, rgba(7,4,14,.5))}
   #layerA,#layerB,#still{opacity:0;transition:opacity .3s ease}
   #still{z-index:4;transform-origin:center 28%}
   #still.breath{animation:breath 8s ease-in-out infinite}
   @keyframes breath{0%,100%{transform:scale(1)}50%{transform:scale(1.03) translateY(-0.8%)}}
   @media (prefers-reduced-motion:reduce){#still.breath{animation:none}#layerA,#layerB,#still{transition:none}}
-  #spark{position:fixed;z-index:30;top:calc(env(safe-area-inset-top, 0px) + 112px);right:calc(8px + env(safe-area-inset-right));width:42px;height:42px;min-height:42px;padding:0;border-radius:50%;border:1px solid var(--line);background:rgba(10,6,16,.45);color:var(--gold);font:700 18px/1 Georgia,serif}
-  #drawer{position:fixed;z-index:29;top:calc(env(safe-area-inset-top, 0px) + 162px);right:calc(8px + env(safe-area-inset-right));width:min(232px,78vw);max-height:calc(100dvh - 240px);overflow:auto;padding:8px;border-radius:16px;background:rgba(10,6,16,.88);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
+  #spark{position:absolute;z-index:8;top:calc(var(--st) + 8px);right:calc(8px + var(--sr));width:42px;height:42px;min-height:42px;padding:0;border-radius:50%;border:1px solid var(--line);background:rgba(10,6,16,.72);color:var(--gold);font:700 18px/1 Georgia,serif}
+  #drawer{position:fixed;z-index:29;top:calc(var(--st) + 58px);right:calc(8px + var(--sr));width:min(232px,78vw);max-height:46%;overflow:auto;padding:8px;border-radius:16px;background:rgba(10,6,16,.94);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
   #drawer button,#drawer a{min-height:36px;text-align:left;padding:6px 10px;border-radius:10px;border:1px solid rgba(231,176,255,.28);background:rgba(255,255,255,.04);font-size:13px;text-decoration:none;color:inherit}
   #drawer button.on{box-shadow:inset 0 0 0 1px var(--gold);color:var(--gold)}
   #drawer button:disabled{opacity:.38}
   #drawer .lab{margin:4px 2px 0;color:var(--gold);font:800 10px/1 system-ui;letter-spacing:.12em}
-  #hud{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom, 0px) + 78px);z-index:6;display:flex;flex-direction:column;gap:4px;max-height:28%}
-  #box{position:relative;left:auto;right:auto;bottom:auto;z-index:6;height:auto;max-height:none;overflow:hidden;padding:0}
-  body.choosing #box{max-height:34dvh;overflow:hidden;background:rgba(10,6,16,.88)}
-  .dlg{height:auto;max-height:100%;padding:4px 8px 3px;background:var(--glass);border-top:1px solid var(--line)}
+  #hud{position:absolute;left:0;right:0;bottom:0;z-index:6;display:flex;flex-direction:column;gap:4px;background:rgb(16 8 16 / .92);padding:6px calc(10px + var(--sr)) calc(max(var(--sb), 8px) + 6px) calc(10px + var(--sl));border-radius:16px 16px 0 0;border-top:1px solid rgba(231,176,255,.28)}
+  #box{position:relative;z-index:6;height:auto;overflow:visible;padding:0;background:transparent}
+  .dlg{position:relative;height:auto;padding:0;background:transparent}
   #nameplate{margin:0;font:800 12px/1.1 system-ui}
   #line{margin:1px 64px 0 0;font:500 13px/1.25 system-ui}
   #wear{display:flex;flex-direction:column;gap:4px;margin:0 0 2px}
@@ -49,12 +50,12 @@
   .wear-row button.on{background:linear-gradient(180deg,#f3ddb0,#c9964a);color:#24180c;border-color:transparent}
   #whisper{margin:0;min-height:0;max-height:0;overflow:hidden;opacity:0;text-align:center;color:var(--gold);font:italic 12px/1.2 Georgia,serif;transition:opacity .4s ease,max-height .4s ease}
   #whisper.on{opacity:1;max-height:16px}
-  #next{position:absolute;right:8px;bottom:4px;min-height:22px;height:22px;padding:0 8px;border-radius:999px;border:1px solid var(--line);background:#140c18;color:var(--gold);font:800 11px/1 system-ui}
-  #choices{display:none;flex-direction:column;gap:4px;margin-top:4px;max-height:144px;overflow:auto}
+  #next{position:absolute;right:0;top:0;min-height:22px;height:22px;padding:0 8px;border-radius:999px;border:1px solid var(--line);background:#140c18;color:var(--gold);font:800 11px/1 system-ui}
+  #choices{display:none;flex-direction:column;gap:4px;margin-top:6px}
   body.choosing #choices{display:flex}
   body.choosing #next{display:none}
   .choice{min-height:32px;width:100%;text-align:left;padding:4px 10px;border-radius:8px;border:1px solid var(--line);background:rgba(20,10,28,.92);font-size:13px;line-height:1.15}
-  #title,#lock{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;justify-content:flex-end;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom))}
+  #title,#lock{position:fixed;inset:0;z-index:40;display:flex;flex-direction:column;justify-content:flex-end;padding:calc(16px + var(--st)) calc(16px + var(--sr)) calc(max(var(--sb), 12px) + 10px) calc(16px + var(--sl))}
   #lock{z-index:80;background:#07040e}
   html:not([data-unlocked]) body > :not(#lock){display:none !important}
   html[data-unlocked] #lock{display:none !important}
@@ -91,12 +92,14 @@
   </form>
 </section>
 <div id="stage">
-  <img id="poster" alt="" src="video/kael_poster.jpg?v=1">
-  <video id="layerA" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
-  <video id="layerB" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
-  <img id="still" alt="">
-  <div id="veil"></div>
-</div>
+  <div id="media">
+    <img id="poster" alt="" src="video/kael_poster.jpg?v=1">
+    <video id="layerA" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
+    <video id="layerB" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
+    <img id="still" alt="">
+    <div id="veil"></div>
+  </div>
+<button type="button" id="spark" aria-label="Suites" hidden>✦</button>
 <section id="title">
   <form id="titleForm" class="panel" autocomplete="off">
     <p class="sub">HOLLOW SPIRE</p>
@@ -108,7 +111,6 @@
     <div class="row"><button type="button" class="btn" id="btnCont" hidden>Continue</button></div>
   </form>
 </section>
-<button type="button" id="spark" aria-label="Suites" hidden>✦</button>
 <div id="drawer" hidden></div>
 <div id="hud">
 <div id="wear" hidden>
@@ -123,6 +125,7 @@
     <div id="choices"></div>
     <button type="button" id="next">Next</button>
   </div>
+</div>
 </div>
 </div>
 <div id="toast" hidden></div>
@@ -291,6 +294,13 @@
     syncViewport();
     [60, 200, 450, 800].forEach(function (ms) { setTimeout(syncViewport, ms); });
   }
+  function syncBand() {
+    var hud = $("hud");
+    if (!hud) return;
+    document.documentElement.style.setProperty("--band", hud.offsetHeight + "px");
+  }
+  if (window.ResizeObserver && $("hud")) new ResizeObserver(syncBand).observe($("hud"));
+  syncBand();
   function toast(text) {
     var el = $("toast");
     el.hidden = false;
