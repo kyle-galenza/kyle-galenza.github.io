@@ -19,8 +19,8 @@
     --glass:rgba(14,12,10,.78); --ae:#e2b15a; --ny:#c4c2ff; --li:#9dce8a;
   }
   *{box-sizing:border-box}
-  html,body{margin:0;height:100%;background:var(--bg);color:var(--ink);font:500 16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;touch-action:manipulation}
-  body{min-height:100dvh;overflow:hidden;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  html,body{position:fixed;inset:0;width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--ink);font:500 16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
+  body{min-height:0;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
   button,input{font:inherit;color:inherit}
   input,textarea{font-size:16px}
   button,.choice{cursor:pointer;touch-action:manipulation;min-height:44px}
@@ -195,9 +195,9 @@
     .lanterns i{animation:none}
     #fade{transition:none}
   }
-  :root{--topbar:0px;--dock:15svh;--vidband:20svh;--side:42vw}
-  html,body{height:100%;margin:0;overflow:hidden}
-  #bg,#scene,#figure,#figure.cg{position:fixed;inset:0;width:100%;height:100svh;height:100dvh}
+  :root{--topbar:0px;--dock:15%;--vidband:20%;--side:42vw}
+  html,body{position:fixed;inset:0;width:100%;height:100%;min-height:0;margin:0;overflow:hidden;overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-adjust:100%}
+  #bg,#scene,#figure,#figure.cg{position:fixed;inset:0;width:100%;height:100%}
   .meters,#hud,#mapActions{display:none !important}
   #toast{top:auto;bottom:calc(var(--dock) + 8px);max-width:min(280px,70vw)}
   body.choosing #toast{bottom:auto;top:calc(8px + env(safe-area-inset-top));max-width:min(240px,68vw)}
@@ -219,7 +219,7 @@
   #box,.dlg{background:#14110e}
   .dlg{backdrop-filter:none;-webkit-backdrop-filter:none}
   body:not([data-screen="scene"]):not([data-screen="map"]) #btnPeek{visibility:hidden;pointer-events:none}
-  #figure,#figure.cg{top:0;right:0;bottom:0;left:0;width:100%;height:100svh;height:100dvh}
+  #figure,#figure.cg{top:0;right:0;bottom:0;left:0;width:100%;height:100%}
   #figure{overflow:hidden}
   #sprite{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;object-position:center 22%;filter:none}
   #box{min-height:0;height:auto;max-height:calc(var(--dock) + env(safe-area-inset-bottom));padding:0 0 env(safe-area-inset-bottom);overflow:hidden}
@@ -231,7 +231,7 @@
   #menu.overlay,#log.overlay,#saves.overlay,#settings.overlay,#mini.overlay{top:auto;bottom:0;left:0;right:0;height:20dvh;max-height:20dvh;background:transparent;padding:6px 8px calc(6px + env(safe-area-inset-bottom));align-items:stretch}
   #menu .sheet,#log .sheet,#saves .sheet,#settings .sheet,#mini .sheet{width:100%;max-height:100%;border-radius:16px 16px 0 0}
   .dance{height:110px}
-  #video video,#vidPoster{top:0;bottom:auto;left:0;right:0;width:100%;height:calc(100svh - var(--vidband));height:calc(100dvh - var(--vidband));object-fit:cover;object-position:center 22%;background:#100c0a}
+  #video video,#vidPoster{top:0;bottom:auto;left:0;right:0;width:100%;height:calc(100% - var(--vidband));object-fit:cover;object-position:center 22%;background:#100c0a}
   .vid-ui{height:var(--vidband);background:#100c0a}
   #vidTitle{position:static;flex:1.1;margin:0;text-shadow:none}
   .cast img{object-fit:cover;object-position:center 22%;height:22vh;max-height:180px}
@@ -446,7 +446,7 @@
 
 <div id="video" class="overlay" hidden>
   <img id="vidPoster" alt="" hidden>
-  <video id="vid" playsinline webkit-playsinline muted preload="none"></video>
+  <video id="vid" autoplay muted playsinline webkit-playsinline preload="auto"></video>
   <div class="vid-ui">
     <p id="vidTitle"></p>
     <button type="button" class="btn" id="btnVidReplay" hidden>Replay</button>
@@ -544,10 +544,10 @@ window.addEventListener('unhandledrejection', function (e) {
   function start() {
     document.documentElement.dataset.unlocked = "1";
     var s = document.createElement("script");
-    s.src = "story.js?v=18";
+    s.src = "story.js?v=19";
     s.onload = function () {
       var e = document.createElement("script");
-      e.src = "engine.js?v=18";
+      e.src = "engine.js?v=19";
       document.body.appendChild(e);
     };
     s.onerror = function () {
@@ -582,6 +582,58 @@ window.addEventListener('unhandledrejection', function (e) {
     for (var i = 0; i < a.length; i++) n |= a.charCodeAt(i) ^ b.charCodeAt(i);
     return n === 0;
   }
+  function sha256hex(ascii) {
+    function rr(n, x) { return (x >>> n) | (x << (32 - n)); }
+    var K = [0x428a2f98,0x71374491,0xb5c0fbcf,0xe9b5dba5,0x3956c25b,0x59f111f1,0x923f82a4,0xab1c5ed5,0xd807aa98,0x12835b01,0x243185be,0x550c7dc3,0x72be5d74,0x80deb1fe,0x9bdc06a7,0xc19bf174,0xe49b69c1,0xefbe4786,0x0fc19dc6,0x240ca1cc,0x2de92c6f,0x4a7484aa,0x5cb0a9dc,0x76f988da,0x983e5152,0xa831c66d,0xb00327c8,0xbf597fc7,0xc6e00bf3,0xd5a79147,0x06ca6351,0x14292967,0x27b70a85,0x2e1b2138,0x4d2c6dfc,0x53380d13,0x650a7354,0x766a0abb,0x81c2c92e,0x92722c85,0xa2bfe8a1,0xa81a664b,0xc24b8b70,0xc76c51a3,0xd192e819,0xd6990624,0xf40e3585,0x106aa070,0x19a4c116,0x1e376c08,0x2748774c,0x34b0bcb5,0x391c0cb3,0x4ed8aa4a,0x5b9cca4f,0x682e6ff3,0x748f82ee,0x78a5636f,0x84c87814,0x8cc70208,0x90befffa,0xa4506ceb,0xbef9a3f7,0xc67178f2];
+    var bytes = unescape(encodeURIComponent(ascii)), len = bytes.length, bits = len * 8, pad = ((len + 9 + 63) >> 6) << 6, w = new Uint8Array(pad), i;
+    for (i = 0; i < len; i++) w[i] = bytes.charCodeAt(i);
+    w[len] = 0x80;
+    var dv = new DataView(w.buffer);
+    dv.setUint32(pad - 4, bits >>> 0, false);
+    var H = [0x6a09e667,0xbb67ae85,0x3c6ef372,0xa54ff53a,0x510e527f,0x9b05688c,0x1f83d9ab,0x5be0cd19], W = new Uint32Array(64);
+    for (var off = 0; off < pad; off += 64) {
+      for (var t = 0; t < 16; t++) W[t] = dv.getUint32(off + t * 4, false);
+      for (t = 16; t < 64; t++) {
+        var s0 = rr(7, W[t - 15]) ^ rr(18, W[t - 15]) ^ (W[t - 15] >>> 3);
+        var s1 = rr(17, W[t - 2]) ^ rr(19, W[t - 2]) ^ (W[t - 2] >>> 10);
+        W[t] = (W[t - 16] + s0 + W[t - 7] + s1) >>> 0;
+      }
+      var a = H[0], b = H[1], c = H[2], d = H[3], e = H[4], f = H[5], g = H[6], h = H[7];
+      for (t = 0; t < 64; t++) {
+        var S1 = rr(6, e) ^ rr(11, e) ^ rr(25, e);
+        var ch = (e & f) ^ ((~e) & g);
+        var t1 = (h + S1 + ch + K[t] + W[t]) >>> 0;
+        var S0 = rr(2, a) ^ rr(13, a) ^ rr(22, a);
+        var maj = (a & b) ^ (a & c) ^ (b & c);
+        var t2 = (S0 + maj) >>> 0;
+        h = g; g = f; f = e; e = (d + t1) >>> 0; d = c; c = b; b = a; a = (t1 + t2) >>> 0;
+      }
+      H[0] = (H[0] + a) >>> 0; H[1] = (H[1] + b) >>> 0; H[2] = (H[2] + c) >>> 0; H[3] = (H[3] + d) >>> 0;
+      H[4] = (H[4] + e) >>> 0; H[5] = (H[5] + f) >>> 0; H[6] = (H[6] + g) >>> 0; H[7] = (H[7] + h) >>> 0;
+    }
+    var out = "";
+    for (i = 0; i < 8; i++) out += ("00000000" + H[i].toString(16)).slice(-8);
+    return out;
+  }
+  function passHash(text) {
+    try {
+      if (window.crypto && crypto.subtle && window.TextEncoder) {
+        return crypto.subtle.digest("SHA-256", new TextEncoder().encode(text)).then(hex).catch(function () { return sha256hex(text); });
+      }
+    } catch (e) {}
+    return Promise.resolve(sha256hex(text));
+  }
+  function pinScroll() {
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
+  document.addEventListener("focusout", function () {
+    pinScroll();
+    setTimeout(pinScroll, 60);
+    setTimeout(pinScroll, 200);
+    setTimeout(pinScroll, 400);
+  }, true);
   form.addEventListener("submit", function (ev) {
     ev.preventDefault();
     if (!age.checked) {
@@ -589,13 +641,14 @@ window.addEventListener('unhandledrejection', function (e) {
       err.textContent = "Confirm you are 18 or older.";
       return;
     }
-    crypto.subtle.digest("SHA-256", new TextEncoder().encode(SALT + pw.value)).then(function (buf) {
-      if (!same(hex(buf), HASH)) {
+    passHash(SALT + pw.value).then(function (got) {
+      if (!same(got, HASH)) {
         err.hidden = false;
         err.textContent = "That password is not right.";
         return;
       }
       try { localStorage.setItem(KEY, "1"); } catch (e) {}
+      try { sessionStorage.setItem(KEY, "1"); } catch (e2) {}
       err.hidden = true;
       pw.value = "";
       start();
