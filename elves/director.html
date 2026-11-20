@@ -23,10 +23,14 @@
   #layerA,#layerB{opacity:0;z-index:1;transform-origin:center 28%;will-change:opacity,transform}
   #poster{z-index:0}
   #veil{position:absolute;top:0;left:0;right:0;height:90px;z-index:5;pointer-events:none;background:linear-gradient(#100e0c, transparent)}
-  #dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 78px);z-index:30;display:flex;gap:8px;align-items:center;max-width:calc(100vw - 16px)}
-  #dock button,#dock a{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:rgba(16,12,10,.55);color:var(--gold);font:700 13px/1 system-ui;text-decoration:none;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  #dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 78px);z-index:30;display:flex;flex-direction:column;gap:6px;align-items:center;width:max-content;max-width:calc(100vw - 12px)}
+  #dock .row{display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap}
+  #dock button,#dock a{min-height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:rgba(16,12,10,.55);color:var(--gold);font:700 12px/1 system-ui;text-decoration:none;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  #dock button.on{background:linear-gradient(180deg,#f3ddb0,#c9964a);color:#24180c;border-color:transparent}
   #dock button:disabled{opacity:.4}
-  #dock a{font-size:12px;padding:0 10px}
+  #dock a{font-size:11px;padding:0 9px;opacity:.82}
+  #whisper{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 162px);z-index:29;margin:0;max-width:calc(100vw - 28px);text-align:center;color:var(--gold);font:italic 13px/1.3 Georgia,serif;text-shadow:0 1px 8px #000;opacity:0;pointer-events:none;transition:opacity .5s ease}
+  #whisper.on{opacity:1}
   #pill{position:fixed;z-index:28;left:50%;top:calc(env(safe-area-inset-top, 0px) + 68px);transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(16,12,10,.55);border:1px solid var(--line);color:var(--gold);font:700 12px/1 system-ui;letter-spacing:.06em}
   html:not([data-unlocked]) body > :not(#lock){display:none !important}
   #lock{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;justify-content:flex-end;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));background:#100e0c}
@@ -46,7 +50,7 @@
   <form id="lockForm" class="panel" autocomplete="off">
     <p style="letter-spacing:.16em;color:#e7c98a;font:800 12px/1 system-ui">18+</p>
     <h1>Director</h1>
-    <p>Aelith, emerald and gold. All characters are adults.</p>
+    <p>Aelith, Nyssa, and Lirael. All characters are adults.</p>
     <label class="age"><input type="checkbox" id="lockAge"> I am 18 or older</label>
     <label for="lockPw">Password</label>
     <div class="pwrow">
@@ -63,10 +67,15 @@
   <video id="layerB" muted autoplay playsinline webkit-playsinline preload="auto"></video>
   <div id="veil"></div>
 </div>
+<p id="whisper" aria-live="polite"></p>
 <nav id="dock" aria-label="Director">
-  <button type="button" id="poseBtn">Sit on bed</button>
-  <button type="button" id="smileBtn">Flirty smile</button>
-  <a href="index.html">Story</a>
+  <div class="row" id="rowWho">
+    <button type="button" data-who="aelith">Aelith</button>
+    <button type="button" data-who="nyssa">Nyssa</button>
+    <button type="button" data-who="lirael">Lirael</button>
+    <a href="index.html">Story</a>
+  </div>
+  <div class="row" id="rowDo"></div>
 </nav>
 <div id="pill" hidden></div>
 <div id="preload" hidden></div>
@@ -75,16 +84,54 @@
   var KEY = "kyle-stories-unlock";
   var SALT = "063edc75bd4b4e1301828dec7215c277";
   var HASH = "11b89436d8911e64c493f89db68f014d5ed19db80d319f78e92fab7f8179f6f9";
-  var CLIPS = {
-    stand: { src: "director/idle_stand.mp4?v=2", poster: "director/idle_stand_poster.jpg?v=2", loop: true, label: "Standing" },
-    sit: { src: "director/idle_sit.mp4?v=2", poster: "director/idle_sit_poster.jpg?v=2", loop: true, label: "Sitting" },
-    smile: { src: "director/action_smile.mp4?v=2", poster: "director/action_smile_poster.jpg?v=2", loop: false, label: "Flirty smile" }
+  var V = "3";
+  function clip(folder, file, loop, key, line) {
+    var base = "director/" + (folder ? folder + "/" : "") + file;
+    return { src: base + ".mp4?v=" + V, poster: base + "_poster.jpg?v=" + V, loop: loop, key: key, line: line };
+  }
+  var CAST = {
+    aelith: {
+      hello: "Emerald and gold, and the room is ours.",
+      poses: ["stand", "sit", "recline"],
+      actions: ["smile", "beckon"],
+      clips: {
+        stand: clip("", "idle_stand", true, "stand", "The night is still young. Come stand with me."),
+        sit: clip("", "idle_sit", true, "sit", "Sit. The bed remembers you."),
+        recline: clip("", "idle_recline", true, "recline", "Stay a little longer—the candles are still warm."),
+        smile: clip("", "action_smile", false, "smile", "There. That smile was only for you."),
+        beckon: clip("", "action_beckon", false, "beckon", "Closer... I wasn't finished looking at you.")
+      }
+    },
+    nyssa: {
+      hello: "The balcony was waiting for you.",
+      poses: ["stand", "sit"],
+      actions: ["smile"],
+      clips: {
+        stand: clip("nyssa", "idle_stand", true, "stand", "Moonlight finds me faster when you look."),
+        sit: clip("nyssa", "idle_sit", true, "sit", "The moonlight suits you better from here."),
+        smile: clip("nyssa", "action_smile", false, "smile", "Don't blink. This one is yours.")
+      }
+    },
+    lirael: {
+      hello: "I kept the lantern low for you.",
+      poses: ["stand", "sit"],
+      actions: ["smile"],
+      clips: {
+        stand: clip("lirael", "idle_stand", true, "stand", "I stepped into the light so you could find me."),
+        sit: clip("lirael", "idle_sit", true, "sit", "Sit close. The falls can wait."),
+        smile: clip("lirael", "action_smile", false, "smile", "You always know how to make me blush.")
+      }
+    }
   };
+  var LABELS = { stand: "Stand", sit: "Sit", recline: "Recline", smile: "Flirty smile", beckon: "Come closer" };
+  var who = "aelith";
   var pose = "stand";
+  var liveAction = "";
   var busy = false;
   var lastPick = 0;
   var front = 0;
   var token = 0;
+  var whisperTimer = 0;
   function $(id) { return document.getElementById(id); }
   function layer(i) { return $(i ? "layerB" : "layerA"); }
   function syncViewport() {
@@ -103,36 +150,59 @@
     setTimeout(syncViewport, 450);
     setTimeout(syncViewport, 800);
   }
-  function preload() {
+  function heroine() { return CAST[who]; }
+  function preload(id) {
     var box = $("preload");
-    Object.keys(CLIPS).forEach(function (k) {
-      var v = document.createElement("video");
-      v.muted = true;
-      v.playsInline = true;
-      v.preload = "auto";
-      v.setAttribute("playsinline", "");
-      v.setAttribute("webkit-playsinline", "");
-      v.src = CLIPS[k].src;
-      v.load();
-      box.appendChild(v);
-    });
-  }
-  function pill(text) {
-    var el = $("pill");
-    if (!text) { el.hidden = true; el.textContent = ""; return; }
-    el.hidden = false;
-    el.textContent = text;
-  }
-  function setMenu() {
-    var poseBtn = $("poseBtn");
-    var smileBtn = $("smileBtn");
-    if (poseBtn) {
-      poseBtn.textContent = pose === "sit" ? "Stand up" : "Sit on bed";
-      poseBtn.disabled = !!busy;
+    box.innerHTML = "";
+    function add(set) {
+      Object.keys(set.clips).forEach(function (k) {
+        var v = document.createElement("video");
+        v.muted = true;
+        v.playsInline = true;
+        v.preload = "auto";
+        v.setAttribute("playsinline", "");
+        v.setAttribute("webkit-playsinline", "");
+        v.src = set.clips[k].src;
+        v.load();
+        box.appendChild(v);
+      });
     }
-    if (smileBtn) smileBtn.disabled = !!busy;
+    add(CAST[id]);
+    setTimeout(function () {
+      Object.keys(CAST).forEach(function (name) { if (name !== id) add(CAST[name]); });
+    }, 40);
   }
-  function hideMenu() {}
+  function whisper(text) {
+    var el = $("whisper");
+    el.textContent = text || "";
+    el.classList.add("on");
+    clearTimeout(whisperTimer);
+    whisperTimer = setTimeout(function () { el.classList.remove("on"); }, 3500);
+  }
+  function paint() {
+    var buttons = $("rowWho").querySelectorAll("button");
+    for (var i = 0; i < buttons.length; i++) {
+      var on = buttons[i].getAttribute("data-who") === who;
+      buttons[i].classList.toggle("on", on);
+      buttons[i].disabled = !!busy;
+    }
+    var row = $("rowDo");
+    row.innerHTML = "";
+    var hero = heroine();
+    function make(key, kind) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = LABELS[key];
+      b.setAttribute("data-act", key);
+      b.setAttribute("data-kind", kind);
+      var active = kind === "pose" ? pose === key && !liveAction : liveAction === key;
+      b.classList.toggle("on", active);
+      b.disabled = !!busy;
+      row.appendChild(b);
+    }
+    hero.poses.forEach(function (key) { make(key, "pose"); });
+    hero.actions.forEach(function (key) { make(key, "action"); });
+  }
   function arm(el, clip) {
     el.muted = true;
     el.defaultMuted = true;
@@ -215,7 +285,13 @@
     var seam = kind === "seam";
     var ms = seam ? 200 : 750;
     var ease = seam ? "ease-out" : "cubic-bezier(0.22, 1, 0.36, 1)";
-    var glide = seam ? 0 : (clip === CLIPS.sit ? 1 : -1);
+    var glide = 0;
+    if (kind === "glide") {
+      var order = { stand: 0, sit: 1, recline: 2 };
+      var nextRank = order[clip.key] || 0;
+      var curRank = order[pose] || 0;
+      glide = nextRank >= curRank ? 1 : -1;
+    }
     opts = opts || {};
     $("poster").src = clip.poster;
     arm(next, clip);
@@ -243,29 +319,36 @@
       front = 1 - front;
     });
   }
-  function goIdle(which, hold) {
-    hideMenu();
+  function goPose(key, quiet) {
+    var clipNow = heroine().clips[key];
+    if (!clipNow) return Promise.resolve();
+    if (!quiet && pose === key && !liveAction) return Promise.resolve();
+    if (!quiet) whisper(clipNow.line);
     busy = true;
-    setMenu();
-    return crossfade(CLIPS[which], "glide").then(function () {
-      pose = which;
-      if (!hold) {
+    liveAction = "";
+    paint();
+    return crossfade(clipNow, "glide").then(function () {
+      pose = key;
+      if (!quiet) {
         busy = false;
-        pill(false);
+        paint();
       }
-      setMenu();
     });
   }
   function doAction(key) {
-    hideMenu();
+    var hero = heroine();
+    var clipNow = hero.clips[key];
+    if (!clipNow) return;
+    whisper(clipNow.line);
     busy = true;
-    setMenu();
-    pill(CLIPS[key].label);
-    var chain = pose === "sit" ? goIdle("stand", true) : Promise.resolve();
-    return chain.then(function () {
+    liveAction = key;
+    paint();
+    var chain = pose === "stand" ? Promise.resolve() : goPose("stand", true);
+    chain.then(function () {
       busy = true;
-      pill(CLIPS[key].label);
-      return crossfade(CLIPS[key], "seam", { fromStart: true });
+      liveAction = key;
+      paint();
+      return crossfade(clipNow, "seam", { fromStart: true });
     }).then(function () {
       var elToWatch = layer(front);
       return new Promise(function (resolve) {
@@ -274,35 +357,39 @@
         else elToWatch.addEventListener("ended", done);
         setTimeout(done, 8000);
       });
-    }).then(function () { return crossfade(CLIPS.stand, "seam", { fromStart: true }); }).then(function () {
+    }).then(function () {
+      return crossfade(hero.clips.stand, "seam", { fromStart: true });
+    }).then(function () {
       pose = "stand";
+      liveAction = "";
       busy = false;
-      pill(false);
-      setMenu();
+      paint();
     });
   }
-  function choose(key) {
-    var now = Date.now();
-    if (now - lastPick < 400) return;
-    lastPick = now;
-    if (busy) return;
-    if (key === "stand" || key === "sit") {
-      if (pose === key) { hideMenu(); return; }
-      goIdle(key);
-      return;
-    }
-    doAction(key);
+  function switchWho(id) {
+    if (!CAST[id] || (id === who && pose === "stand" && !liveAction)) return;
+    who = id;
+    pose = "stand";
+    liveAction = "";
+    whisper(CAST[id].hello);
+    preload(id);
+    busy = true;
+    paint();
+    crossfade(CAST[id].clips.stand, "cast", { fromStart: true }).then(function () {
+      busy = false;
+      paint();
+    });
   }
   function boot() {
     document.documentElement.dataset.unlocked = "1";
-    preload();
-    setMenu();
+    preload(who);
+    paint();
     syncViewport();
     document.addEventListener("focusout", pinAfterBlur, true);
     document.addEventListener("pointerup", function () {
-      var nodes = document.querySelectorAll("video");
+      var nodes = document.querySelectorAll("#layerA,#layerB");
       for (var i = 0; i < nodes.length; i++) {
-        if (nodes[i].paused && (nodes[i].currentSrc || nodes[i].getAttribute("src"))) {
+        if (nodes[i].paused && (nodes[i].currentSrc || nodes[i].getAttribute("src")) && parseFloat(getComputedStyle(nodes[i]).opacity) > 0.4) {
           var p = nodes[i].play();
           if (p && p.catch) p.catch(function () {});
         }
@@ -312,17 +399,23 @@
     window.addEventListener("orientationchange", syncViewport);
     window.addEventListener("pageshow", syncViewport);
     if (window.visualViewport) window.visualViewport.addEventListener("resize", syncViewport);
-    function onPose(e) {
-      if (e && e.cancelable) e.preventDefault();
-      choose(pose === "sit" ? "stand" : "sit");
-    }
-    function onSmile(e) {
-      if (e && e.cancelable) e.preventDefault();
-      choose("smile");
-    }
-    $("poseBtn").addEventListener("pointerup", onPose);
-    $("smileBtn").addEventListener("pointerup", onSmile);
-    crossfade(CLIPS.stand, "seam", { fromStart: true });
+    $("dock").addEventListener("pointerup", function (e) {
+      var btn = e.target.closest ? e.target.closest("button") : null;
+      if (!btn || btn.disabled) return;
+      if (e.cancelable) e.preventDefault();
+      var now = Date.now();
+      if (now - lastPick < 400) return;
+      lastPick = now;
+      if (busy) return;
+      var nextWho = btn.getAttribute("data-who");
+      if (nextWho) { switchWho(nextWho); return; }
+      var act = btn.getAttribute("data-act");
+      if (!act) return;
+      if (btn.getAttribute("data-kind") === "pose") goPose(act);
+      else doAction(act);
+    });
+    whisper(heroine().hello);
+    crossfade(heroine().clips.stand, "seam", { fromStart: true });
   }
   if (document.documentElement.dataset.unlocked === "1") { boot(); return; }
   var form = $("lockForm");
