@@ -189,9 +189,9 @@ const GAMES = [
   },
   {
     id: 'lumenspire',
-    name: 'ASHSPIRE',
+    name: 'EMBERFALL',
     subtitle: 'Climb the Burning Tower',
-    blurb: 'Knight, ranger or hexblade. Cut through ghouls, wraiths and cultists up a black tower, take their steel and face the Ashen Drake.',
+    blurb: 'Warrior, ranger or mage. Bullet-time battles against ghouls, wraiths and cultists up a burning tower. Take their steel and face the Ashen Drake.',
     href: './lumenspire/',
     accent: '#d9a35a',
     tag: 'DARK FANTASY RPG',
@@ -323,7 +323,7 @@ if (lastId) {
   const lines=[];
   if(voidBest) lines.push(`<div>VOIDBREAKER  ·  <b>${fmtTime(voidBest)}</b></div>`);
   if(siegeBest) lines.push(`<div>MOB SIEGE  ·  <b>Level ${siegeBest}</b></div>`);
-  if(spireBest) lines.push(`<div>ASHSPIRE  ·  <b>Floor ${spireBest}</b></div>`);
+  if(spireBest) lines.push(`<div>EMBERFALL  ·  <b>Floor ${spireBest}</b></div>`);
   if(valeLv) lines.push(`<div>GRAVENMOOR  ·  <b>Level ${valeLv}${valeBoss?' · King slain':''}</b></div>`);
   if(lines.length) html+=`<div class="bests">${lines.join('')}</div>`;
   box.innerHTML=html;
