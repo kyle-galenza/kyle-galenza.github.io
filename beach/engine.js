@@ -190,10 +190,112 @@
     img.dataset.key = name;
     img.src = withV(file);
   }
+  let loopToken = 0;
+  let loopCurrent = '';
+  let loopSlot = 0;
+  function hideLoops() {
+    loopToken += 1;
+    loopCurrent = '';
+    ['loopA', 'loopB', 'loopPoster'].forEach(function (id) {
+      const el = $(id);
+      if (!el) return;
+      el.classList.remove('on');
+    });
+  }
+  function loopFor(step) {
+    if (!D) return null;
+    if (step && step.video) {
+      const direct = videoMeta(step.video);
+      if (direct && direct.loop && shipSrc(direct)) return direct;
+    }
+    const key = lineSprite(step);
+    const ref = key && D.LOOP_FOR && D.LOOP_FOR[key];
+    if (!ref) return null;
+    const meta = videoMeta(ref);
+    if (meta && meta.loop && shipSrc(meta)) return meta;
+    return null;
+  }
+  function armLoop(el) {
+    if (!el) return;
+    el.muted = true;
+    el.defaultMuted = true;
+    el.loop = true;
+    el.autoplay = true;
+    el.playsInline = true;
+    el.preload = 'auto';
+    el.playbackRate = 1;
+    el.setAttribute('muted', '');
+    el.setAttribute('playsinline', '');
+    el.setAttribute('webkit-playsinline', '');
+    el.setAttribute('loop', '');
+  }
+  function showLoop(src, poster) {
+    if (!src) { hideLoops(); return; }
+    if (src === loopCurrent) {
+      const live = $(loopSlot === 1 ? 'loopB' : 'loopA');
+      if (live && live.paused) {
+        const p = live.play();
+        if (p && p.catch) p.catch(function () {});
+      }
+      return;
+    }
+    loopCurrent = src;
+    const token = ++loopToken;
+    const posterEl = $('loopPoster');
+    if (posterEl && poster) {
+      const url = withV(poster);
+      if (posterEl.getAttribute('src') !== url) posterEl.src = url;
+      posterEl.classList.add('on');
+    }
+    const nextId = loopSlot === 0 ? 'loopB' : 'loopA';
+    const prevId = loopSlot === 0 ? 'loopA' : 'loopB';
+    const next = $(nextId);
+    const prev = $(prevId);
+    if (!next) return;
+    armLoop(next);
+    if (poster) next.poster = withV(poster);
+    let shown = false;
+    const reveal = function () {
+      if (shown || token !== loopToken || next.readyState < 2) return;
+      shown = true;
+      next.playbackRate = 1;
+      next.style.zIndex = '3';
+      if (prev) prev.style.zIndex = '2';
+      next.classList.add('on');
+      if (prev) prev.classList.remove('on');
+      loopSlot = loopSlot === 0 ? 1 : 0;
+      setTimeout(function () {
+        if (token !== loopToken) return;
+        if (posterEl) posterEl.classList.remove('on');
+        if (prev && prev !== next) { try { prev.pause(); } catch (e) {} }
+      }, 260);
+    };
+    const kick = function () {
+      if (token !== loopToken || next.readyState < 2) return;
+      const p = next.play();
+      if (p && p.then) p.then(reveal).catch(function () {});
+      else reveal();
+    };
+    if (next.dataset.src !== src) {
+      next.dataset.src = src;
+      next.oncanplay = null;
+      next.src = withV(src);
+      if (next.readyState >= 2) kick();
+      else next.oncanplay = kick;
+    } else kick();
+  }
   function setVisual(step) {
     if (step && step.bg) setBg(step.bg);
     else if (state && state.play && state.play.bg) setBg(state.play.bg);
+    const loop = loopFor(step);
     const cg = $('cgImg');
+    if (loop) {
+      if (cg) cg.hidden = true;
+      showLoop(shipSrc(loop), posterOf(loop) || loop.still || '');
+      document.body.classList.toggle('fade-out', !!(step && step.fade));
+      return;
+    }
+    hideLoops();
     const key = lineSprite(step);
     const src = resolveSprite(key);
     if (!cg) return;
@@ -236,6 +338,7 @@
     document.body.dataset.screen = name;
     document.body.classList.remove('fade-out');
     document.body.classList.remove('choosing');
+    if (name !== 'scene') hideLoops();
     resetScroll();
   }
   function overlayName() { return document.body.dataset.overlay || ''; }
@@ -848,11 +951,11 @@
     v.setAttribute('muted', '');
     v.preload = 'auto';
     v.controls = false;
-    v.loop = false;
+    v.loop = !!(vmeta && vmeta.loop);
     v.playbackRate = 1;
     v.disablePictureInPicture = true;
     v.setAttribute('disablepictureinpicture', '');
-    const pos = (vmeta && vmeta.pos) || 'center 22%';
+    const pos = (vmeta && vmeta.pos) || 'center 20%';
     v.style.objectFit = 'cover';
     v.style.objectPosition = pos;
     const posterEl = $('vidPoster');
@@ -903,34 +1006,22 @@
     if (p && p.catch) p.catch(function () {});
   }
   function playVideoStep(step) {
-    const vmeta = videoMeta(step.video);
-    const src = shipSrc(vmeta);
-    const who = step.who;
-    const aff = (state && state.aff && who && state.aff[who]) || 0;
-    const gated = step.minAff != null && aff < step.minAff;
-    if (!src || gated) {
-      if (step.fallback) {
-        showSay({
-          op: 'say',
-          id: (step.id || 'vid') + '_still',
-          who: step.who || 'narr',
-          sprite: step.sprite || '',
-          text: step.fallback,
-          fade: step.fade,
-          bg: step.bg
-        });
-        return;
-      }
-      stepIndex += 1;
-      present();
+    if (step.fallback) {
+      showSay({
+        op: 'say',
+        id: (step.id || 'vid') + '_line',
+        who: step.who || 'narr',
+        sprite: step.sprite || '',
+        text: step.fallback,
+        video: step.video,
+        fade: step.fade,
+        bg: step.bg
+      });
       return;
     }
-    if (step.sprite) setVisual(step);
-    openVideo(vmeta, src, function () {
-      stepIndex += 1;
-      if (state && state.play) state.play.step = stepIndex;
-      setTimeout(function () { present(); }, 0);
-    });
+    setVisual(step);
+    stepIndex += 1;
+    present();
   }
 
   function renderWardrobe() {
@@ -1061,20 +1152,41 @@
     const stage = $('viewStage');
     stage.classList.remove('full');
     stage.innerHTML = '';
-    const src = resolveSprite(g.sprite);
-    if (src) {
-      const img = document.createElement('img');
-      img.alt = g.title;
-      img.decoding = 'async';
-      img.src = withV(src);
-      img.addEventListener('click', function () { stage.classList.toggle('full'); });
-      stage.appendChild(img);
+    const vmeta = g.video ? videoMeta(g.video) : null;
+    const vsrc = shipSrc(vmeta);
+    if (vmeta && vmeta.loop && vsrc) {
+      const v = document.createElement('video');
+      v.muted = true;
+      v.defaultMuted = true;
+      v.loop = true;
+      v.autoplay = true;
+      v.playsInline = true;
+      v.preload = 'auto';
+      v.playbackRate = 1;
+      v.setAttribute('muted', '');
+      v.setAttribute('playsinline', '');
+      v.setAttribute('webkit-playsinline', '');
+      v.setAttribute('loop', '');
+      v.poster = withV(posterOf(vmeta) || vmeta.still || '');
+      v.src = withV(vsrc);
+      v.addEventListener('click', function () { stage.classList.toggle('full'); });
+      const p = v.play();
+      if (p && p.catch) p.catch(function () {});
+      stage.appendChild(v);
+    } else {
+      const src = resolveSprite(g.sprite);
+      if (src) {
+        const img = document.createElement('img');
+        img.alt = g.title;
+        img.decoding = 'async';
+        img.src = withV(src);
+        img.addEventListener('click', function () { stage.classList.toggle('full'); });
+        stage.appendChild(img);
+      }
     }
     $('viewTitle').textContent = g.title;
     $('viewCaption').textContent = g.caption || '';
     const play = $('viewPlay');
-    const vmeta = g.video ? videoMeta(g.video) : null;
-    const vsrc = shipSrc(vmeta);
     play.hidden = !vsrc;
     play.onclick = function () {
       if (!vsrc) return;
