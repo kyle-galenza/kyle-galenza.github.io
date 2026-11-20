@@ -59,14 +59,10 @@
   }
   function saveMeta() { saveJSON(META_KEY, meta); }
   function saveSettings() { saveJSON(SET_KEY, settings); }
-  function settleViewport() {
-    const vv = window.visualViewport;
-    const h = Math.max(1, Math.round((vv && vv.height) || window.innerHeight || 0));
-    const root = document.documentElement;
-    root.style.setProperty('--app-h', h + 'px');
-    root.style.setProperty('--dock', Math.max(72, Math.round(h * 0.15)) + 'px');
-    root.style.setProperty('--vidband', Math.max(88, Math.round(h * 0.2)) + 'px');
-    if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+  function resetScroll() {
+    var vv = window.visualViewport;
+    var shifted = vv && (vv.offsetTop || vv.offsetLeft);
+    if (window.scrollX || window.scrollY || shifted) window.scrollTo(0, 0);
   }
   function withV(src) {
     if (!src) return '';
@@ -240,7 +236,7 @@
     document.body.dataset.screen = name;
     document.body.classList.remove('fade-out');
     document.body.classList.remove('choosing');
-    settleViewport();
+    resetScroll();
   }
   function overlayName() { return document.body.dataset.overlay || ''; }
   function showOverlay(name) {
@@ -1278,7 +1274,7 @@
   function submitName() {
     const input = $('nameInput');
     if (input && input.blur) input.blur();
-    settleViewport();
+    resetScroll();
     newGame(input ? input.value : 'Kai');
   }
   function onEsc() {
@@ -1514,12 +1510,12 @@
     const q = new URLSearchParams(location.search).get('speed');
     if (q != null && q !== '') settings.speed = Math.max(0, Math.min(3, +q || 0));
     bind();
-    settleViewport();
-    window.addEventListener('resize', settleViewport);
-    window.addEventListener('orientationchange', settleViewport);
+    resetScroll();
+    window.addEventListener('resize', resetScroll);
+    window.addEventListener('orientationchange', resetScroll);
     if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', settleViewport);
-      window.visualViewport.addEventListener('scroll', settleViewport);
+      window.visualViewport.addEventListener('resize', resetScroll);
+      window.visualViewport.addEventListener('scroll', resetScroll);
     }
     syncSetButtons();
     const problems = selfCheck();
