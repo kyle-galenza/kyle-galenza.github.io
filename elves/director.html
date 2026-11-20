@@ -72,9 +72,7 @@
   var CLIPS = {
     stand: { src: "director/idle_stand.mp4", poster: "director/idle_stand_poster.jpg", loop: true, label: "Standing" },
     sit: { src: "director/idle_sit.mp4", poster: "director/idle_sit_poster.jpg", loop: true, label: "Sitting" },
-    closer: { src: "director/action_closer.mp4", poster: "director/action_closer_poster.jpg", loop: false, label: "Lean in" },
-    stretch: { src: "director/action_stretch.mp4", poster: "director/action_stretch_poster.jpg", loop: false, label: "Stretch" },
-    bow: { src: "director/action_bow.mp4", poster: "director/action_bow_poster.jpg", loop: false, label: "Royal curtsy" }
+    stretch: { src: "director/action_stretch.mp4", poster: "director/action_stretch_poster.jpg", loop: false, label: "Stretch" }
   };
   var pose = "stand";
   var busy = false;
@@ -110,8 +108,8 @@
     var menu = $("dirMenu");
     if (menu.hidden) return;
     var items = pose === "sit"
-      ? [["stand", "Stand up"], ["closer", "Lean in"], ["stretch", "Stretch"], ["bow", "Royal curtsy"]]
-      : [["sit", "Sit on bed"], ["closer", "Lean in"], ["stretch", "Stretch"], ["bow", "Royal curtsy"]];
+      ? [["stand", "Stand up"], ["stretch", "Stretch"]]
+      : [["sit", "Sit on bed"], ["stretch", "Stretch"]];
     menu.innerHTML = "";
     items.forEach(function (pair) {
       var b = document.createElement("button");
