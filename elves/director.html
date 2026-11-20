@@ -12,13 +12,13 @@
 <style>
   :root{--gold:#e7c98a;--line:rgba(231,201,138,.4)}
   *{box-sizing:border-box}
-  html,body{margin:0;padding:0;width:100%;height:100%;height:100dvh;background:#100e0c}
+  html,body{margin:0;padding:0;width:100%;height:100%;height:-webkit-fill-available;height:100svh;height:100dvh;background:#100e0c}
   html{overflow:hidden}
   body{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none;color:#f6f1e6;font:500 16px/1.4 system-ui,-apple-system,sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
   input{font-size:16px}
   button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
   [hidden]{display:none !important}
-  #stage{position:fixed;inset:0;width:100%;height:100%;height:100dvh;overflow:hidden;background:#100e0c}
+  #stage{position:fixed;top:0;right:0;bottom:0;left:0;width:auto;height:auto;overflow:hidden;background:#100e0c}
   #media{position:absolute;top:0;left:0;right:0;bottom:var(--band,128px);overflow:hidden;--zoom:1.4;--lift:-4%}
   #media[data-who="nyssa"]{--zoom:1.52;--lift:-12%}
   #media[data-who="lirael"]{--zoom:1.58;--lift:-16%}
@@ -27,7 +27,7 @@
   #layerA,#layerB{opacity:0;z-index:1;transform-origin:center top;will-change:opacity,transform}
   #poster{z-index:0}
   #veil{position:absolute;left:0;right:0;bottom:0;height:14%;z-index:5;pointer-events:none;background:linear-gradient(transparent, rgba(16,14,12,.45))}
-  #band{position:absolute;left:0;right:0;bottom:0;z-index:6;background:#100e0c;padding:6px 8px calc(max(env(safe-area-inset-bottom, 0px), 8px) + 6px)}
+  #band{position:absolute;left:0;right:0;bottom:0;z-index:6;margin:0;background:#100e0c;padding:4px 8px calc(max(env(safe-area-inset-bottom, 0px), 8px) + 4px)}
   #dock{position:relative;left:auto;transform:none;bottom:auto;z-index:6;display:flex;flex-direction:column;gap:6px;align-items:stretch;width:100%;max-width:100%}
   #dock .row{display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap}
   #rowWho{align-self:center;width:auto;max-width:100%}
@@ -438,10 +438,10 @@
         }
       }
     }, true);
-    window.addEventListener("resize", syncViewport);
+    window.addEventListener("resize", function () { syncViewport(); syncBand(); });
     window.addEventListener("orientationchange", syncViewport);
-    window.addEventListener("pageshow", syncViewport);
-    if (window.visualViewport) window.visualViewport.addEventListener("resize", syncViewport);
+    window.addEventListener("pageshow", function () { syncViewport(); syncBand(); });
+    if (window.visualViewport) window.visualViewport.addEventListener("resize", function () { syncViewport(); syncBand(); });
     var pressX = 0;
     $("dock").addEventListener("pointerdown", function (e) { pressX = e.clientX || 0; });
     $("dock").addEventListener("pointerup", function (e) {

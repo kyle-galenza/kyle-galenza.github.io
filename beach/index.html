@@ -158,24 +158,24 @@
     .btn:active,.choice:active,.place:active{transform:none}
   }
   :root{--topbar:0px;--dock:15%;--vidband:20%;--side:42vw;--band:0px;--zoom:1.32;--lift:-4%}
-  html,body{margin:0;padding:0;width:100%;min-height:100%;height:100%;height:100dvh}
+  html,body{margin:0;padding:0;width:100%;height:100%;height:-webkit-fill-available;height:100svh;height:100dvh}
   html{overflow:hidden}
-  body{position:relative;overflow:hidden;overscroll-behavior:none}
-  #stage,#scene{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
-  #stage{top:0;left:0;right:0;bottom:var(--band,0px);height:auto}
+  body{position:fixed;inset:0;overflow:hidden;overscroll-behavior:none}
+  #stage,#scene{position:fixed;top:0;right:0;bottom:0;left:0;width:auto;height:auto;overflow:hidden}
+  #stage{bottom:var(--band,0px)}
   .meters,#mapActions,#hud{display:none !important}
   #toast,body[data-screen="scene"] #toast,body[data-screen="map"] #toast,body[data-screen="ending"] #toast,body[data-screen="title"] #toast{top:calc(8px + env(safe-area-inset-top));bottom:auto;max-width:min(280px,70vw)}
   body.choosing #toast{bottom:auto;top:calc(8px + env(safe-area-inset-top));max-width:min(240px,68vw)}
   #vidTitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .vid-ui{overflow:hidden}
-  #btnPeek{position:fixed;z-index:30;top:auto;left:auto;right:calc(4px + env(safe-area-inset-right));bottom:calc(3px + env(safe-area-inset-bottom));width:22px;height:16px;min-height:16px;padding:0;border-radius:999px;border:1px solid var(--line);background:#0b2430;color:var(--gold);font:800 10px/1 system-ui;opacity:.85}
+  #btnPeek{position:fixed;z-index:40;top:auto;left:auto;right:8px;bottom:calc(max(env(safe-area-inset-bottom, 0px), 8px) + 2px);width:22px;height:16px;min-height:16px;padding:0;border-radius:999px;border:1px solid var(--line);background:#0b2430;color:var(--gold);font:800 10px/1 system-ui;opacity:.85}
   #nameplate{margin:0 4px 0 0;padding:0;gap:4px}
   #speaker{font-size:12px;line-height:1.05}
   #role{font-size:10px}
   #line{font-size:13px;line-height:1.2}
   #lineWrap{flex:1 1 auto;min-height:0;max-height:100%;padding-right:78px}
   #line{min-height:0}
-  #btnAdvance{min-height:22px;min-width:0;height:22px;padding:0 8px;font-size:11px;bottom:2px;right:28px}
+  #btnAdvance{min-height:22px;min-width:0;height:22px;padding:0 8px;font-size:11px;bottom:2px;right:36px}
   .choice{min-height:32px;font-size:13px;line-height:1.15;padding:3px 10px;width:100%;max-width:none;flex:0 0 auto;text-align:left;border-radius:8px}
   #choices{flex-direction:column;flex-wrap:nowrap;align-items:stretch;overflow-x:hidden;overflow-y:auto;gap:4px}
   .dlg{gap:1px;padding:3px 8px 3px;min-height:0;max-height:100%}
@@ -184,7 +184,7 @@
   body:not([data-screen="scene"]):not([data-screen="map"]) #btnPeek{visibility:hidden;pointer-events:none}
   #loops{left:0;right:0;top:0;bottom:0;width:100%;height:100%}
   #bgImg,#cgImg,#loops video,#loopPoster{left:0;right:0;top:0;bottom:0;width:100%;height:100%;object-fit:cover;object-position:center top;transform:translateY(var(--lift)) scale(var(--zoom));transform-origin:center top}
-  #box{position:absolute;left:0;right:0;bottom:0;min-height:0;height:auto;max-height:none;z-index:8;padding:6px 8px calc(max(env(safe-area-inset-bottom, 0px), 8px) + 6px);overflow:visible;background:#071820;border-radius:16px 16px 0 0}
+  #box{position:absolute;left:0;right:0;bottom:0;min-height:0;height:auto;max-height:none;z-index:8;margin:0;padding:4px 8px calc(max(env(safe-area-inset-bottom, 0px), 8px) + 4px);overflow:visible;background:#071820;border-radius:16px 16px 0 0}
   body.choosing #box{height:auto;min-height:0;max-height:62%;overflow:auto;background:#071820}
   .dlg{height:auto;max-height:100%;overflow:hidden}
   body.choosing .dlg{height:auto;max-height:34dvh;overflow:hidden;background:transparent}
@@ -500,7 +500,7 @@ window.addEventListener('error', function (e) {
     s.src = "story.js?v=16";
     s.onload = function () {
       var e = document.createElement("script");
-      e.src = "engine.js?v=16";
+      e.src = "engine.js?v=17";
       document.body.appendChild(e);
     };
     s.onerror = function () {

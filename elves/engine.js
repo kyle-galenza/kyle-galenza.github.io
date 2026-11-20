@@ -83,8 +83,6 @@
     const active = document.activeElement;
     const typing = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
     if (!typing) {
-      const vh = Math.max(window.innerHeight || 0, window.visualViewport ? Math.round(window.visualViewport.height) : 0);
-      if (vh > 0) document.documentElement.style.setProperty('--app-h', vh + 'px');
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
@@ -1854,10 +1852,10 @@
     document.addEventListener('focusout', pinAfterBlur, true);
     document.addEventListener('pointerup', nudgeVideos, true);
     document.addEventListener('click', nudgeVideos, true);
-    window.addEventListener('resize', syncViewport);
+    window.addEventListener('resize', function () { syncViewport(); syncBand(); });
     window.addEventListener('orientationchange', syncViewport);
-    window.addEventListener('pageshow', syncViewport);
-    if (window.visualViewport) window.visualViewport.addEventListener('resize', syncViewport);
+    window.addEventListener('pageshow', function () { syncViewport(); syncBand(); });
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', function () { syncViewport(); syncBand(); });
     syncSetButtons();
     const problems = selfCheck();
     if (problems.length) showCrash(problems.join('\n'));
