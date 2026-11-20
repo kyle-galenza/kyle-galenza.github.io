@@ -190,6 +190,7 @@
     const fig = $('figure');
     const key = lineSprite(step);
     if (!fig) return;
+    document.body.classList.toggle('aelith-night', !!(key && key.indexOf('aelith.night') === 0));
     if (!key) {
       fig.classList.add('quiet');
       fig.classList.remove('cg');

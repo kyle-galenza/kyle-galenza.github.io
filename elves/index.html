@@ -204,6 +204,8 @@
   #vidTitle{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .vid-ui{overflow:hidden}
   #btnPeek{position:fixed;z-index:30;top:auto;left:auto;right:calc(4px + env(safe-area-inset-right));bottom:calc(3px + env(safe-area-inset-bottom));width:22px;height:16px;min-height:16px;padding:0;border-radius:999px;border:1px solid var(--line);background:#1a1612;color:var(--gold);font:800 10px/1 system-ui;opacity:.85}
+  #dirLink{display:none;position:fixed;z-index:40;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));width:42px;height:42px;min-height:42px;border-radius:50%;align-items:center;justify-content:center;background:rgba(16,12,10,.4);border:1px solid rgba(231,201,138,.4);color:var(--gold);text-decoration:none;font:700 18px/1 Georgia,serif;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
+  body[data-screen="title"] #dirLink,body.aelith-night #dirLink{display:flex}
   #nameplate{margin:0 4px 0 0;padding:0 6px;gap:4px}
   #speaker{font-size:12px;line-height:1.05}
   #role{font-size:10px}
@@ -281,6 +283,7 @@
   </form>
 </section>
 <button type="button" id="btnPeek" aria-label="Menu">···</button>
+<a id="dirLink" href="director.html" aria-label="Director">✦</a>
 <div id="bg" class="bg gate"></div>
 <div id="fade"></div>
 <div id="toast" role="status"></div>
@@ -541,10 +544,10 @@ window.addEventListener('unhandledrejection', function (e) {
   function start() {
     document.documentElement.dataset.unlocked = "1";
     var s = document.createElement("script");
-    s.src = "story.js?v=17";
+    s.src = "story.js?v=18";
     s.onload = function () {
       var e = document.createElement("script");
-      e.src = "engine.js?v=17";
+      e.src = "engine.js?v=18";
       document.body.appendChild(e);
     };
     s.onerror = function () {
