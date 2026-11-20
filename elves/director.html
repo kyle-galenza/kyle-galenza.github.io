@@ -23,9 +23,10 @@
   #layerA,#layerB{opacity:0;z-index:1;transform-origin:center 28%;will-change:opacity,transform}
   #poster{z-index:0}
   #veil{position:absolute;top:0;left:0;right:0;height:90px;z-index:5;pointer-events:none;background:linear-gradient(#100e0c, transparent)}
-  #dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 78px);z-index:30;display:flex;flex-direction:column;gap:6px;align-items:center;width:calc(100vw - 12px);max-width:calc(100vw - 12px)}
+  #dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 78px);z-index:30;display:flex;flex-direction:column;gap:6px;align-items:stretch;width:calc(100vw - 12px);max-width:calc(100vw - 12px)}
   #dock .row{display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap}
-  #rowDo{width:100%;max-width:100%;justify-content:flex-start;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x}
+  #rowWho{align-self:center;width:auto;max-width:100%}
+  #dock #rowDo{min-width:0;width:100%;justify-content:flex-start;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x}
   #rowDo::-webkit-scrollbar{display:none}
   #rowDo button{flex:0 0 auto}
   #dock button,#dock a{min-height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:rgba(16,12,10,.55);color:var(--gold);font:700 12px/1 system-ui;text-decoration:none;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
