@@ -394,19 +394,50 @@
     var on = scene && !scene.hidden && document.body.dataset.screen === 'scene' && box;
     var h = on ? box.offsetHeight : 0;
     document.documentElement.style.setProperty('--band', (h || 0) + 'px');
+    if (window.requestAnimationFrame) requestAnimationFrame(layoutLoops);
+  }
+  var SUBJECT = {
+    aurelia: { h: 0.02, t: 0.62, w: 720, ih: 1280 },
+    mika: { h: 0.05, t: 0.68, w: 720, ih: 1280 },
+    celeste: { h: 0.04, t: 0.66, w: 720, ih: 1280 },
+    sable: { h: 0.04, t: 0.66, w: 720, ih: 1280 }
+  };
+  function layoutLoops() {
+    var box = $('loops');
+    var stage = $('stage');
+    if (!box || !stage || !box.dataset.head) return;
+    var head = parseFloat(box.dataset.head);
+    var thigh = parseFloat(box.dataset.thigh);
+    if (thigh < head + 0.42) thigh = head + 0.5;
+    var iw = parseFloat(box.dataset.iw || '720');
+    var ih = parseFloat(box.dataset.ih || '1280');
+    var r = stage.getBoundingClientRect();
+    var bw = r.width, bh = r.height;
+    if (bh < 40) return;
+    var s0 = Math.max(bw / iw, bh / ih);
+    var rh = ih * s0;
+    var p = (0.045 * bh - head * rh) / (bh - rh);
+    if (!isFinite(p)) p = head;
+    var headY = (bh - rh) * p + head * rh;
+    if (headY < 0.02 * bh) p = (0.03 * bh - head * rh) / (bh - rh);
+    if (p < 0) p = 0;
+    if (p > 1) p = 1;
+    box.style.setProperty('--fy', (p * 100).toFixed(2) + '%');
   }
   function applyFocus(who) {
-    var stage = $('stage');
-    if (!stage) return;
-    var map = {
-      aurelia: ['1.42', '-4%'],
-      mika: ['1.38', '-6%'],
-      celeste: ['1.3', '-4%'],
-      sable: ['1.32', '-5%']
-    };
-    var f = map[who] || ['1.28', '-3%'];
-    stage.style.setProperty('--zoom', f[0]);
-    stage.style.setProperty('--lift', f[1]);
+    var box = $('loops');
+    if (!box) return;
+    var s = SUBJECT[who];
+    if (!s) {
+      box.style.setProperty('--fy', '32%');
+      delete box.dataset.head;
+      return;
+    }
+    box.dataset.head = s.h;
+    box.dataset.thigh = s.t;
+    box.dataset.iw = s.w;
+    box.dataset.ih = s.ih;
+    layoutLoops();
   }
   function overlayName() { return document.body.dataset.overlay || ''; }
   function showOverlay(name) {

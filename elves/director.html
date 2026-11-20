@@ -19,11 +19,9 @@
   button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
   [hidden]{display:none !important}
   #stage{position:fixed;top:0;right:0;bottom:0;left:0;width:auto;height:auto;overflow:hidden;background:#100e0c}
-  #media{position:absolute;top:0;left:0;right:0;bottom:var(--band,128px);overflow:hidden;--zoom:1.4;--lift:-4%}
-  #media[data-who="nyssa"]{--zoom:1.52;--lift:-12%}
-  #media[data-who="lirael"]{--zoom:1.58;--lift:-16%}
-  #fit{position:absolute;inset:0;transform:translateY(var(--lift)) scale(var(--zoom));transform-origin:center top}
-  #poster,#layerA,#layerB{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;background:#100e0c}
+  #media{position:absolute;top:0;left:0;right:0;bottom:var(--band,128px);overflow:hidden}
+  #fit{position:absolute;inset:0}
+  #poster,#layerA,#layerB{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center var(--fy, 16%);background:#100e0c}
   #layerA,#layerB{opacity:0;z-index:1;transform-origin:center top;will-change:opacity,transform}
   #poster{z-index:0}
   #veil{position:absolute;left:0;right:0;bottom:0;height:14%;z-index:5;pointer-events:none;background:linear-gradient(transparent, rgba(16,14,12,.45))}
@@ -396,14 +394,45 @@
       paint();
     });
   }
+  var SUBJECT = {
+    aelith: { h: 0.069, t: 0.62 },
+    nyssa: { h: 0.188, t: 0.68 },
+    lirael: { h: 0.306, t: 0.72 }
+  };
+  function layoutMedia() {
+    var media = document.getElementById("media");
+    if (!media || !media.dataset.head) return;
+    var head = parseFloat(media.dataset.head);
+    var thigh = parseFloat(media.dataset.thigh);
+    if (thigh < head + 0.42) thigh = head + 0.5;
+    var iw = 720, ih = 1280;
+    var r = media.getBoundingClientRect();
+    var bw = r.width, bh = r.height;
+    if (bh < 40) return;
+    var s0 = Math.max(bw / iw, bh / ih);
+    var rh = ih * s0;
+    var p = (0.045 * bh - head * rh) / (bh - rh);
+    if (!isFinite(p)) p = head;
+    var headY = (bh - rh) * p + head * rh;
+    if (headY < 0.02 * bh) p = (0.03 * bh - head * rh) / (bh - rh);
+    if (p < 0) p = 0;
+    if (p > 1) p = 1;
+    media.style.setProperty("--fy", (p * 100).toFixed(2) + "%");
+  }
   function applyFocus() {
     var media = document.getElementById("media");
-    if (media) media.setAttribute("data-who", who);
+    if (!media) return;
+    media.setAttribute("data-who", who);
+    var s = SUBJECT[who] || SUBJECT.aelith;
+    media.dataset.head = s.h;
+    media.dataset.thigh = s.t;
+    layoutMedia();
   }
   function syncBand() {
     var band = document.getElementById("band");
     if (!band) return;
     document.documentElement.style.setProperty("--band", band.offsetHeight + "px");
+    if (window.requestAnimationFrame) requestAnimationFrame(layoutMedia);
   }
   function switchWho(id) {
     if (!CAST[id] || (id === who && pose === "stand" && !liveAction)) return;

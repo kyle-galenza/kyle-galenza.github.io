@@ -23,9 +23,9 @@
   button{cursor:pointer;touch-action:manipulation}
   [hidden]{display:none !important}
   #stage{position:fixed;top:0;right:0;bottom:0;left:0;width:auto;height:auto;overflow:hidden;background:#07040e}
-  #media{position:absolute;top:0;left:0;right:0;bottom:var(--band,96px);overflow:hidden;--zoom:1.4;--lift:0%}
-  #fit{position:absolute;inset:0;transform:translateY(var(--lift)) scale(var(--zoom));transform-origin:center top}
-  #poster,#layerA,#layerB,#still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center top;background:#07040e}
+  #media{position:absolute;top:0;left:0;right:0;bottom:var(--band,96px);overflow:hidden}
+  #fit{position:absolute;inset:0}
+  #poster,#layerA,#layerB,#still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center var(--fy, 18%);background:#07040e}
   #veil{position:absolute;left:0;right:0;bottom:0;height:16%;z-index:5;pointer-events:none;background:linear-gradient(transparent, rgba(7,4,14,.5))}
   #layerA,#layerB,#still{opacity:0;transition:opacity .3s ease}
   #still{z-index:4}
@@ -152,7 +152,11 @@
   }
   var WARDROBE = {
     kael: {
-      a: { name: "Crimson Signature", clips: [ward("kael", "a_hairwhip", "Hairwhip", "Keep up, hero.")] },
+      a: { name: "Crimson Signature", clips: [
+        ward("kael", "a_hairwhip", "Hair whip", "Keep up, hero."),
+        ward("kael", "a_halfspin", "Half spin", "Take a good look."),
+        ward("kael", "a_behind", "From behind", "Caught you looking.")
+      ] },
       b: { name: "Neon Couture", clips: [ward("kael", "b_lean", "Lean", "Closer. I don't bite... much."), ward("kael", "b_shimmy", "Shimmy", "Like the view?")] },
       c: { name: "After Hours", clips: [ward("kael", "c_tease", "Tease", "Night's still young.")] }
     },
@@ -301,6 +305,7 @@
     var hud = $("hud");
     if (!hud) return;
     document.documentElement.style.setProperty("--band", hud.offsetHeight + "px");
+    if (window.requestAnimationFrame) requestAnimationFrame(function () { layoutMedia($("media")); });
   }
   if (window.ResizeObserver && $("hud")) new ResizeObserver(syncBand).observe($("hud"));
   syncBand();
@@ -394,34 +399,55 @@
     for (var i = 0; i < set.clips.length; i++) if (set.clips[i].id === wear[girl].clip) return set.clips[i];
     return set.clips[0];
   }
-  var FOCUS = {
-    kael: { zoom: "1.42", lift: "-6%" },
-    lyra: { zoom: "1.4", lift: "-7%" },
-    sera: { zoom: "1.18", lift: "0%" },
-    vesper: { zoom: "1.5", lift: "-9%" }
+  var SUBJECT = {
+    "kael:a_hairwhip": { h: 0.234, t: 0.72 },
+    "kael:a_halfspin": { h: 0.356, t: 0.78 },
+    "kael:a_behind": { h: 0.328, t: 0.78 },
+    "kael:b_lean": { h: 0.241, t: 0.74 },
+    "kael:b_shimmy": { h: 0.241, t: 0.74 },
+    "kael:c_tease": { h: 0.066, t: 0.62 },
+    "lyra:a_sway": { h: 0.206, t: 0.74 },
+    "lyra:b_lean": { h: 0.188, t: 0.74 },
+    "lyra:c_sway": { h: 0.312, t: 0.72 },
+    "sera:a_bounce": { h: 0.056, t: 0.64 },
+    "sera:b_shimmy": { h: 0.278, t: 0.76 },
+    "sera:c_wink": { h: 0.269, t: 0.76 },
+    "vesper:a_sway": { h: 0.294, t: 0.72 },
+    "vesper:b_lean": { h: 0.275, t: 0.74 },
+    "vesper:b_sway": { h: 0.275, t: 0.74 },
+    "vesper:c_sway": { h: 0.309, t: 0.76 }
   };
-  var CLIP_FOCUS = {
-    "kael:a_hairwhip": { zoom: "1.36", lift: "-4%" },
-    "kael:b_lean": { zoom: "1.4", lift: "-8%" },
-    "kael:b_shimmy": { zoom: "1.38", lift: "-6%" },
-    "kael:c_tease": { zoom: "1.4", lift: "-6%" },
-    "lyra:a_sway": { zoom: "1.36", lift: "-5%" },
-    "lyra:b_lean": { zoom: "1.45", lift: "-10%" },
-    "lyra:c_sway": { zoom: "1.36", lift: "-5%" },
-    "sera:a_bounce": { zoom: "1.16", lift: "0%" },
-    "sera:b_shimmy": { zoom: "1.22", lift: "0%" },
-    "sera:c_wink": { zoom: "1.18", lift: "0%" },
-    "vesper:a_sway": { zoom: "1.48", lift: "-8%" },
-    "vesper:b_lean": { zoom: "1.5", lift: "-10%" },
-    "vesper:b_sway": { zoom: "1.42", lift: "-12%" },
-    "vesper:c_sway": { zoom: "1.4", lift: "-14%" }
-  };
+  function layoutMedia(media) {
+    if (!media) return;
+    var head = parseFloat(media.dataset.head || "0.12");
+    var thigh = parseFloat(media.dataset.thigh || "0.72");
+    if (thigh < head + 0.42) thigh = head + 0.5;
+    var iw = parseFloat(media.dataset.iw || "720");
+    var ih = parseFloat(media.dataset.ih || "1280");
+    var r = media.getBoundingClientRect();
+    var bw = r.width, bh = r.height;
+    if (bh < 40 || bw < 40) return;
+    var s0 = Math.max(bw / iw, bh / ih);
+    var rh = ih * s0;
+    var p = (0.045 * bh - head * rh) / (bh - rh);
+    if (!isFinite(p)) p = head;
+    var offset = (bh - rh) * p;
+    var headY = offset + head * rh;
+    if (headY < 0.02 * bh) p = (0.03 * bh - head * rh) / (bh - rh);
+    if (p < 0) p = 0;
+    if (p > 1) p = 1;
+    media.style.setProperty("--fy", (p * 100).toFixed(2) + "%");
+  }
   function applyFocus(girl, clip) {
     var media = $("media");
     if (!media) return;
-    var pick = (clip && CLIP_FOCUS[girl + ":" + clip.id]) || FOCUS[girl] || { zoom: "1.35", lift: "-4%" };
-    media.style.setProperty("--zoom", pick.zoom);
-    media.style.setProperty("--lift", pick.lift);
+    var key = girl + ":" + (clip ? clip.id : "loop");
+    var s = SUBJECT[key] || { h: 0.16, t: 0.72 };
+    media.dataset.head = s.h;
+    media.dataset.thigh = s.t;
+    media.dataset.iw = "720";
+    media.dataset.ih = "1280";
+    layoutMedia(media);
   }
   function showVisual(girl) {
     var g = GIRLS[girl];

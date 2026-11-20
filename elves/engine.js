@@ -243,6 +243,14 @@
     fig.classList.remove('quiet');
     const who = key.split('.')[0];
     fig.dataset.who = D.CAST[who] ? who : '';
+    var sub = SUBJECT[who];
+    if (sub) {
+      fig.dataset.head = sub.h;
+      fig.dataset.thigh = sub.t;
+      fig.dataset.iw = sub.w;
+      fig.dataset.ih = sub.ih;
+      layoutFigure();
+    }
     fig.classList.toggle('cg', !!(step && step.cg));
     const resolved = resolveSprite(key);
     const img = $('sprite');
@@ -307,6 +315,33 @@
     var on = scene && !scene.hidden && document.body.dataset.screen === 'scene' && box;
     var h = on ? box.offsetHeight : 0;
     document.documentElement.style.setProperty('--band', (h || 0) + 'px');
+    if (window.requestAnimationFrame) requestAnimationFrame(layoutFigure);
+  }
+  var SUBJECT = {
+    aelith: { h: 0.02, t: 0.64, w: 720, ih: 960 },
+    nyssa: { h: 0.04, t: 0.66, w: 720, ih: 960 },
+    lirael: { h: 0.02, t: 0.62, w: 720, ih: 960 }
+  };
+  function layoutFigure() {
+    var fig = $('figure');
+    if (!fig || !fig.dataset.head) return;
+    var head = parseFloat(fig.dataset.head);
+    var thigh = parseFloat(fig.dataset.thigh);
+    if (thigh < head + 0.4) thigh = head + 0.5;
+    var iw = parseFloat(fig.dataset.iw || '720');
+    var ih = parseFloat(fig.dataset.ih || '960');
+    var r = fig.getBoundingClientRect();
+    var bw = r.width, bh = r.height;
+    if (bh < 40) return;
+    var s0 = Math.max(bw / iw, bh / ih);
+    var rh = ih * s0;
+    var p = (0.04 * bh - head * rh) / (bh - rh);
+    if (!isFinite(p)) p = head;
+    var headY = (bh - rh) * p + head * rh;
+    if (headY < 0.015 * bh) p = (0.03 * bh - head * rh) / (bh - rh);
+    if (p < 0) p = 0;
+    if (p > 1) p = 1;
+    fig.style.setProperty('--fy', (p * 100).toFixed(2) + '%');
   }
   function overlayName() { return document.body.dataset.overlay || ''; }
   function showOverlay(name) {
