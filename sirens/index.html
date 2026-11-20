@@ -22,7 +22,8 @@
   button{cursor:pointer;touch-action:manipulation}
   [hidden]{display:none !important}
   #stage{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;background:#07040e}
-  #poster,#layerA,#layerB,#still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 18%;background:#07040e}
+  #poster,#layerA,#layerB,#still{position:absolute;top:96px;left:0;right:0;bottom:0;width:100%;height:calc(100% - 96px);object-fit:cover;object-position:center top;background:#07040e}
+  #veil{position:absolute;top:0;left:0;right:0;height:110px;z-index:5;pointer-events:none;background:linear-gradient(#07040e, transparent)}
   #layerA,#layerB,#still{opacity:0;transition:opacity .3s ease}
   #still{z-index:4;transform-origin:center 28%}
   #still.breath{animation:breath 8s ease-in-out infinite}
@@ -34,11 +35,19 @@
   #drawer button.on{box-shadow:inset 0 0 0 1px var(--gold);color:var(--gold)}
   #drawer button:disabled{opacity:.38}
   #drawer .lab{margin:4px 2px 0;color:var(--gold);font:800 10px/1 system-ui;letter-spacing:.12em}
-  #box{position:fixed;left:0;right:0;bottom:env(safe-area-inset-bottom, 0px);z-index:6;height:auto;max-height:15%;overflow:hidden;padding:0}
+  #box{position:fixed;left:0;right:0;bottom:calc(env(safe-area-inset-bottom, 0px) + 78px);z-index:6;height:auto;max-height:15%;overflow:hidden;padding:0}
   body.choosing #box{max-height:34dvh;overflow:hidden;background:rgba(10,6,16,.88)}
   .dlg{height:auto;max-height:100%;padding:4px 8px 3px;background:var(--glass);border-top:1px solid var(--line)}
   #nameplate{margin:0;font:800 12px/1.1 system-ui}
   #line{margin:1px 64px 0 0;font:500 13px/1.25 system-ui}
+  #wear{display:flex;flex-direction:column;gap:4px;margin:0 0 2px}
+  #wear[hidden]{display:none !important}
+  .wear-row{display:flex;gap:5px;overflow-x:auto;overflow-y:hidden;flex-wrap:nowrap;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x}
+  .wear-row::-webkit-scrollbar{display:none}
+  .wear-row button{flex:0 0 auto;min-height:26px;height:26px;padding:0 9px;border-radius:999px;border:1px solid var(--line);background:rgba(10,6,16,.55);color:var(--gold);font:700 11px/1 system-ui}
+  .wear-row button.on{background:linear-gradient(180deg,#f3ddb0,#c9964a);color:#24180c;border-color:transparent}
+  #whisper{margin:0;min-height:0;max-height:0;overflow:hidden;opacity:0;text-align:center;color:var(--gold);font:italic 12px/1.2 Georgia,serif;transition:opacity .4s ease,max-height .4s ease}
+  #whisper.on{opacity:1;max-height:16px}
   #next{position:absolute;right:8px;bottom:4px;min-height:22px;height:22px;padding:0 8px;border-radius:999px;border:1px solid var(--line);background:#140c18;color:var(--gold);font:800 11px/1 system-ui}
   #choices{display:none;flex-direction:column;gap:4px;margin-top:4px;max-height:144px;overflow:auto}
   body.choosing #choices{display:flex}
@@ -85,6 +94,7 @@
   <video id="layerA" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
   <video id="layerB" muted autoplay loop playsinline webkit-playsinline preload="auto"></video>
   <img id="still" alt="">
+  <div id="veil"></div>
 </div>
 <section id="title">
   <form id="titleForm" class="panel" autocomplete="off">
@@ -101,6 +111,11 @@
 <div id="drawer" hidden></div>
 <div id="box" hidden>
   <div class="dlg">
+    <div id="wear" hidden>
+      <div id="wearOut" class="wear-row"></div>
+      <div id="wearAct" class="wear-row" hidden></div>
+      <p id="whisper"></p>
+    </div>
     <p id="nameplate"></p>
     <p id="line"></p>
     <div id="choices"></div>
@@ -123,6 +138,33 @@
     vesper: { name: "Lady Vesper", floor: "Floor 4 · Crown Penthouse", video: "video/vesper_loop.mp4?v=2", poster: "assets/vesper_v6.jpg?v=2", still: "art/vesper_v3.jpg?v=2", color: "#ee9bff" }
   };
   var ORDER = ["kael", "lyra", "sera", "vesper"];
+  function ward(hero, id, label, line) {
+    return { id: id, label: label, line: line, src: "wardrobe/" + hero + "/" + id + ".mp4?v=1", poster: "wardrobe/" + hero + "/" + id + "_poster.jpg?v=1" };
+  }
+  var WARDROBE = {
+    kael: {
+      a: { name: "Crimson Signature", clips: [ward("kael", "a_hairwhip", "Hairwhip", "Keep up, hero.")] },
+      b: { name: "Neon Couture", clips: [ward("kael", "b_lean", "Lean", "Closer. I don't bite... much."), ward("kael", "b_shimmy", "Shimmy", "Like the view?")] },
+      c: { name: "After Hours", clips: [ward("kael", "c_tease", "Tease", "Night's still young.")] }
+    },
+    sera: {
+      a: { name: "Seraph Signature", clips: [ward("sera", "a_bounce", "Bounce", "Heaven can wait.")] },
+      b: { name: "Neon Couture", clips: [ward("sera", "b_shimmy", "Shimmy", "Dance with me?")] },
+      c: { name: "After Hours", clips: [ward("sera", "c_wink", "Wink", "Stay up with me.")] }
+    },
+    lyra: {
+      a: { name: "Starlit Signature", clips: [ward("lyra", "a_sway", "Sway", "Like what you see?")] },
+      b: { name: "Neon Couture", clips: [ward("lyra", "b_lean", "Lean", "Come a little closer...")] },
+      c: { name: "After Hours", clips: [ward("lyra", "c_sway", "Sway", "Stay a while.")] }
+    },
+    vesper: {
+      a: { name: "Amethyst Signature", clips: [ward("vesper", "a_sway", "Sway", "Careful, darling...")] },
+      b: { name: "Neon Couture", clips: [ward("vesper", "b_lean", "Lean", "Come closer."), ward("vesper", "b_sway", "Sway", "Do I have your attention?")] },
+      c: { name: "After Hours", clips: [ward("vesper", "c_sway", "Sway", "The night is young.")] }
+    }
+  };
+  var WEAR_KEY = "sirens-wardrobe-v1";
+  var wear = {};
   var NODES = {
     kael_a: { girl: "kael", who: "Spire", text: "The lift opens on the Crimson Lounge. Pink citylight under the glass, and Kael already watching the door.", next: "kael_b" },
     kael_b: { girl: "kael", who: "Kael", text: "There you are, {name}. I dimmed the room so the skyline would not compete.", next: "kael_c" },
@@ -316,19 +358,41 @@
       try { layer(0).pause(); layer(1).pause(); } catch (e) {}
     }, 340);
   }
+  function loadWear() {
+    try { wear = JSON.parse(storeGet(WEAR_KEY) || "{}") || {}; } catch (e) { wear = {}; }
+  }
+  function saveWear() { storeSet(WEAR_KEY, JSON.stringify(wear)); }
+  function ensureWear(girl) {
+    var book = WARDROBE[girl];
+    if (!book) return;
+    if (!wear[girl] || !book[wear[girl].outfit]) wear[girl] = { outfit: "a", clip: book.a.clips[0].id };
+    var set = book[wear[girl].outfit];
+    var found = null;
+    for (var i = 0; i < set.clips.length; i++) if (set.clips[i].id === wear[girl].clip) found = set.clips[i];
+    if (!found) { found = set.clips[0]; wear[girl].clip = found.id; }
+  }
+  function currentClip(girl) {
+    if (!WARDROBE[girl]) return null;
+    ensureWear(girl);
+    var set = WARDROBE[girl][wear[girl].outfit];
+    for (var i = 0; i < set.clips.length; i++) if (set.clips[i].id === wear[girl].clip) return set.clips[i];
+    return set.clips[0];
+  }
   function showVisual(girl) {
     var g = GIRLS[girl];
     var mode = (state.fits && state.fits[girl]) || "loop";
-    var useVideo = mode === "loop" && !!g.video;
-    var key = girl + ":" + (useVideo ? "loop" : "still");
+    var clip = mode === "loop" ? currentClip(girl) : null;
+    var useVideo = mode === "loop" && !!(clip || g.video);
+    var key = girl + ":" + (clip ? clip.id : (useVideo ? "loop" : "still"));
     if (key === shown) return;
     shown = key;
     var token = ++visToken;
     if (!useVideo) { showStill(g.still, token); return; }
     var next = layer(1 - front);
     var prev = layer(front);
-    $("poster").src = g.poster;
-    arm(next, g);
+    var look = { video: clip ? clip.src : g.video, poster: clip ? clip.poster : g.poster };
+    $("poster").src = look.poster;
+    arm(next, look);
     whenPlaying(next).then(function () {
       if (token !== visToken) return;
       next.style.zIndex = "3";
@@ -358,6 +422,21 @@
       v.src = GIRLS[k].video;
       v.load();
       box.appendChild(v);
+      var book = WARDROBE[k];
+      if (!book) return;
+      ["a", "b", "c"].forEach(function (id) {
+        book[id].clips.forEach(function (c) {
+          var w = document.createElement("video");
+          w.muted = true;
+          w.playsInline = true;
+          w.preload = "auto";
+          w.setAttribute("playsinline", "");
+          w.setAttribute("webkit-playsinline", "");
+          w.src = c.src;
+          w.load();
+          box.appendChild(w);
+        });
+      });
     });
   }
   function say(text) { return String(text || "").replace(/\{name\}/g, state.name || "Ren"); }
@@ -366,6 +445,7 @@
     $("nameplate").textContent = n.who || "";
     $("nameplate").style.color = GIRLS[n.girl] ? GIRLS[n.girl].color : "var(--gold)";
     $("line").textContent = say(n.text);
+    paintWear(n.girl);
     var box = $("choices");
     box.innerHTML = "";
     var bond = state.bonds[n.girl] || 0;
@@ -481,9 +561,49 @@
     $("drawer").hidden = true;
     go(k + "_lounge");
   }
+  function whisper(text) {
+    var el = $("whisper");
+    if (!el) return;
+    el.textContent = text || "";
+    el.classList.add("on");
+    clearTimeout(whisper._t);
+    whisper._t = setTimeout(function () { el.classList.remove("on"); }, 3500);
+  }
+  function paintWear(girl) {
+    var el = $("wear");
+    if (!el) return;
+    if (!girl || !WARDROBE[girl] || $("box").hidden) { el.hidden = true; return; }
+    ensureWear(girl);
+    el.hidden = false;
+    var book = WARDROBE[girl];
+    var out = $("wearOut");
+    out.innerHTML = "";
+    ["a", "b", "c"].forEach(function (id) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = wear[girl].outfit === id ? "on" : "";
+      b.textContent = book[id].name;
+      b.setAttribute("data-outfit", id);
+      out.appendChild(b);
+    });
+    var set = book[wear[girl].outfit];
+    var act = $("wearAct");
+    act.innerHTML = "";
+    if (set.clips.length < 2) { act.hidden = true; return; }
+    act.hidden = false;
+    set.clips.forEach(function (c) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.className = wear[girl].clip === c.id ? "on" : "";
+      b.textContent = c.label;
+      b.setAttribute("data-clip", c.id);
+      act.appendChild(b);
+    });
+  }
   function showTitle() {
     document.body.classList.remove("playing", "choosing");
     $("title").hidden = false;
+    $("wear").hidden = true;
     $("box").hidden = true;
     $("spark").hidden = true;
     $("drawer").hidden = true;
@@ -511,6 +631,7 @@
   }
   function boot() {
     document.documentElement.dataset.unlocked = "1";
+    loadWear();
     preload();
     syncViewport();
     document.addEventListener("focusout", pinAfterBlur, true);
@@ -527,8 +648,35 @@
         }
       });
     }, true);
+    $("wear").addEventListener("pointerup", function (e) {
+      if (e.stopPropagation) e.stopPropagation();
+      if (e.cancelable) e.preventDefault();
+      var btn = e.target.closest ? e.target.closest("button") : null;
+      if (!btn || !state || !state.girl) return;
+      var now = Date.now();
+      if (now - lastPick < 400) return;
+      lastPick = now;
+      var girl = state.girl;
+      ensureWear(girl);
+      var book = WARDROBE[girl];
+      var outfit = btn.getAttribute("data-outfit");
+      var clipId = btn.getAttribute("data-clip");
+      if (outfit) {
+        wear[girl].outfit = outfit;
+        wear[girl].clip = book[outfit].clips[0].id;
+      } else if (clipId) {
+        wear[girl].clip = clipId;
+      } else return;
+      if (state.fits) state.fits[girl] = "loop";
+      saveWear();
+      var clip = currentClip(girl);
+      shown = "";
+      showVisual(girl);
+      paintWear(girl);
+      if (clip) whisper(clip.line);
+    });
     $("box").addEventListener("pointerup", function (e) {
-      if (e.target.closest && e.target.closest(".choice")) return;
+      if (e.target.closest && (e.target.closest(".choice") || e.target.closest("#wear"))) return;
       var now = Date.now();
       if (now - lastAdv < 250) return;
       lastAdv = now;
