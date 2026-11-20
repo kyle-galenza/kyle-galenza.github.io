@@ -12,21 +12,22 @@
 <style>
   :root{--gold:#e7c98a;--line:rgba(231,201,138,.4)}
   *{box-sizing:border-box}
-  html{height:var(--app-h, 100%);overflow:hidden}
-  body{position:relative;min-height:var(--app-h, 100%);height:var(--app-h, 100%);margin:0;overflow:hidden;overscroll-behavior:none;background:#100e0c;color:#f6f1e6;font:500 16px/1.4 system-ui,-apple-system,sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
+  html,body{margin:0;padding:0;width:100%;min-height:100%;background:#100e0c}
+  html{overflow:hidden}
+  body{position:relative;overflow:hidden;overscroll-behavior:none;color:#f6f1e6;font:500 16px/1.4 system-ui,-apple-system,sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
   input{font-size:16px}
   button{font:inherit;color:inherit;cursor:pointer;touch-action:manipulation}
   [hidden]{display:none !important}
-  #stage{position:absolute;top:0;left:0;width:100%;height:var(--app-h, 100dvh);overflow:hidden;background:#100e0c}
-  #poster,#layerA,#layerB{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%;background:#100e0c}
+  #stage{position:fixed;inset:0;width:100%;height:100%;overflow:hidden;background:#100e0c}
+  #poster,#layerA,#layerB{position:absolute;top:clamp(56px, 8vh, 84px);left:0;right:0;bottom:0;width:100%;height:calc(100% - clamp(56px, 8vh, 84px));object-fit:cover;object-position:center top;background:#100e0c}
   #layerA,#layerB{opacity:0;z-index:1;transform-origin:center 28%;will-change:opacity,transform}
   #poster{z-index:0}
-  #dirBtn{position:fixed;z-index:30;top:calc(10px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));width:42px;height:42px;min-height:42px;padding:0;border-radius:50%;border:1px solid var(--line);background:rgba(16,12,10,.4);color:var(--gold);font:700 18px/1 Georgia,serif;backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px)}
-  #dirMenu{position:fixed;z-index:29;top:calc(60px + env(safe-area-inset-top));right:calc(10px + env(safe-area-inset-right));width:min(220px,72vw);padding:8px;border-radius:18px;background:rgba(16,12,10,.72);border:1px solid var(--line);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px);display:flex;flex-direction:column;gap:6px}
-  #dirMenu button{min-height:40px;text-align:left;padding:8px 12px;border-radius:12px;border:1px solid rgba(231,201,138,.28);background:rgba(255,255,255,.04);font-size:15px}
-  #dirMenu button:disabled{opacity:.4}
-  #dirMenu a{color:var(--gold);font-size:12px;text-align:center;padding:6px}
-  #pill{position:fixed;z-index:28;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(16,12,10,.55);border:1px solid var(--line);color:var(--gold);font:700 12px/1 system-ui;letter-spacing:.06em}
+  #veil{position:absolute;top:0;left:0;right:0;height:90px;z-index:5;pointer-events:none;background:linear-gradient(#100e0c, transparent)}
+  #dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 78px);z-index:30;display:flex;gap:8px;align-items:center;max-width:calc(100vw - 16px)}
+  #dock button,#dock a{min-height:36px;padding:0 12px;border-radius:999px;border:1px solid var(--line);background:rgba(16,12,10,.55);color:var(--gold);font:700 13px/1 system-ui;text-decoration:none;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+  #dock button:disabled{opacity:.4}
+  #dock a{font-size:12px;padding:0 10px}
+  #pill{position:fixed;z-index:28;left:50%;top:calc(env(safe-area-inset-top, 0px) + 68px);transform:translateX(-50%);padding:6px 12px;border-radius:999px;background:rgba(16,12,10,.55);border:1px solid var(--line);color:var(--gold);font:700 12px/1 system-ui;letter-spacing:.06em}
   html:not([data-unlocked]) body > :not(#lock){display:none !important}
   #lock{position:fixed;inset:0;z-index:80;display:flex;flex-direction:column;justify-content:flex-end;padding:calc(16px + env(safe-area-inset-top)) 16px calc(16px + env(safe-area-inset-bottom));background:#100e0c}
   html[data-unlocked] #lock{display:none !important}
@@ -60,9 +61,13 @@
   <img id="poster" alt="" src="director/idle_stand_poster.jpg?v=2">
   <video id="layerA" muted autoplay playsinline webkit-playsinline preload="auto"></video>
   <video id="layerB" muted autoplay playsinline webkit-playsinline preload="auto"></video>
+  <div id="veil"></div>
 </div>
-<button type="button" id="dirBtn" aria-label="Poses" hidden>✦</button>
-<div id="dirMenu" hidden></div>
+<nav id="dock" aria-label="Director">
+  <button type="button" id="poseBtn">Sit on bed</button>
+  <button type="button" id="smileBtn">Flirty smile</button>
+  <a href="index.html">Story</a>
+</nav>
 <div id="pill" hidden></div>
 <div id="preload" hidden></div>
 <script>
@@ -86,8 +91,6 @@
     var active = document.activeElement;
     var typing = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
     if (!typing) {
-      var vh = Math.max(window.innerHeight || 0, window.visualViewport ? Math.round(window.visualViewport.height) : 0);
-      if (vh > 0) document.documentElement.style.setProperty("--app-h", vh + "px");
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
@@ -121,38 +124,15 @@
     el.textContent = text;
   }
   function setMenu() {
-    var menu = $("dirMenu");
-    if (menu.hidden) return;
-    var items = pose === "sit"
-      ? [["stand", "Stand up"], ["smile", "Flirty smile"]]
-      : [["sit", "Sit on bed"], ["smile", "Flirty smile"]];
-    menu.innerHTML = "";
-    items.forEach(function (pair) {
-      var b = document.createElement("button");
-      b.type = "button";
-      b.textContent = pair[1];
-      b.disabled = busy;
-      b.setAttribute("data-act", pair[0]);
-      function pick(e) {
-        if (e && e.type !== "click" && e.preventDefault) e.preventDefault();
-        if (e && e.stopPropagation) e.stopPropagation();
-        choose(pair[0]);
-      }
-      b.addEventListener("pointerup", pick);
-      b.addEventListener("click", pick);
-      menu.appendChild(b);
-    });
-    var back = document.createElement("a");
-    back.href = "index.html";
-    back.textContent = "Back to the story";
-    menu.appendChild(back);
+    var poseBtn = $("poseBtn");
+    var smileBtn = $("smileBtn");
+    if (poseBtn) {
+      poseBtn.textContent = pose === "sit" ? "Stand up" : "Sit on bed";
+      poseBtn.disabled = !!busy;
+    }
+    if (smileBtn) smileBtn.disabled = !!busy;
   }
-  function hideMenu() { $("dirMenu").hidden = true; }
-  function toggleMenu() {
-    var menu = $("dirMenu");
-    menu.hidden = !menu.hidden;
-    if (!menu.hidden) setMenu();
-  }
+  function hideMenu() {}
   function arm(el, clip) {
     el.muted = true;
     el.defaultMuted = true;
@@ -266,6 +246,7 @@
   function goIdle(which, hold) {
     hideMenu();
     busy = true;
+    setMenu();
     return crossfade(CLIPS[which], "glide").then(function () {
       pose = which;
       if (!hold) {
@@ -278,6 +259,7 @@
   function doAction(key) {
     hideMenu();
     busy = true;
+    setMenu();
     pill(CLIPS[key].label);
     var chain = pose === "sit" ? goIdle("stand", true) : Promise.resolve();
     return chain.then(function () {
@@ -313,8 +295,8 @@
   }
   function boot() {
     document.documentElement.dataset.unlocked = "1";
-    $("dirBtn").hidden = false;
     preload();
+    setMenu();
     syncViewport();
     document.addEventListener("focusout", pinAfterBlur, true);
     document.addEventListener("pointerup", function () {
@@ -330,18 +312,16 @@
     window.addEventListener("orientationchange", syncViewport);
     window.addEventListener("pageshow", syncViewport);
     if (window.visualViewport) window.visualViewport.addEventListener("resize", syncViewport);
-    var lastDir = 0;
-    function onDir(e) {
-      var now = Date.now();
-      if (now - lastDir < 400) return;
-      lastDir = now;
-      if (e && e.type !== "click" && e.preventDefault) e.preventDefault();
-      if (e && e.stopPropagation) e.stopPropagation();
-      if (busy) return;
-      toggleMenu();
+    function onPose(e) {
+      if (e && e.cancelable) e.preventDefault();
+      choose(pose === "sit" ? "stand" : "sit");
     }
-    $("dirBtn").addEventListener("pointerup", onDir);
-    $("dirBtn").addEventListener("click", onDir);
+    function onSmile(e) {
+      if (e && e.cancelable) e.preventDefault();
+      choose("smile");
+    }
+    $("poseBtn").addEventListener("pointerup", onPose);
+    $("smileBtn").addEventListener("pointerup", onSmile);
     crossfade(CLIPS.stand, "seam", { fromStart: true });
   }
   if (document.documentElement.dataset.unlocked === "1") { boot(); return; }

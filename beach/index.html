@@ -158,9 +158,10 @@
     .btn:active,.choice:active,.place:active{transform:none}
   }
   :root{--topbar:0px;--dock:15%;--vidband:20%;--side:42vw}
-  html{height:var(--app-h, 100%);overflow:hidden}
-  body{position:relative;min-height:var(--app-h, 100%);height:var(--app-h, 100%);margin:0;overflow:hidden;overscroll-behavior:none}
-  #stage,#scene{position:absolute;top:0;left:0;right:0;width:100%;height:var(--app-h, 100dvh);overflow:hidden}
+  html,body{margin:0;padding:0;width:100%;min-height:100%;height:auto}
+  html{overflow:hidden}
+  body{position:relative;overflow:hidden;overscroll-behavior:none}
+  #stage,#scene{position:fixed;inset:0;width:100%;height:100%;overflow:hidden}
   .meters,#mapActions,#hud{display:none !important}
   #toast,body[data-screen="scene"] #toast,body[data-screen="map"] #toast,body[data-screen="ending"] #toast,body[data-screen="title"] #toast{top:auto;bottom:calc(var(--dock) + 8px);max-width:min(280px,70vw)}
   body.choosing #toast{bottom:auto;top:calc(8px + env(safe-area-inset-top));max-width:min(240px,68vw)}
@@ -576,8 +577,6 @@ window.addEventListener('error', function (e) {
     var active = document.activeElement;
     var typing = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
     if (!typing) {
-      var vh = Math.max(window.innerHeight || 0, window.visualViewport ? Math.round(window.visualViewport.height) : 0);
-      if (vh > 0) document.documentElement.style.setProperty("--app-h", vh + "px");
       window.scrollTo(0, 0);
       document.documentElement.scrollTop = 0;
       document.body.scrollTop = 0;
