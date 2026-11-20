@@ -23,10 +23,10 @@
     'celeste.surf': 'art/celeste_surf.webp',
     'celeste.bonfire': 'art/celeste_bonfire.webp',
     'celeste.evening': 'art/celeste_ending.webp',
-    'sable.palms': 'art/sable_palms.webp',
-    'sable.jetski': 'art/sable_jetski.webp',
-    'sable.tiki': 'art/sable_tikibar.webp',
-    'sable.evening': 'art/sable_ending.webp'
+    'sable.palms': 'video/sable_loop_1_poster.jpg',
+    'sable.jetski': 'video/sable_loop_1_poster.jpg',
+    'sable.tiki': 'video/sable_loop_1_poster.jpg',
+    'sable.evening': 'video/sable_loop_2_poster.jpg'
   };
 
   const BG_FILES = {
@@ -40,22 +40,30 @@
 
   const VIDEOS = {
     aurelia: [
-      { id: 'smile', src: 'video/aurelia.mp4', poster: 'video/aurelia_poster.jpg', still: 'art/aurelia_ending.webp', title: 'A Smile', pos: 'center 22%' },
+      { id: 'pool', src: 'video/aurelia_loop_1.mp4', poster: 'video/aurelia_loop_1_poster.jpg', still: 'art/aurelia_pool.webp', title: 'Gold at the Pool', pos: 'center 20%', loop: true },
+      { id: 'terrace', src: 'video/aurelia_loop_2.mp4', poster: 'video/aurelia_loop_2_poster.jpg', still: 'art/aurelia_cocktail.webp', title: 'Terrace Cover-Up', pos: 'center 20%', loop: true },
+      { id: 'smile', src: 'video/aurelia.mp4', poster: 'video/aurelia_poster.jpg', still: 'art/aurelia_ending.webp', title: 'A Smile', pos: 'center 20%' },
       { id: 'tiki', src: 'video/aurelia_tiki.mp4', poster: 'video/aurelia_tiki_poster.jpg', still: 'art/aurelia_cocktail.webp', title: 'Sideways Laugh', pos: 'center 20%' },
       { id: 'kiss', src: 'video/aurelia_kiss.mp4', poster: 'video/aurelia_kiss_poster.jpg', still: 'art/aurelia_ending.webp', title: 'Blown Kiss', pos: 'center 18%' }
     ],
     mika: [
+      { id: 'room', src: 'video/mika_loop_1.mp4', poster: 'video/mika_loop_1_poster.jpg', still: 'art/mika_maid.webp', title: 'Maid in the Room', pos: 'center 20%', loop: true },
+      { id: 'shore', src: 'video/mika_loop_2.mp4', poster: 'video/mika_loop_2_poster.jpg', still: 'art/mika_beach.webp', title: 'White Bikini', pos: 'center 20%', loop: true },
       { id: 'glance', src: 'video/mika.mp4', poster: 'video/mika_poster.jpg', still: 'art/mika_ending.webp', title: 'A Glance', pos: 'center 20%' },
       { id: 'meet', src: 'video/mika_meet.mp4', poster: 'video/mika_meet_poster.jpg', still: 'art/mika_maid.webp', title: 'Sheepish', pos: 'center 22%' },
       { id: 'market', src: 'video/mika_market.mp4', poster: 'video/mika_market_poster.jpg', still: 'art/mika_market.webp', title: 'Market Wink', pos: '42% 20%' }
     ],
     celeste: [
-      { id: 'laugh', src: 'video/celeste.mp4', poster: 'video/celeste_poster.jpg', still: 'art/celeste_ending.webp', title: 'Her Laugh', pos: 'center 16%' },
+      { id: 'string', src: 'video/celeste_loop_1.mp4', poster: 'video/celeste_loop_1_poster.jpg', still: 'art/celeste_beach.webp', title: 'Blue String Bikini', pos: 'center 20%', loop: true },
+      { id: 'cutout', src: 'video/celeste_loop_2.mp4', poster: 'video/celeste_loop_2_poster.jpg', still: 'art/celeste_surf.webp', title: 'Blue Cut-Out', pos: 'center 20%', loop: true },
+      { id: 'laugh', src: 'video/celeste.mp4', poster: 'video/celeste_poster.jpg', still: 'art/celeste_ending.webp', title: 'Her Laugh', pos: 'center 20%' },
       { id: 'bonfire', src: 'video/celeste_bonfire.mp4', poster: 'video/celeste_bonfire_poster.jpg', still: 'art/celeste_bonfire.webp', title: 'Bonfire Kiss', pos: 'center 18%' },
       { id: 'surf', src: 'video/celeste_surf.mp4', poster: 'video/celeste_surf_poster.jpg', still: 'art/celeste_surf.webp', title: 'Wet Smile', pos: '36% 16%' }
     ],
     sable: [
-      { id: 'kiss', src: 'video/sable.mp4', poster: 'video/sable_poster.jpg', still: 'art/sable_ending.webp', title: 'Blown Kiss', pos: 'center 18%' },
+      { id: 'stand', src: 'video/sable_loop_1.mp4', poster: 'video/sable_loop_1_poster.jpg', still: 'video/sable_loop_1_poster.jpg', title: 'Standing on the Beach', pos: 'center 20%', loop: true },
+      { id: 'pool', src: 'video/sable_loop_2.mp4', poster: 'video/sable_loop_2_poster.jpg', still: 'video/sable_loop_2_poster.jpg', title: 'Standing at the Pool', pos: 'center 20%', loop: true },
+      { id: 'kiss', src: 'video/sable.mp4', poster: 'video/sable_poster.jpg', still: 'art/sable_ending.webp', title: 'Blown Kiss', pos: 'center 20%' },
       { id: 'palms', src: 'video/sable_palms.mp4', poster: 'video/sable_palms_poster.jpg', still: 'art/sable_palms.webp', title: 'Through Her Lashes', pos: 'center 20%' },
       { id: 'jetski', src: 'video/sable_jetski.mp4', poster: 'video/sable_jetski_poster.jpg', still: 'art/sable_jetski.webp', title: 'Wind Smile', pos: '38% 14%' }
     ]
@@ -117,28 +125,28 @@
   };
 
   const GALLERY = {
-    aurelia_checkin: { who: 'aurelia', title: 'Check-In', caption: 'She gives you a shell key and a look that is not in the manual.', sprite: 'aurelia.hostess' },
-    aurelia_pool: { who: 'aurelia', title: 'Off Duty', caption: 'The lounger, the gold suit, and an afternoon she refuses to call a date.', sprite: 'aurelia.pool' },
-    aurelia_cocktail: { who: 'aurelia', title: 'Last Call For Two', caption: 'Sunset, one glass, and a laugh she aims just past your shoulder.', sprite: 'aurelia.cocktail', video: 'aurelia.tiki' },
-    aurelia_smile: { who: 'aurelia', title: 'A Smile', caption: 'She smiles, winks, and tips her head, already sure of Sunday.', sprite: 'aurelia.evening', video: 'aurelia.smile' },
-    end_aurelia: { who: 'aurelia', title: 'The Key Stays Out', caption: 'A soft smile, a blown kiss, and the balcony going dark.', sprite: 'aurelia.evening', video: 'aurelia.kiss' },
-    mika_meet: { who: 'mika', title: 'Under the Bed', caption: 'She blinks, flustered, then finds a sheepish smile.', sprite: 'mika.maid', video: 'mika.meet' },
-    mika_beach: { who: 'mika', title: 'Day Off', caption: 'She meant to read. The breeze had other plans for her hair.', sprite: 'mika.beach' },
-    mika_market: { who: 'mika', title: 'Night Market', caption: 'Lantern light, her hair in the breeze, a smile and a wink.', sprite: 'mika.market', video: 'mika.market' },
-    end_mika: { who: 'mika', title: 'Lanterns for Two', caption: 'She stops apologizing long enough to kiss you.', sprite: 'mika.evening', video: 'mika.glance' },
-    celeste_beach: { who: 'celeste', title: 'The Break', caption: 'She waves with her whole arms, like the tide might miss it.', sprite: 'celeste.beach' },
-    celeste_surf: { who: 'celeste', title: 'One Wave', caption: 'Wet hair, a smile, and a blink she aims at you.', sprite: 'celeste.surf', video: 'celeste.surf' },
-    celeste_bonfire: { who: 'celeste', title: 'Bonfire', caption: 'Firelight, a warm smile, and a kiss blown across the blanket.', sprite: 'celeste.bonfire', video: 'celeste.bonfire' },
-    end_celeste: { who: 'celeste', title: 'Stay Through Sunday', caption: 'Low tide, starlight, and a kiss that tastes like salt.', sprite: 'celeste.evening', video: 'celeste.laugh' },
-    sable_palms: { who: 'sable', title: 'Striped Shade', caption: 'She looks up through her lashes, then lets the smirk arrive.', sprite: 'sable.palms', video: 'sable.palms' },
-    sable_jetski: { who: 'sable', title: 'Hold On', caption: 'Wind in her hair, and a close-mouthed smile over her shoulder.', sprite: 'sable.jetski', video: 'sable.jetski' },
-    sable_tiki: { who: 'sable', title: 'Her Stool', caption: 'Sunglasses up, sunset down, and no interest in pretending.', sprite: 'sable.tiki' },
-    end_sable: { who: 'sable', title: 'The Pool After Dark', caption: 'Closed to guests. Open to you. A kiss, then dark.', sprite: 'sable.evening', video: 'sable.kiss' },
-    suit_aurelia: { who: 'aurelia', title: 'Gold Suit', caption: 'The lounger look, unlocked when her weekend is yours.', sprite: 'aurelia.pool', section: 'SWIMSUITS', route: true },
-    suit_mika: { who: 'mika', title: 'Striped Day Off', caption: 'The beach suit she wears when the uniform is off.', sprite: 'mika.beach', section: 'SWIMSUITS', route: true },
-    suit_celeste: { who: 'celeste', title: 'Blue Break', caption: 'The suit she waves in, before anyone is racing.', sprite: 'celeste.beach', section: 'SWIMSUITS', route: true },
-    suit_celeste_surf: { who: 'celeste', title: 'Board and Smile', caption: 'The same blue, with the board she will not share.', sprite: 'celeste.surf', section: 'SWIMSUITS', route: true },
-    suit_sable: { who: 'sable', title: 'Red in the Shade', caption: 'The suit from the palms, the jet ski, and the closed pool.', sprite: 'sable.palms', section: 'SWIMSUITS', route: true }
+    aurelia_checkin: { who: 'aurelia', title: 'Check-In', caption: 'She gives you a shell key and a look that is not in the manual.', sprite: 'aurelia.hostess', video: 'aurelia.terrace' },
+    aurelia_pool: { who: 'aurelia', title: 'Off Duty', caption: 'The lounger, the gold suit, and an afternoon she refuses to call a date.', sprite: 'aurelia.pool', video: 'aurelia.pool' },
+    aurelia_cocktail: { who: 'aurelia', title: 'Last Call For Two', caption: 'Sunset, one glass, and a laugh she aims just past your shoulder.', sprite: 'aurelia.cocktail', video: 'aurelia.terrace' },
+    aurelia_smile: { who: 'aurelia', title: 'A Smile', caption: 'She smiles, already sure of Sunday.', sprite: 'aurelia.evening', video: 'aurelia.terrace' },
+    end_aurelia: { who: 'aurelia', title: 'The Key Stays Out', caption: 'A soft smile on the terrace, and the balcony going dark.', sprite: 'aurelia.evening', video: 'aurelia.terrace' },
+    mika_meet: { who: 'mika', title: 'Under the Bed', caption: 'She blinks, flustered, then finds a sheepish smile.', sprite: 'mika.maid', video: 'mika.room' },
+    mika_beach: { who: 'mika', title: 'Day Off', caption: 'She meant to read. The breeze had other plans for her hair.', sprite: 'mika.beach', video: 'mika.shore' },
+    mika_market: { who: 'mika', title: 'Night Market', caption: 'Lantern light, her hair in the breeze, a smile meant for you.', sprite: 'mika.market', video: 'mika.room' },
+    end_mika: { who: 'mika', title: 'Lanterns for Two', caption: 'She stops apologizing long enough to stay.', sprite: 'mika.evening', video: 'mika.shore' },
+    celeste_beach: { who: 'celeste', title: 'The Break', caption: 'She waves with her whole arms, like the tide might miss it.', sprite: 'celeste.beach', video: 'celeste.string' },
+    celeste_surf: { who: 'celeste', title: 'One Wave', caption: 'The blue cut-out, and a smile she aims at you.', sprite: 'celeste.surf', video: 'celeste.cutout' },
+    celeste_bonfire: { who: 'celeste', title: 'Bonfire', caption: 'Firelight, a warm smile, and the blue suit.', sprite: 'celeste.bonfire', video: 'celeste.cutout' },
+    end_celeste: { who: 'celeste', title: 'Stay Through Sunday', caption: 'Low tide, starlight, and she does not look away.', sprite: 'celeste.evening', video: 'celeste.cutout' },
+    sable_palms: { who: 'sable', title: 'Standing in the Shade', caption: 'Head up, red suit, and a smirk she does not hide.', sprite: 'sable.palms', video: 'sable.stand' },
+    sable_jetski: { who: 'sable', title: 'Hold On', caption: 'She stands in the red suit, sure of the afternoon.', sprite: 'sable.jetski', video: 'sable.stand' },
+    sable_tiki: { who: 'sable', title: 'Her Stool', caption: 'Head up, sunset down, and no interest in pretending.', sprite: 'sable.tiki', video: 'sable.stand' },
+    end_sable: { who: 'sable', title: 'The Pool After Dark', caption: 'She stands at the closed pool, head up, and stays.', sprite: 'sable.evening', video: 'sable.pool' },
+    suit_aurelia: { who: 'aurelia', title: 'Gold Suit', caption: 'The lounger look, unlocked when her weekend is yours.', sprite: 'aurelia.pool', video: 'aurelia.pool', section: 'SWIMSUITS', route: true },
+    suit_mika: { who: 'mika', title: 'White Day Off', caption: 'The beach suit she wears when the uniform is off.', sprite: 'mika.beach', video: 'mika.shore', section: 'SWIMSUITS', route: true },
+    suit_celeste: { who: 'celeste', title: 'Blue Break', caption: 'The string suit she waves in, before anyone is racing.', sprite: 'celeste.beach', video: 'celeste.string', section: 'SWIMSUITS', route: true },
+    suit_celeste_surf: { who: 'celeste', title: 'Blue Cut-Out', caption: 'The cut-out one-piece, and the smile that comes with it.', sprite: 'celeste.surf', video: 'celeste.cutout', section: 'SWIMSUITS', route: true },
+    suit_sable: { who: 'sable', title: 'Red, Head Up', caption: 'Standing in the red suit, on the beach and at the pool.', sprite: 'sable.palms', video: 'sable.stand', section: 'SWIMSUITS', route: true }
   };
 
   const GALLERY_ORDER = [
@@ -355,7 +363,7 @@
         say('sd3', 'sable', 'You found the good shade. Most people walk past it on their way to being busy. I am Sable. Twenty-seven. I am on nobody\'s schedule, including the resort\'s, which has learned to live with the disappointment.', { sprite: 'sable.palms' }),
         {
           op: 'video', id: 'sd3b', video: 'sable.palms', who: 'sable', sprite: 'sable.palms',
-          fallback: 'She looks up through her lashes, lets you hold the look, and the smirk arrives right on time.'
+          fallback: 'She holds your look with her head up, and the smirk arrives right on time.'
         },
         say('sd4', 'sable', 'Sit. The chair was waiting. So was I, if we are telling the truth, and I prefer the truth. It saves the afternoon for better games than small talk. You can still have small talk. I will make it expensive.', { sprite: 'sable.palms' }),
         choice('sd5', 'sable', [
@@ -629,7 +637,7 @@
       steps: [
         say('bs1', 'narr', 'Before the dock, she takes you back under the striped shade. Sunglasses up. The red suit. No audience she cares about.'),
         say('bs2', 'sable', 'You earned the version of me that does not perform. One look. Then we walk down and I send you off properly.', { sprite: 'sable.palms' }),
-        { op: 'video', id: 'bs3', video: 'sable.palms', who: 'sable', sprite: 'sable.palms', fallback: 'She looks up through her lashes, then lets the smirk arrive just for you.' },
+        { op: 'video', id: 'bs3', video: 'sable.stand', who: 'sable', sprite: 'sable.palms', fallback: 'She stands with her head up, and lets the smirk arrive just for you.' },
         unlock('bs4', 'sable', 'palms', 'sable_palms')
       ]
     }
@@ -684,6 +692,24 @@
     OUTFITS: OUTFITS,
     GALLERY: GALLERY,
     GALLERY_ORDER: GALLERY_ORDER,
+    LOOP_FOR: {
+      'aurelia.hostess': 'aurelia.terrace',
+      'aurelia.pool': 'aurelia.pool',
+      'aurelia.cocktail': 'aurelia.terrace',
+      'aurelia.evening': 'aurelia.terrace',
+      'mika.maid': 'mika.room',
+      'mika.beach': 'mika.shore',
+      'mika.market': 'mika.room',
+      'mika.evening': 'mika.shore',
+      'celeste.beach': 'celeste.string',
+      'celeste.surf': 'celeste.cutout',
+      'celeste.bonfire': 'celeste.cutout',
+      'celeste.evening': 'celeste.cutout',
+      'sable.palms': 'sable.stand',
+      'sable.jetski': 'sable.stand',
+      'sable.tiki': 'sable.stand',
+      'sable.evening': 'sable.pool'
+    },
     SCENES: SCENES,
     ENDINGS: ENDINGS,
     CARDS: CARDS,
