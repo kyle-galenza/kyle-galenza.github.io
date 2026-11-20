@@ -43,12 +43,36 @@
   let wipeMode = '';
   let finishing = false;
 
+  const memStore = Object.create(null);
   function $(id) { return document.getElementById(id); }
+  function storeGet(key) {
+    try {
+      const r = localStorage.getItem(key);
+      if (r != null) { memStore[key] = r; return r; }
+    } catch (e) {}
+    try {
+      const r = sessionStorage.getItem(key);
+      if (r != null) { memStore[key] = r; return r; }
+    } catch (e2) {}
+    return memStore[key] == null ? null : memStore[key];
+  }
+  function storeSet(key, val) {
+    memStore[key] = String(val);
+    try { localStorage.setItem(key, String(val)); } catch (e) {}
+    try { sessionStorage.setItem(key, String(val)); } catch (e2) {}
+  }
+  function storeDel(key) {
+    delete memStore[key];
+    try { localStorage.removeItem(key); } catch (e) {}
+    try { sessionStorage.removeItem(key); } catch (e2) {}
+  }
   function loadJSON(key) {
-    try { const r = localStorage.getItem(key); return r ? JSON.parse(r) : null; } catch (e) { return null; }
+    const r = storeGet(key);
+    if (!r) return null;
+    try { return JSON.parse(r); } catch (e) { return null; }
   }
   function saveJSON(key, val) {
-    try { localStorage.setItem(key, JSON.stringify(val)); } catch (e) {}
+    try { storeSet(key, JSON.stringify(val)); } catch (e) {}
   }
   function defaultMeta() {
     return {
@@ -60,9 +84,24 @@
   function saveMeta() { saveJSON(META_KEY, meta); }
   function saveSettings() { saveJSON(SET_KEY, settings); }
   function resetScroll() {
-    var vv = window.visualViewport;
-    var shifted = vv && (vv.offsetTop || vv.offsetLeft);
-    if (window.scrollX || window.scrollY || shifted) window.scrollTo(0, 0);
+    window.scrollTo(0, 0);
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+  }
+  function pinAfterBlur() {
+    resetScroll();
+    setTimeout(resetScroll, 60);
+    setTimeout(resetScroll, 200);
+    setTimeout(resetScroll, 400);
+  }
+  function nudgeVideos() {
+    const nodes = document.querySelectorAll('video');
+    for (let i = 0; i < nodes.length; i++) {
+      const v = nodes[i];
+      if (!(v.currentSrc || v.getAttribute('src')) || !v.paused) continue;
+      const p = v.play();
+      if (p && p.catch) p.catch(function () {});
+    }
   }
   function withV(src) {
     if (!src) return '';
@@ -498,6 +537,7 @@
       b.textContent = fmt(opt.text);
       function arm(e) { takeChoice(menu, i, e); }
       b.addEventListener('pointerup', arm);
+      b.addEventListener('click', arm);
       box.appendChild(b);
     });
     if (state && state.play) state.play.step = stepIndex;
@@ -1325,7 +1365,7 @@
   }
   function toggleMute() {
     muted = !muted;
-    try { localStorage.setItem(MUTE_KEY, muted ? '1' : '0'); } catch (e) {}
+    storeSet(MUTE_KEY, muted ? '1' : '0');
     syncTheme();
     syncSetButtons();
   }
@@ -1450,18 +1490,14 @@
     if (bound) return;
     bound = true;
     if ($('gateYes')) $('gateYes').addEventListener('click', function () {
-      try { localStorage.setItem(GATE_KEY, '1'); } catch (e) {}
+      storeSet(GATE_KEY, '1');
       showTitle();
     });
     if ($('gateNo')) $('gateNo').addEventListener('click', function () {
       const stay = $('gateStay');
       if (stay) stay.hidden = false;
     });
-    $('btnNew').addEventListener('click', function () {
-      showBase('name');
-      const input = $('nameInput');
-      if (input) input.focus();
-    });
+    $('btnNew').addEventListener('click', function () { showBase('name'); });
     $('btnNameOk').addEventListener('click', submitName);
     $('btnCont').addEventListener('click', function () { loadSlot(0); });
     $('btnGallery').addEventListener('click', openGallery);
@@ -1479,12 +1515,14 @@
     $('mapLoad').addEventListener('click', function () { openSaves('load'); });
     $('mapSettings').addEventListener('click', openSettings);
     $('mapToTitle').addEventListener('click', function () { autosave(); showTitle(); });
-    $('btnAdvance').addEventListener('pointerup', function (e) {
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      if (e.preventDefault) e.preventDefault();
-      if (e.stopPropagation) e.stopPropagation();
+    function advanceTap(e) {
+      if (e && e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e && e.type !== 'click' && e.preventDefault) e.preventDefault();
+      if (e && e.stopPropagation) e.stopPropagation();
       advance(true);
-    });
+    }
+    $('btnAdvance').addEventListener('pointerup', advanceTap);
+    $('btnAdvance').addEventListener('click', advanceTap);
     let holdTimer = 0;
     let heldMenu = false;
     $('scene').addEventListener('pointerdown', function (e) {
@@ -1494,16 +1532,18 @@
       clearTimeout(holdTimer);
       holdTimer = setTimeout(function () { heldMenu = true; openMenu(); }, 560);
     });
-    $('scene').addEventListener('pointerup', function (e) {
+    function sceneTap(e) {
       clearTimeout(holdTimer);
-      if (heldMenu) { heldMenu = false; if (e.stopPropagation) e.stopPropagation(); return; }
-      if (e.pointerType === 'mouse' && e.button !== 0) return;
-      const el = eventEl(e.target);
+      if (heldMenu) { heldMenu = false; if (e && e.stopPropagation) e.stopPropagation(); return; }
+      if (e && e.pointerType === 'mouse' && e.button !== 0) return;
+      const el = eventEl(e && e.target);
       if (el && el.closest && el.closest('button, a, input, textarea, .choice')) return;
       if (overlayName()) return;
-      if (e.preventDefault) e.preventDefault();
+      if (e && e.type !== 'click' && e.preventDefault) e.preventDefault();
       advance(true);
-    });
+    }
+    $('scene').addEventListener('pointerup', sceneTap);
+    $('scene').addEventListener('click', sceneTap);
     $('scene').addEventListener('pointercancel', function () { clearTimeout(holdTimer); });
     document.addEventListener('pointerup', function () { ensureTheme(); });
     $('btnAuto').addEventListener('click', function (e) { e.stopPropagation(); toggleAuto(); });
@@ -1531,11 +1571,7 @@
     $('viewClose').addEventListener('click', function () { renderGallery(); showBase('gallery'); });
     $('btnEndingTitle').addEventListener('click', showTitle);
     $('btnEndingGallery').addEventListener('click', openGallery);
-    $('btnAgain').addEventListener('click', function () {
-      showBase('name');
-      const input = $('nameInput');
-      if (input) input.focus();
-    });
+    $('btnAgain').addEventListener('click', function () { showBase('name'); });
     document.querySelectorAll('[data-speed]').forEach(function (b) {
       b.addEventListener('click', function () {
         settings.speed = +b.getAttribute('data-speed');
@@ -1564,8 +1600,8 @@
         settings.skip = false;
         saveSettings();
       }
-      try { localStorage.removeItem(AUTO_KEY); } catch (e) {}
-      for (let n = 1; n <= 3; n++) { try { localStorage.removeItem(slotKey(n)); } catch (e) {} }
+      storeDel(AUTO_KEY);
+      for (let n = 1; n <= 3; n++) storeDel(slotKey(n));
       $('wipeAsk').hidden = true;
       $('wipeRow').hidden = true;
       toast(wipeMode === 'all' ? 'Memories cleared' : 'Saves cleared');
@@ -1618,11 +1654,14 @@
     }
     const st = loadJSON(SET_KEY);
     if (st) settings = Object.assign(settings, st);
-    try { muted = localStorage.getItem(MUTE_KEY) === '1'; } catch (e) {}
+    muted = storeGet(MUTE_KEY) === '1';
     const q = new URLSearchParams(location.search).get('speed');
     if (q != null && q !== '') settings.speed = Math.max(0, Math.min(3, +q || 0));
     bind();
     resetScroll();
+    document.addEventListener('focusout', pinAfterBlur, true);
+    document.addEventListener('pointerup', nudgeVideos, true);
+    document.addEventListener('click', nudgeVideos, true);
     window.addEventListener('resize', resetScroll);
     window.addEventListener('orientationchange', resetScroll);
     if (window.visualViewport) {
