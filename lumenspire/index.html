@@ -820,6 +820,17 @@ body.rt-on .fnum{animation-name:fnumB}
 #dlg .dl-por.R.vid-on .dl-vid{opacity:1}
 #dlg .dl-por.R.vid-on .dl-idle img{opacity:0;transition:opacity .45s ease}
 #dlg.in .dl-por.R .dl-idle .dl-vid{animation:none}
+.mv{margin:12px 0 4px}.mv-h{display:flex;align-items:baseline;justify-content:space-between;margin:0 2px 6px}.mv-h b{font-family:var(--display);font-size:19px;color:#f2e6d2;letter-spacing:.02em}.mv-h small{color:var(--dim);font-size:12.5px}
+.mv-g{margin:10px 0 4px}.mv-gh{display:flex;align-items:baseline;gap:8px;margin:0 2px 6px}.mv-gh b{font-family:var(--display);font-size:16px;color:#f2e6d2}.mv-gh small{color:var(--dim);font-size:12px}
+.mv-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.mv-t{position:relative;display:block;width:100%;min-height:44px;aspect-ratio:1/1.12;padding:0;margin:0;border:1px solid rgba(255,230,200,.12);border-radius:14px;overflow:hidden;background:#1a1412;color:inherit;font:inherit;text-align:left;cursor:pointer;-webkit-tap-highlight-color:transparent;box-shadow:0 6px 16px rgba(0,0,0,.35)}
+.mv-t img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block}
+.mv-t:active{transform:scale(.97)}
+.mv-pl{position:absolute;top:8px;right:8px;width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(10,8,6,.55);color:#f2e6d2;border:1px solid rgba(255,255,255,.18)}
+.mv-l{position:absolute;left:0;right:0;bottom:0;padding:18px 9px 7px;background:linear-gradient(transparent,rgba(8,6,5,.88))}
+.mv-l b{display:block;font-size:13.5px;color:#f2e6d2;letter-spacing:.03em}.mv-l small{display:block;font-size:11px;color:#cdbfa8;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mv-sep{margin:16px 2px 0;font-size:11px;font-weight:850;letter-spacing:.14em;text-transform:uppercase;color:var(--dim2)}
+#dlg .dl-aff{right:calc(64px + var(--sr))}
 </style>
 </head>
 <body>
@@ -6409,7 +6420,7 @@ function openNpcScene(o){if(NSC)closeNpcScene(true);joyEnd&&joyEnd();
   /* character: looping video if shipped (muted, playsinline), else the stage portrait (placeholder until Kyle's art lands) + CSS/canvas activity */
   const pf=porFor(id,st,o.variant),img=el.querySelector('.ns-img');img.src=pf.src;img.dataset.ph=pf.placeholder?'1':'';img.alt=NPCS[id]?NPCS[id].name:'';
   const vv=(id==='maid'||id==='liraen')&&!o.loop?(o.variant||(id==='maid'?(maidNight()?'night':maidOffDuty()?'offduty':''):(liraenNight()?'night':liraenOffDuty()?'offduty':''))):'';
-  const vf=o.loop?(SCENE_HAVE[`scenes/loop_${o.loop}.mp4`]?`scenes/loop_${o.loop}`:`scenes/loop_${id}_${o.loop}`):vv?`scenes/loop_${id}_${vv}`:(loopFor(id,st)||`scenes/loop_${id}_s${st}`);const old=el.querySelector('video');if(old)old.remove();
+  const vf=o.vf&&SCENE_HAVE[o.vf+'.mp4']?o.vf:o.loop?(SCENE_HAVE[`scenes/loop_${o.loop}.mp4`]?`scenes/loop_${o.loop}`:`scenes/loop_${id}_${o.loop}`):vv&&SCENE_HAVE[`scenes/loop_${id}_${vv}.mp4`]?`scenes/loop_${id}_${vv}`:(loopFor(id,st)||`scenes/loop_${id}_s${st}`);const old=el.querySelector('video');if(old)old.remove();
   el.classList.remove('vid-on');clearTimeout(NSC.vto);
   if(SCENE_HAVE[vf+'.mp4']){/* the still stays underneath until the loop is actually playing; only a real load error drops it.
      Reduced motion only calms CSS parallax/particles; the girl's loop still plays. */
@@ -6951,6 +6962,28 @@ function dlgVid(sc){dlgVidClear();if(!sc||!DLG)return;const id=sc.npc;
 const _k1playScene=playScene;playScene=function(sc){const r=_k1playScene(sc);if(DLG&&DLG.sc===sc)dlgVid(sc);else dlgVidClear();return r;};
 const _k1endScene=endScene;endScene=function(){const tok=DLV_TOK;_k1endScene.apply(this,arguments);
   setTimeout(()=>{if(DLV_TOK===tok&&!(DLG&&DLG.vid))dlgVidClear();},FAST?0:400);};
+
+/* ---------- v2.0.2 Memories · Scenes: every shipped loop, always watchable (replays give nothing, take nothing) ---------- */
+function memVids(){const out=[];SCENE_SHIP.forEach(f=>{const m=/^scenes\/loop_(.+)\.mp4$/.exec(f);if(!m)return;const n=m[1],g=/^([a-z]+)_s([0-3])$/.exec(n);
+    if(g&&REL_IDS.includes(g[1]))out.push({v:g[1]+':'+g[2],id:g[1],st:+g[2],vf:'scenes/loop_'+n,title:STAGE_NAMES[+g[2]],where:LOCS[STAGE_LOC[g[1]][+g[2]]].name});
+    else if(n==='spill')out.push({v:'spill',id:'spill',vf:'scenes/loop_spill',title:SPILL.name,where:LOCS[SPILL.loc].name});
+    else{const o=/^([a-z]+)_(.+)$/.exec(n);if(o&&REL_IDS.includes(o[1]))out.push({v:o[1]+':x:'+o[2],id:o[1],x:o[2],vf:'scenes/loop_'+n,title:o[2].replace(/^./,c=>c.toUpperCase()),where:''});}});
+  return out;}
+function memTile(e){const th=SCENE_HAVE[e.vf+'.webp']?e.vf+'.webp':porFor(e.id==='spill'?'pip':e.id,e.st||0,'').src;
+  return `<button type="button" class="mv-t" data-act="memvid" data-v="${e.v}" aria-label="Play ${esc(e.title)}${e.where?' · '+esc(e.where):''}"><img src="${th}" alt="" loading="lazy" decoding="async"><span class="mv-pl">${ic('play',16,2.4)}</span><span class="mv-l"><b>${esc(e.title)}</b>${e.where?`<small>${esc(e.where)}</small>`:''}</span></button>`;}
+function memGallery(){const L=memVids();if(!L.length)return '';
+  const by=REL_IDS.map(id=>{const t=L.filter(e=>e.id===id).sort((a,b)=>(a.st==null?9:a.st)-(b.st==null?9:b.st));if(!t.length)return '';
+    return `<div class="mv-g" data-girl="${id}"><div class="mv-gh"><b style="color:${NPCS[id].col||''}">${esc(NPCS[id].name)}</b><small>${t.length} scene${t.length>1?'s':''}</small></div><div class="mv-grid">${t.map(memTile).join('')}</div></div>`;}).join('');
+  const sp=L.filter(e=>e.id==='spill');
+  return `<section class="mv"><div class="mv-h"><b>Scenes</b><small>${L.length} videos · tap to watch</small></div>${by}${sp.length?`<div class="mv-g" data-girl="together"><div class="mv-gh"><b>Together</b><small>Pip &amp; Marla</small></div><div class="mv-grid">${sp.map(memTile).join('')}</div></div>`:''}</section><div class="mv-sep">Story memories</div>`;}
+const _k2openMemories=openMemories;openMemories=function(){const r=_k2openMemories.apply(this,arguments);if(girlsOff())return r;
+  const b=document.querySelector('.mem-body');if(b&&!b.querySelector('.mv')){const n=b.querySelector('.note');(n||b).insertAdjacentHTML(n?'afterend':'afterbegin',memGallery());}return r;};
+function memVid(v){if(girlsOff()||!v)return;const e=memVids().find(x=>x.v===v);if(!e)return;const back=()=>{setTimeout(openMemories,60);};closeSheet('A');
+  try{KATel.pick('memory_video',v);}catch(err){}
+  const short=a=>(a||[]).filter(l=>l&&l.s!=='choice'&&l.t).slice(0,3);
+  if(e.id==='spill'){openNpcScene({npc:'pip',stage:stageOf('pip'),loc:SPILL.loc,act:SPILL.act,title:SPILL.name,memory:1,vf:e.vf,lines:short(SPILL.lines),onEnd:back});return;}
+  const st=e.st!=null?e.st:stageOf(e.id),L=(STAGE_LINES[e.id]&&STAGE_LINES[e.id][st]&&STAGE_LINES[e.id][st][0])||[{s:'npc',t:'…'}];
+  openNpcScene({npc:e.id,stage:st,loc:STAGE_LOC[e.id][st],act:NPC_ACT[e.id],memory:1,vf:e.vf,title:`${e.title} · ${NPCS[e.id].name}`,lines:short(L),onEnd:back});}
 /* ---------- Input ---------- */
 document.addEventListener('click',ev=>{
   {const x=$('eNoteX');if(x&&x.classList.contains('on')){x.classList.remove('on');if(ev.target.closest('#eNote'))return;}
@@ -6976,6 +7009,7 @@ document.addEventListener('click',ev=>{
     case 'settog':setToggle(b.dataset.k);break;
     case 'memories':SFX.tap();closeSheet('A');openMemories();break;
     case 'memplay':SFX.tap();memReplay(b.dataset.k);break;
+    case 'memvid':SFX.tap();memVid(b.dataset.v);break;
     case 'close':{const lv=sh&&sh.id==='sheetB'?'B':'A';closeSheet(lv);break;}
     case 'mute':muted=!muted;try{localStorage.setItem(MUTE_KEY,muted?'1':'0');}catch(e){}renderMute();if(SH.A.kind==='settings'&&SH.A.open)openSettings(SET_PAGE);if(!muted)SFX.tap();break;
     case 'stat':if(S.statPts>0){S.statPts--;S.stats[b.dataset.k]++;save();SFX.tap();openGear(true);}break;
@@ -7079,7 +7113,7 @@ window.addEventListener('pagehide',()=>save(true));
 setInterval(()=>{if(S)save(true);},30000);
 load();resize();renderTitle();if(S)prefetchPor(S.cls);
 requestAnimationFrame(frame);
-window.__LS={get floatNum(){return floatNum},SPR_META,SPR_FILE,FSPR,sprGet,sprIdOf,MONSTERS,BOSSES,SPROUT,loopFor,SCENE_HAVE,btUse,btTap,btMoveTo,btStep,btSim,btAuto,btS,btW,BT_AW,BT_AD,BT_HSPD,BTL,get PREF(){return PREF},girlsOff,setToggle,perfToggle,v2Reset,FLIRT,withChoice,bumpMonster,enterArea,get screen(){return screen},ROMANCE,ROMANCE_MORE,SPILL,spillReady,trySpill,playSpill,townFootprints,townCobble,onCobble,leaveInn,ruinSky,STAGE_LOC,stageOf,festivalOn,stageUpLines,drawEnt,growTown,enterInn,buildInn,townGrid,villagerSprite,loopFor,SCENE_SHIP,memRec,memBackfill,memList,memCount,openMemories,memReplay,openSettings,SCENES,STAGE_LINES,STAGE_UP,playShared,folkTalk,get S(){return S},drawWorld,get RUNV(){return RUN},get NSC(){return NSC},stageOf,STAGE_LOC,LOCS,SHARED,STAGE_POR,SCENE_ASSETS,ART_HAVE,SCENE_HAVE,porFor,scenePor,playScene,openNpcScene,closeNpcScene,nsNext,playShared,sharedReady,folkTalk,growthTier,growthScore,crowdN,festivalOn,LOTS,HOMES,visitHome,startDescent,descendStairs,enterCamp,castlePack,CASTLE_MON,CASTLE_BOSSES,campBuy,openQuarter,inCastle,castleUnlocked,descentHtml,biomeOf,TOWN,skillCd,drawHero,HERO,JOY,KATel,updateWorld,disc,drillTab,artsBlock,ledgerHtml,get AREA(){return AREA},get RUNB(){return RUNB},RUN_MULT,MTYPE,DT_MULT,dtOf,dtMult,mtypeOf,ARTS,PROF_XP,profLv,profXp,profGain,curSty,artSkill,artSpec,artTargets,previewArt,doArt,counterMult,counterOf,v18Pack,swarmTick,V18_MONSTERS,trainCost,trainProf,temperCost,temperItem,INVEST,invest,investEff,telSkill,telFlush,weaponLook,weaponIconURL,itemIconHtml,heroLook,drawHeroR,drawHeroClassic,runSync,makeEnemy,makePack,heroAtkMods,battleSkill,gSpec,previewAction,get B(){return B},get RUN(){return RUN},get busy(){return busy},get PST(){return PST},selectAction,execAction,ACTS,approachNode,bestAttackTile,guardTiles,tapWorld,get DLGO(){return DLG},nextLine,endScene,tapTile,moveHero,undoMove,waitTurn,useTonic,blink,canBlink,aiChoose,aiTurn,simFight,startFight,makePack,gSpec,targetsFor,previewAction,areaTiles,reach,planAll,threatMap,flankOf,inCover,los,genArena,genFloor,validateFloor,buildFloor,heroMove,openShrine,takeBlessing,talkFolk,openFolk,buyShop,wearOutfit,takeGift,applyPerks,OUTFITS,FOLK,NPCS,LADY,openBoutique,openLiraen,buildTown,renderBattle,telegraphMap,breathStop,intentHtml,INT_IC,AREA_T,liraenOffDuty,liraenPor,maidOffDuty,maidPor,maidNight,liraenNight,nightVisit,lateHour,NIGHT_CLOCK,MAID_NIGHT,LIRAEN_NIGHT,LIRAEN_OFF,gainAff,aff,talkAff,nextScene,folkTalk,SCENES,SCENE_REQ,townTier,patronCount,giveGift,openSylwen,takeSupper,GOSSIP,SHOPS,lockPlan,foeAct,doIntent,BOSS_T,boardOpen,talkTo,goTown,enterHouse,leaveHouse,townNews,lirGift,buildHouse,TOWN,readLore,LORE,BLESS,rollIntent,enemyTurn,win,lose,returnToFloor,climbStairs,drawMiniMap,openChest,skillCost,startClimb,endRun,goHub,hs,gearPower,itemPower,equip,salvage,upCost,newSave,save,show,renderHub,openGear,openTree,openForge,openVictory,closeSheet,SH,WSTYLES,styleOf,defaultStyle,makeItem,migrate,battleSkill,makeEnemy,hitFoe,knockback,openItem,bootFight,
+window.__LS={memVid,memVids,memGallery,SCENE_SHIP,get floatNum(){return floatNum},SPR_META,SPR_FILE,FSPR,sprGet,sprIdOf,MONSTERS,BOSSES,SPROUT,loopFor,SCENE_HAVE,btUse,btTap,btMoveTo,btStep,btSim,btAuto,btS,btW,BT_AW,BT_AD,BT_HSPD,BTL,get PREF(){return PREF},girlsOff,setToggle,perfToggle,v2Reset,FLIRT,withChoice,bumpMonster,enterArea,get screen(){return screen},ROMANCE,ROMANCE_MORE,SPILL,spillReady,trySpill,playSpill,townFootprints,townCobble,onCobble,leaveInn,ruinSky,STAGE_LOC,stageOf,festivalOn,stageUpLines,drawEnt,growTown,enterInn,buildInn,townGrid,villagerSprite,loopFor,SCENE_SHIP,memRec,memBackfill,memList,memCount,openMemories,memReplay,openSettings,SCENES,STAGE_LINES,STAGE_UP,playShared,folkTalk,get S(){return S},drawWorld,get RUNV(){return RUN},get NSC(){return NSC},stageOf,STAGE_LOC,LOCS,SHARED,STAGE_POR,SCENE_ASSETS,ART_HAVE,SCENE_HAVE,porFor,scenePor,playScene,openNpcScene,closeNpcScene,nsNext,playShared,sharedReady,folkTalk,growthTier,growthScore,crowdN,festivalOn,LOTS,HOMES,visitHome,startDescent,descendStairs,enterCamp,castlePack,CASTLE_MON,CASTLE_BOSSES,campBuy,openQuarter,inCastle,castleUnlocked,descentHtml,biomeOf,TOWN,skillCd,drawHero,HERO,JOY,KATel,updateWorld,disc,drillTab,artsBlock,ledgerHtml,get AREA(){return AREA},get RUNB(){return RUNB},RUN_MULT,MTYPE,DT_MULT,dtOf,dtMult,mtypeOf,ARTS,PROF_XP,profLv,profXp,profGain,curSty,artSkill,artSpec,artTargets,previewArt,doArt,counterMult,counterOf,v18Pack,swarmTick,V18_MONSTERS,trainCost,trainProf,temperCost,temperItem,INVEST,invest,investEff,telSkill,telFlush,weaponLook,weaponIconURL,itemIconHtml,heroLook,drawHeroR,drawHeroClassic,runSync,makeEnemy,makePack,heroAtkMods,battleSkill,gSpec,previewAction,get B(){return B},get RUN(){return RUN},get busy(){return busy},get PST(){return PST},selectAction,execAction,ACTS,approachNode,bestAttackTile,guardTiles,tapWorld,get DLGO(){return DLG},nextLine,endScene,tapTile,moveHero,undoMove,waitTurn,useTonic,blink,canBlink,aiChoose,aiTurn,simFight,startFight,makePack,gSpec,targetsFor,previewAction,areaTiles,reach,planAll,threatMap,flankOf,inCover,los,genArena,genFloor,validateFloor,buildFloor,heroMove,openShrine,takeBlessing,talkFolk,openFolk,buyShop,wearOutfit,takeGift,applyPerks,OUTFITS,FOLK,NPCS,LADY,openBoutique,openLiraen,buildTown,renderBattle,telegraphMap,breathStop,intentHtml,INT_IC,AREA_T,liraenOffDuty,liraenPor,maidOffDuty,maidPor,maidNight,liraenNight,nightVisit,lateHour,NIGHT_CLOCK,MAID_NIGHT,LIRAEN_NIGHT,LIRAEN_OFF,gainAff,aff,talkAff,nextScene,folkTalk,SCENES,SCENE_REQ,townTier,patronCount,giveGift,openSylwen,takeSupper,GOSSIP,SHOPS,lockPlan,foeAct,doIntent,BOSS_T,boardOpen,talkTo,goTown,enterHouse,leaveHouse,townNews,lirGift,buildHouse,TOWN,readLore,LORE,BLESS,rollIntent,enemyTurn,win,lose,returnToFloor,climbStairs,drawMiniMap,openChest,skillCost,startClimb,endRun,goHub,hs,gearPower,itemPower,equip,salvage,upCost,newSave,save,show,renderHub,openGear,openTree,openForge,openVictory,closeSheet,SH,WSTYLES,styleOf,defaultStyle,makeItem,migrate,battleSkill,makeEnemy,hitFoe,knockback,openItem,bootFight,
   get screen(){return screen},get AREA(){return AREA},HERO,JOY,CAM,talkTo,bumpMonster,enterFloor,goTown,enterHouse,openMap,openGate,get DLG(){return DLG},TUNE,checkpoints,get FAST(){return FAST},GC,GR,BOSS_T,ELITE_T,MONSTERS,BOSSES,computeIdle,openIdle,KATel,CLASSES};
 })();
 </script>
