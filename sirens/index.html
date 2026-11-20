@@ -119,7 +119,7 @@
     kael: { name: "Kael", floor: "Floor 1 · Crimson Lounge", video: "video/kael_loop.mp4?v=1", poster: "video/kael_poster.jpg?v=1", still: "art/kael_v3.jpg?v=1", color: "#ff8aa8" },
     lyra: { name: "Lyra", floor: "Floor 2 · Moon-Pool Deck", video: "video/lyra_loop.mp4?v=1", poster: "video/lyra_poster.jpg?v=1", still: "art/lyra_v3.jpg?v=1", color: "#d7b6ff" },
     sera: { name: "Sera", floor: "Floor 3 · Starlight Suite", video: "video/sera_loop.mp4?v=1", poster: "video/sera_poster.jpg?v=1", still: "art/sera_v3.jpg?v=1", color: "#f3e2b0" },
-    vesper: { name: "Lady Vesper", floor: "Floor 4 · Crown Penthouse", video: "", poster: "art/vesper_v3.jpg?v=1", still: "art/vesper_v3.jpg?v=1", color: "#ee9bff" }
+    vesper: { name: "Lady Vesper", floor: "Floor 4 · Crown Penthouse", video: "video/vesper_loop.mp4?v=2", poster: "assets/vesper_v6.jpg?v=2", still: "art/vesper_v3.jpg?v=2", color: "#ee9bff" }
   };
   var ORDER = ["kael", "lyra", "sera", "vesper"];
   var NODES = {
@@ -189,7 +189,7 @@
       { t: "You were the reason for the ride.", bond: 2, to: "vesper_warm" },
       { t: "The spire is the reason.", bond: 1, to: "vesper_cool" }
     ]},
-    vesper_warm: { girl: "vesper", who: "Lady Vesper", text: "Honest. She steps off the skyline and the violet of her gown catches every light she owns.", next: "vesper_gate" },
+    vesper_warm: { girl: "vesper", who: "Lady Vesper", text: "Honest. She steps off the skyline and the violet catches every light she owns.", next: "vesper_gate" },
     vesper_cool: { girl: "vesper", who: "Lady Vesper", text: "The spire is mine. You are the interesting part. Do not hide in the architecture.", next: "vesper_gate" },
     vesper_gate: { girl: "vesper", who: "Lady Vesper", text: "Dawn is a rumor from this high. You may keep the crown, or take the view and go.", choices: [
       { t: "Keep the crown with you.", need: 2, to: "vesper_after" },
