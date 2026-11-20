@@ -816,6 +816,10 @@ body.ns-on #island[data-k="walk"],body.dlg-on #island[data-k="walk"]{visibility:
 .set-cat .st small{font-weight:500!important;color:var(--dim)!important}
 @keyframes fnumB{0%{transform:translate(-50%,-30%) scale(1.15);opacity:0}10%{transform:translate(-50%,-55%) scale(1.06);opacity:1}22%{transform:translate(-50%,-62%) scale(1)}78%{opacity:1}100%{transform:translate(-50%,-140%) scale(.96);opacity:0}}
 body.rt-on .fnum{animation-name:fnumB}
+#dlg .dl-por.R .dl-vid{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:50% 22%;display:block;opacity:0;transition:opacity .45s ease;pointer-events:none;background:transparent}
+#dlg .dl-por.R.vid-on .dl-vid{opacity:1}
+#dlg .dl-por.R.vid-on .dl-idle img{opacity:0;transition:opacity .45s ease}
+#dlg.in .dl-por.R .dl-idle .dl-vid{animation:none}
 </style>
 </head>
 <body>
@@ -6407,15 +6411,12 @@ function openNpcScene(o){if(NSC)closeNpcScene(true);joyEnd&&joyEnd();
   const vv=(id==='maid'||id==='liraen')&&!o.loop?(o.variant||(id==='maid'?(maidNight()?'night':maidOffDuty()?'offduty':''):(liraenNight()?'night':liraenOffDuty()?'offduty':''))):'';
   const vf=o.loop?(SCENE_HAVE[`scenes/loop_${o.loop}.mp4`]?`scenes/loop_${o.loop}`:`scenes/loop_${id}_${o.loop}`):vv?`scenes/loop_${id}_${vv}`:(loopFor(id,st)||`scenes/loop_${id}_s${st}`);const old=el.querySelector('video');if(old)old.remove();
   el.classList.remove('vid-on');clearTimeout(NSC.vto);
-  if(!rm&&SCENE_HAVE[vf+'.mp4']){/* the still stays underneath; the loop fades in only once it is actually playing, and is dropped if missing or slow */
-    const v=document.createElement('video');v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.setAttribute('playsinline','');v.setAttribute('muted','');v.preload='auto';v.className='ns-vid';
-    if(SCENE_HAVE[vf+'.webp'])v.poster=vf+'.webp';
-    v.innerHTML=(SCENE_HAVE[vf+'.webm']?`<source src="${vf}.webm" type="video/webm">`:'')+`<source src="${vf}.mp4" type="video/mp4">`;
-    const drop=()=>{if(v.isConnected)v.remove();el.classList.remove('vid-on');if(NSC)NSC.vid='fallback';};
-    const srcs=v.querySelectorAll('source');srcs[srcs.length-1].addEventListener('error',drop);v.addEventListener('error',drop);
-    v.addEventListener('playing',()=>{if(!NSC||!v.isConnected)return;clearTimeout(NSC.vto);NSC.vid='playing';el.classList.add('vid-on');},{once:true});
-    NSC.vid='loading';NSC.vto=setTimeout(()=>{if(NSC&&NSC.vid==='loading')drop();},3500);
-    el.querySelector('.ns-act').appendChild(v);const p=v.play();if(p&&p.catch)p.catch(()=>{});}
+  if(SCENE_HAVE[vf+'.mp4']){/* the still stays underneath until the loop is actually playing; only a real load error drops it.
+     Reduced motion only calms CSS parallax/particles; the girl's loop still plays. */
+    NSC.vid='loading';
+    mountLoop(el.querySelector('.ns-act'),vf,'ns-vid',
+      ()=>{if(!NSC)return;NSC.vid='playing';el.classList.add('vid-on');},
+      v=>{if(v.isConnected)v.remove();el.classList.remove('vid-on');if(NSC)NSC.vid='fallback';});}
   const fx=el.querySelector('.ns-fx'),dpr=Math.min(1.5,DPR||1);fx.width=Math.round(innerWidth*dpr);fx.height=Math.round(innerHeight*dpr);NSC.dpr=dpr;
   nsSeed();document.body.classList.add('ns-on');KATel.pick&&KATel.pick('nscene',id,{loc:o.loc,act,st});
   if(!rm)NSC.raf=requestAnimationFrame(nsFrame);else nsFrame(performance.now());
@@ -6918,6 +6919,38 @@ function v2Reset(){try{if(NSC)closeNpcScene(true);}catch(e){}try{if(DLG)endScene
   ['ns-on','dlg-on','rt-on','b-over','in-battle','arts-on','isl-on'].forEach(c=>document.body.classList.remove(c));
   const n=$('nscene');if(n)n.className='';window.scrollTo(0,0);}
 prefApply();
+/* ===================== v2.0.1 scene video loops, iPhone-Safari-proof =====================
+   One way to mount a loop everywhere (#nscene and #dlg): muted + playsinline (+ webkit-playsinline) + autoplay + loop set as
+   both properties and attributes BEFORE src, direct .mp4 src, load(), append, play(). No give-up timer: the portrait stays
+   underneath until 'playing' fires and the loop is removed only on a real 'error'. Any tap re-kicks a paused loop
+   (iOS Low Power Mode refuses autoplay until a user gesture). */
+function mountLoop(host,vf,cls,onPlay,onDrop){
+  const v=document.createElement('video');
+  v.muted=true;v.defaultMuted=true;v.loop=true;v.autoplay=true;v.playsInline=true;v.preload='auto';
+  ['muted','playsinline','webkit-playsinline','autoplay','loop'].forEach(a=>v.setAttribute(a,''));
+  v.setAttribute('disablepictureinpicture','');v.setAttribute('aria-hidden','true');v.className=cls;
+  if(SCENE_HAVE[vf+'.webp'])v.poster=vf+'.webp';
+  v.addEventListener('playing',()=>{if(v.isConnected&&onPlay)onPlay(v);});
+  v.addEventListener('error',()=>{if(onDrop)onDrop(v);});
+  v.src=vf+'.mp4';v.load();host.appendChild(v);
+  const p=v.play();if(p&&p.catch)p.catch(()=>{});
+  return v;}
+function kickLoops(root){if(!root)return;root.querySelectorAll('video').forEach(v=>{if(v.paused&&v.isConnected&&!v.error){const p=v.play();if(p&&p.catch)p.catch(()=>{});}});}
+['click','touchend'].forEach(t=>document.addEventListener(t,ev=>{const r=ev.target&&ev.target.closest&&ev.target.closest('#nscene,#dlg');if(r)kickLoops(r);},{capture:true,passive:true}));
+
+/* #dlg: the girl's own stage loop plays full-bleed behind the dialogue band for the whole conversation with her */
+let DLV_TOK=0;
+function dlgVidClear(){const r=$('dlR');r.classList.remove('vid-on');r.querySelectorAll('video.dl-vid').forEach(v=>{try{v.pause();v.removeAttribute('src');v.load();}catch(e){}v.remove();});}
+function dlgVid(sc){dlgVidClear();if(!sc||!DLG)return;const id=sc.npc;
+  if(!id||!REL_IDS.includes(id)||girlsOff())return;
+  const vf=loopFor(id,stageOf(id));if(!vf||!SCENE_HAVE[vf+'.mp4'])return;
+  const tok=++DLV_TOK,r=$('dlR'),host=r.querySelector('.dl-idle')||r.querySelector('.dl-in');DLG.vid='loading';
+  const v=mountLoop(host,vf,'dl-vid',()=>{if(DLV_TOK!==tok||!DLG)return;DLG.vid='playing';r.classList.add('vid-on');},
+    vv=>{if(vv.isConnected)vv.remove();r.classList.remove('vid-on');if(DLG&&DLV_TOK===tok)DLG.vid='fallback';});
+  v.dataset.tok=tok;}
+const _k1playScene=playScene;playScene=function(sc){const r=_k1playScene(sc);if(DLG&&DLG.sc===sc)dlgVid(sc);else dlgVidClear();return r;};
+const _k1endScene=endScene;endScene=function(){const tok=DLV_TOK;_k1endScene.apply(this,arguments);
+  setTimeout(()=>{if(DLV_TOK===tok&&!(DLG&&DLG.vid))dlgVidClear();},FAST?0:400);};
 /* ---------- Input ---------- */
 document.addEventListener('click',ev=>{
   {const x=$('eNoteX');if(x&&x.classList.contains('on')){x.classList.remove('on');if(ev.target.closest('#eNote'))return;}
