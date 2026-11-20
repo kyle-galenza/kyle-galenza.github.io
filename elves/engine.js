@@ -79,16 +79,23 @@
   }
   function saveMeta() { saveJSON(META_KEY, meta); }
   function saveSettings() { saveJSON(SET_KEY, settings); }
-  function resetScroll() {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+  function syncViewport() {
+    const active = document.activeElement;
+    const typing = active && (active.tagName === 'INPUT' || active.tagName === 'TEXTAREA');
+    if (!typing) {
+      const vh = Math.max(window.innerHeight || 0, window.visualViewport ? Math.round(window.visualViewport.height) : 0);
+      if (vh > 0) document.documentElement.style.setProperty('--app-h', vh + 'px');
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
   }
   function pinAfterBlur() {
-    resetScroll();
-    setTimeout(resetScroll, 60);
-    setTimeout(resetScroll, 200);
-    setTimeout(resetScroll, 400);
+    syncViewport();
+    setTimeout(syncViewport, 60);
+    setTimeout(syncViewport, 200);
+    setTimeout(syncViewport, 450);
+    setTimeout(syncViewport, 800);
   }
   function nudgeVideos() {
     const nodes = document.querySelectorAll('video');
@@ -293,7 +300,7 @@
     document.body.dataset.screen = name;
     document.body.classList.remove('fade-out');
     document.body.classList.remove('choosing');
-    resetScroll();
+    syncViewport();
   }
   function overlayName() { return document.body.dataset.overlay || ''; }
   function showOverlay(name) {
@@ -1613,9 +1620,10 @@
   }
   function submitName() {
     const input = $('nameInput');
+    const value = input ? input.value : 'Cael';
     if (input && input.blur) input.blur();
-    resetScroll();
-    newGame(input ? input.value : 'Cael');
+    setTimeout(function () { newGame(value); syncViewport(); }, 80);
+    [100, 300, 600, 900].forEach(function (ms) { setTimeout(syncViewport, ms); });
   }
   function onEsc() {
     const ov = overlayName();
@@ -1834,16 +1842,14 @@
     const q = new URLSearchParams(location.search).get('speed');
     if (q != null && q !== '') settings.speed = Math.max(0, Math.min(3, +q || 0));
     bind();
-    resetScroll();
+    syncViewport();
     document.addEventListener('focusout', pinAfterBlur, true);
     document.addEventListener('pointerup', nudgeVideos, true);
     document.addEventListener('click', nudgeVideos, true);
-    window.addEventListener('resize', resetScroll);
-    window.addEventListener('orientationchange', resetScroll);
-    if (window.visualViewport) {
-      window.visualViewport.addEventListener('resize', resetScroll);
-      window.visualViewport.addEventListener('scroll', resetScroll);
-    }
+    window.addEventListener('resize', syncViewport);
+    window.addEventListener('orientationchange', syncViewport);
+    window.addEventListener('pageshow', syncViewport);
+    if (window.visualViewport) window.visualViewport.addEventListener('resize', syncViewport);
     syncSetButtons();
     const problems = selfCheck();
     if (problems.length) showCrash(problems.join('\n'));

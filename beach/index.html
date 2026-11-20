@@ -19,17 +19,18 @@
     --glass:rgba(6,22,30,.86); --au:#f0c36a; --mi:#ff9ec4; --ce:#7ec8ff; --sa:#ff7a68;
   }
   *{box-sizing:border-box}
-  html,body{position:fixed;inset:0;width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none;
+  html{height:var(--app-h, 100%);overflow:hidden}
+  body{position:relative;min-height:var(--app-h, 100%);height:var(--app-h, 100%);margin:0;overflow:hidden;overscroll-behavior:none;
     background:var(--bg);color:var(--ink);
     font:500 17px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;
-    touch-action:manipulation;-webkit-text-size-adjust:100%}
-  body{min-height:0;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+    touch-action:manipulation;-webkit-text-size-adjust:100%;
+    user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
   button,input{font:inherit;color:inherit}
   input,textarea{font-size:16px}
   input{user-select:text;-webkit-user-select:text}
   button,.choice,.place{cursor:pointer;touch-action:manipulation;min-height:48px}
   [hidden]{display:none !important}
-  #stage,#fade{position:fixed;inset:0}
+  #stage,#fade{position:absolute;top:0;left:0;width:100%;height:var(--app-h, 100dvh)}
   #stage{z-index:0;background:#042028;overflow:hidden}
   #bgImg,#cgImg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 20%}
   #loops{position:absolute;inset:0;z-index:2;pointer-events:none}
@@ -44,7 +45,7 @@
   body[data-screen="map"] #toast,body[data-screen="ending"] #toast,body[data-screen="title"] #toast{top:calc(10px + env(safe-area-inset-top));bottom:auto}
   #toast.show{opacity:1;transform:translate(-50%,0)}
   #crash{position:fixed;z-index:90;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));max-height:34dvh;overflow:auto;padding:8px 10px;border-radius:10px;background:#3a1020;color:#ffd0d8;font:600 12px/1.35 ui-monospace,monospace;white-space:pre-wrap}
-  .screen{position:fixed;inset:0;z-index:6;overflow:auto;-webkit-overflow-scrolling:touch;
+  .screen{position:absolute;top:0;left:0;width:100%;height:var(--app-h, 100dvh);z-index:6;overflow:auto;-webkit-overflow-scrolling:touch;
     padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left));
     display:flex;flex-direction:column;justify-content:flex-end}
   .panel{width:min(560px,100%);margin:0 auto;padding:16px 16px 14px;border-radius:24px;background:rgba(4,22,28,.78);border:1px solid var(--line);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px)}
@@ -90,14 +91,14 @@
   .meter[data-meter="mika"] i{background:linear-gradient(90deg,#8a3060,var(--mi))}
   .meter[data-meter="celeste"] i{background:linear-gradient(90deg,#1a5080,var(--ce))}
   .meter[data-meter="sable"] i{background:linear-gradient(90deg,#7a2820,var(--sa))}
-  #scene{position:fixed;inset:0;z-index:5;display:block;pointer-events:auto;touch-action:manipulation;cursor:pointer;background:transparent;padding:0;overflow:hidden}
+  #scene{position:absolute;top:0;left:0;width:100%;height:var(--app-h, 100dvh);z-index:5;display:block;pointer-events:auto;touch-action:manipulation;cursor:pointer;background:transparent;padding:0;overflow:hidden}
   #hud{position:absolute;left:0;right:0;top:0;z-index:7;display:flex;flex-direction:column;gap:6px;padding:calc(8px + env(safe-area-inset-top)) 10px 0;pointer-events:none}
   #hud .btn,#hud .meters{pointer-events:auto}
   .hud-top{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
   .hud-actions{display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end}
   #hudWhen{font:800 12px/1.2 system-ui;letter-spacing:.12em;color:var(--gold);text-shadow:0 1px 4px #000}
   #hudYou{color:#efe6d4;font-size:12px;margin-top:3px;text-shadow:0 1px 4px #000}
-  #box{position:absolute;left:0;right:0;bottom:0;z-index:6;min-height:calc(32dvh + env(safe-area-inset-bottom));max-height:calc(46dvh + env(safe-area-inset-bottom));padding:8px 10px calc(10px + env(safe-area-inset-bottom));pointer-events:auto}
+  #box{position:absolute;left:0;right:0;bottom:env(safe-area-inset-bottom, 0px);z-index:6;min-height:calc(32dvh + env(safe-area-inset-bottom));max-height:calc(46dvh + env(safe-area-inset-bottom));padding:8px 10px calc(10px + env(safe-area-inset-bottom));pointer-events:auto}
   body.choosing #box{min-height:0;max-height:calc(100dvh - env(safe-area-inset-top) - 72px)}
   .dlg{position:relative;height:100%;width:min(720px,100%);margin:0 auto;display:flex;flex-direction:column;gap:6px;padding:10px 10px 8px;border-radius:18px;background:var(--glass);border:1px solid var(--line);box-shadow:0 10px 30px rgba(0,0,0,.28)}
   body.choosing .dlg{height:auto;max-height:inherit}
@@ -157,8 +158,9 @@
     .btn:active,.choice:active,.place:active{transform:none}
   }
   :root{--topbar:0px;--dock:15%;--vidband:20%;--side:42vw}
-  html,body{position:fixed;inset:0;width:100%;height:100%;min-height:0;margin:0;overflow:hidden;overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-adjust:100%}
-  #stage,#scene{position:fixed;inset:0;width:100%;height:100%}
+  html{height:var(--app-h, 100%);overflow:hidden}
+  body{position:relative;min-height:var(--app-h, 100%);height:var(--app-h, 100%);margin:0;overflow:hidden;overscroll-behavior:none}
+  #stage,#scene{position:absolute;top:0;left:0;right:0;width:100%;height:var(--app-h, 100dvh);overflow:hidden}
   .meters,#mapActions,#hud{display:none !important}
   #toast,body[data-screen="scene"] #toast,body[data-screen="map"] #toast,body[data-screen="ending"] #toast,body[data-screen="title"] #toast{top:auto;bottom:calc(var(--dock) + 8px);max-width:min(280px,70vw)}
   body.choosing #toast{bottom:auto;top:calc(8px + env(safe-area-inset-top));max-width:min(240px,68vw)}
@@ -179,7 +181,7 @@
   .dlg{backdrop-filter:none;-webkit-backdrop-filter:none}
   body:not([data-screen="scene"]):not([data-screen="map"]) #btnPeek{visibility:hidden;pointer-events:none}
   #bgImg,#cgImg,#loops,#loops video,#loopPoster{left:0;right:0;top:0;bottom:0;width:100%;height:100%;object-fit:cover;object-position:center 20%}
-  #box{min-height:0;height:auto;max-height:calc(var(--dock) + env(safe-area-inset-bottom));padding:0 0 env(safe-area-inset-bottom);overflow:hidden}
+  #box{min-height:0;height:auto;bottom:env(safe-area-inset-bottom, 0px);max-height:var(--dock);padding:0 0 env(safe-area-inset-bottom);overflow:hidden}
   body.choosing #box{height:auto;min-height:0;max-height:34dvh;overflow:hidden;background:rgba(7,24,32,.88)}
   .dlg{height:auto;max-height:100%;overflow:hidden}
   body.choosing .dlg{height:auto;max-height:34dvh;overflow:hidden;background:transparent}
@@ -491,10 +493,10 @@ window.addEventListener('error', function (e) {
   function start() {
     document.documentElement.dataset.unlocked = "1";
     var s = document.createElement("script");
-    s.src = "story.js?v=15";
+    s.src = "story.js?v=16";
     s.onload = function () {
       var e = document.createElement("script");
-      e.src = "engine.js?v=14";
+      e.src = "engine.js?v=15";
       document.body.appendChild(e);
     };
     s.onerror = function () {
@@ -570,17 +572,30 @@ window.addEventListener('error', function (e) {
     } catch (e) {}
     return Promise.resolve(sha256hex(text));
   }
-  function pinScroll() {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+  function syncViewport() {
+    var active = document.activeElement;
+    var typing = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
+    if (!typing) {
+      var vh = Math.max(window.innerHeight || 0, window.visualViewport ? Math.round(window.visualViewport.height) : 0);
+      if (vh > 0) document.documentElement.style.setProperty("--app-h", vh + "px");
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
   }
-  document.addEventListener("focusout", function () {
-    pinScroll();
-    setTimeout(pinScroll, 60);
-    setTimeout(pinScroll, 200);
-    setTimeout(pinScroll, 400);
-  }, true);
+  function pinAfterBlur() {
+    syncViewport();
+    setTimeout(syncViewport, 60);
+    setTimeout(syncViewport, 200);
+    setTimeout(syncViewport, 450);
+    setTimeout(syncViewport, 800);
+  }
+  document.addEventListener("focusout", pinAfterBlur, true);
+  window.addEventListener("resize", syncViewport);
+  window.addEventListener("orientationchange", syncViewport);
+  window.addEventListener("pageshow", syncViewport);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", syncViewport);
+  syncViewport();
   form.addEventListener("submit", function (ev) {
     ev.preventDefault();
     if (!age.checked) {
@@ -594,11 +609,16 @@ window.addEventListener('error', function (e) {
         err.textContent = "That password is not right.";
         return;
       }
-      try { localStorage.setItem(KEY, "1"); } catch (e) {}
-      try { sessionStorage.setItem(KEY, "1"); } catch (e2) {}
-      err.hidden = true;
-      pw.value = "";
-      start();
+      pw.blur();
+      [100, 300, 600, 900].forEach(function (ms) { setTimeout(syncViewport, ms); });
+      setTimeout(function () {
+        try { localStorage.setItem(KEY, "1"); } catch (e) {}
+        try { sessionStorage.setItem(KEY, "1"); } catch (e2) {}
+        err.hidden = true;
+        pw.value = "";
+        start();
+        syncViewport();
+      }, 80);
     }).catch(function () {
       err.hidden = false;
       err.textContent = "This browser could not check the password.";

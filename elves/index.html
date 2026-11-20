@@ -19,13 +19,13 @@
     --glass:rgba(14,12,10,.78); --ae:#e2b15a; --ny:#c4c2ff; --li:#9dce8a;
   }
   *{box-sizing:border-box}
-  html,body{position:fixed;inset:0;width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--ink);font:500 16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
-  body{min-height:0;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
+  html{height:var(--app-h, 100%);overflow:hidden}
+  body{position:relative;min-height:var(--app-h, 100%);height:var(--app-h, 100%);margin:0;overflow:hidden;overscroll-behavior:none;background:var(--bg);color:var(--ink);font:500 16px/1.45 system-ui,-apple-system,"Segoe UI",sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent}
   button,input{font:inherit;color:inherit}
   input,textarea{font-size:16px}
   button,.choice{cursor:pointer;touch-action:manipulation;min-height:44px}
   [hidden]{display:none !important}
-  #bg,#fade{position:fixed;inset:0}
+  #bg,#fade{position:absolute;top:0;left:0;width:100%;height:var(--app-h, 100dvh)}
   #bg{z-index:0;background:#14110e}
   #bg.gardens{background:
     radial-gradient(ellipse at 72% 18%, rgba(255,196,90,.55), transparent 42%),
@@ -59,7 +59,7 @@
   #toast{position:fixed;z-index:40;left:50%;top:calc(12px + env(safe-area-inset-top));transform:translate(-50%,-8px);opacity:0;pointer-events:none;max-width:min(520px,92vw);padding:10px 14px;border-radius:999px;background:rgba(20,16,12,.92);border:1px solid var(--line);color:var(--gold);font:700 13px/1.3 system-ui;transition:.25s}
   #toast.show{opacity:1;transform:translate(-50%,0)}
   #crash{position:fixed;z-index:90;left:8px;right:8px;bottom:calc(8px + env(safe-area-inset-bottom));max-height:30dvh;overflow:auto;padding:8px 10px;border-radius:10px;background:#3a1020;color:#ffd0d8;font:600 12px/1.35 ui-monospace,monospace;white-space:pre-wrap;pointer-events:none}
-  .screen{position:fixed;inset:0;z-index:6;overflow:auto;padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
+  .screen{position:absolute;top:0;left:0;width:100%;height:var(--app-h, 100dvh);z-index:6;overflow:auto;padding:calc(16px + env(safe-area-inset-top)) calc(16px + env(safe-area-inset-right)) calc(16px + env(safe-area-inset-bottom)) calc(16px + env(safe-area-inset-left))}
   .lanterns{position:absolute;inset:0;overflow:hidden;pointer-events:none}
   .lanterns i{position:absolute;width:6px;height:6px;border-radius:50%;background:#ffd89a;box-shadow:0 0 12px #ffb450;opacity:.75;animation:float 9s ease-in-out infinite}
   .lanterns i:nth-child(1){left:12%;top:20%}
@@ -103,7 +103,7 @@
   .meter[data-meter="nyssa"] i{background:linear-gradient(90deg,#3a3a78,var(--ny))}
   .meter[data-meter="lirael"] i{background:linear-gradient(90deg,#2a5a32,var(--li))}
   .bar{height:8px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
-  #scene{position:fixed;inset:0;z-index:5;pointer-events:auto;touch-action:manipulation;cursor:pointer;background:transparent}
+  #scene{position:absolute;top:0;left:0;width:100%;height:var(--app-h, 100dvh);z-index:5;pointer-events:auto;touch-action:manipulation;cursor:pointer;background:transparent}
   #scene[hidden]{display:none !important}
   #hud{position:absolute;left:0;right:0;top:0;display:flex;justify-content:space-between;gap:8px;padding:calc(10px + env(safe-area-inset-top)) 12px 0;pointer-events:none}
   #hud .btn{pointer-events:auto}
@@ -122,7 +122,7 @@
   #crestMark{font:italic 92px/1 Georgia,serif;color:var(--gold)}
   #crestName{font:italic 28px/1 Georgia,serif;margin-top:8px}
   #crestRole{margin-top:6px;letter-spacing:.14em;font:800 11px/1 system-ui;color:var(--dim)}
-  #box{position:absolute;left:0;right:0;bottom:0;z-index:6;height:calc(20dvh + env(safe-area-inset-bottom));max-height:calc(20dvh + env(safe-area-inset-bottom));padding:6px 10px calc(8px + env(safe-area-inset-bottom));pointer-events:auto}
+  #box{position:absolute;left:0;right:0;bottom:env(safe-area-inset-bottom, 0px);z-index:6;height:auto;max-height:calc(20dvh + env(safe-area-inset-bottom));padding:6px 10px calc(8px + env(safe-area-inset-bottom));pointer-events:auto}
   body.choosing #box{height:auto;max-height:calc(100dvh - env(safe-area-inset-top) - 12px)}
   .dlg{position:relative;height:100%;width:min(980px,100%);margin:0 auto;display:flex;flex-direction:column;gap:6px;padding:6px 8px 4px;border-radius:14px;background:rgba(14,12,10,.42);border:1px solid var(--line);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);overflow:hidden}
   body.choosing .dlg{height:auto;max-height:inherit;overflow:auto}
@@ -196,8 +196,9 @@
     #fade{transition:none}
   }
   :root{--topbar:0px;--dock:15%;--vidband:20%;--side:42vw}
-  html,body{position:fixed;inset:0;width:100%;height:100%;min-height:0;margin:0;overflow:hidden;overscroll-behavior:none;touch-action:manipulation;-webkit-text-size-adjust:100%}
-  #bg,#scene,#figure,#figure.cg{position:fixed;inset:0;width:100%;height:100%}
+  html{height:var(--app-h, 100%);overflow:hidden}
+  body{position:relative;min-height:var(--app-h, 100%);height:var(--app-h, 100%);margin:0;overflow:hidden;overscroll-behavior:none}
+  #bg,#scene,#figure,#figure.cg{position:absolute;top:0;left:0;width:100%;height:var(--app-h, 100dvh);overflow:hidden}
   .meters,#hud,#mapActions{display:none !important}
   #toast{top:auto;bottom:calc(var(--dock) + 8px);max-width:min(280px,70vw)}
   body.choosing #toast{bottom:auto;top:calc(8px + env(safe-area-inset-top));max-width:min(240px,68vw)}
@@ -222,7 +223,7 @@
   #figure,#figure.cg{top:0;right:0;bottom:0;left:0;width:100%;height:100%}
   #figure{overflow:hidden}
   #sprite{position:absolute;inset:0;width:100%;height:100%;max-width:none;max-height:none;object-fit:cover;object-position:center 22%;filter:none}
-  #box{min-height:0;height:auto;max-height:calc(var(--dock) + env(safe-area-inset-bottom));padding:0 0 env(safe-area-inset-bottom);overflow:hidden}
+  #box{min-height:0;height:auto;bottom:env(safe-area-inset-bottom, 0px);max-height:var(--dock);padding:0 0 env(safe-area-inset-bottom);overflow:hidden}
   body.choosing #box{height:auto;min-height:0;max-height:34dvh;overflow:hidden;background:rgba(20,16,14,.88)}
   .dlg{height:auto;max-height:100%;overflow:hidden}
   body.choosing .dlg{height:auto;max-height:34dvh;overflow:hidden;background:transparent}
@@ -544,10 +545,10 @@ window.addEventListener('unhandledrejection', function (e) {
   function start() {
     document.documentElement.dataset.unlocked = "1";
     var s = document.createElement("script");
-    s.src = "story.js?v=19";
+    s.src = "story.js?v=20";
     s.onload = function () {
       var e = document.createElement("script");
-      e.src = "engine.js?v=19";
+      e.src = "engine.js?v=20";
       document.body.appendChild(e);
     };
     s.onerror = function () {
@@ -623,17 +624,30 @@ window.addEventListener('unhandledrejection', function (e) {
     } catch (e) {}
     return Promise.resolve(sha256hex(text));
   }
-  function pinScroll() {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+  function syncViewport() {
+    var active = document.activeElement;
+    var typing = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
+    if (!typing) {
+      var vh = Math.max(window.innerHeight || 0, window.visualViewport ? Math.round(window.visualViewport.height) : 0);
+      if (vh > 0) document.documentElement.style.setProperty("--app-h", vh + "px");
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
   }
-  document.addEventListener("focusout", function () {
-    pinScroll();
-    setTimeout(pinScroll, 60);
-    setTimeout(pinScroll, 200);
-    setTimeout(pinScroll, 400);
-  }, true);
+  function pinAfterBlur() {
+    syncViewport();
+    setTimeout(syncViewport, 60);
+    setTimeout(syncViewport, 200);
+    setTimeout(syncViewport, 450);
+    setTimeout(syncViewport, 800);
+  }
+  document.addEventListener("focusout", pinAfterBlur, true);
+  window.addEventListener("resize", syncViewport);
+  window.addEventListener("orientationchange", syncViewport);
+  window.addEventListener("pageshow", syncViewport);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", syncViewport);
+  syncViewport();
   form.addEventListener("submit", function (ev) {
     ev.preventDefault();
     if (!age.checked) {
@@ -647,11 +661,16 @@ window.addEventListener('unhandledrejection', function (e) {
         err.textContent = "That password is not right.";
         return;
       }
-      try { localStorage.setItem(KEY, "1"); } catch (e) {}
-      try { sessionStorage.setItem(KEY, "1"); } catch (e2) {}
-      err.hidden = true;
-      pw.value = "";
-      start();
+      pw.blur();
+      [100, 300, 600, 900].forEach(function (ms) { setTimeout(syncViewport, ms); });
+      setTimeout(function () {
+        try { localStorage.setItem(KEY, "1"); } catch (e) {}
+        try { sessionStorage.setItem(KEY, "1"); } catch (e2) {}
+        err.hidden = true;
+        pw.value = "";
+        start();
+        syncViewport();
+      }, 80);
     }).catch(function () {
       err.hidden = false;
       err.textContent = "This browser could not check the password.";

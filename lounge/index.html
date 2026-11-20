@@ -12,7 +12,8 @@
 <style>
   :root{--ink:#f6efe6;--dim:#cbbbaa;--gold:#e7c98a;--line:rgba(231,201,138,.45)}
   *{box-sizing:border-box}
-  html,body{position:fixed;inset:0;width:100%;height:100%;margin:0;overflow:hidden;overscroll-behavior:none;background:#140e12;color:var(--ink);font:500 17px/1.45 system-ui,-apple-system,sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
+  html{height:var(--app-h, 100%);overflow:hidden}
+  body{position:relative;min-height:var(--app-h, 100%);height:var(--app-h, 100%);margin:0;overflow:hidden;overscroll-behavior:none;background:#140e12;color:var(--ink);font:500 17px/1.45 system-ui,-apple-system,sans-serif;touch-action:manipulation;-webkit-text-size-adjust:100%}
   main{max-width:520px;height:100%;margin:0 auto;overflow:auto;padding:calc(18px + env(safe-area-inset-top)) 16px calc(24px + env(safe-area-inset-bottom))}
   input,textarea{font-size:16px}
   h1{margin:0;font:italic 46px/1 Georgia,serif}
@@ -129,17 +130,30 @@
     } catch (e) {}
     return Promise.resolve(sha256hex(text));
   }
-  function pinScroll() {
-    window.scrollTo(0, 0);
-    document.documentElement.scrollTop = 0;
-    document.body.scrollTop = 0;
+  function syncViewport() {
+    var active = document.activeElement;
+    var typing = active && (active.tagName === "INPUT" || active.tagName === "TEXTAREA");
+    if (!typing) {
+      var vh = Math.max(window.innerHeight || 0, window.visualViewport ? Math.round(window.visualViewport.height) : 0);
+      if (vh > 0) document.documentElement.style.setProperty("--app-h", vh + "px");
+      window.scrollTo(0, 0);
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    }
   }
-  document.addEventListener("focusout", function () {
-    pinScroll();
-    setTimeout(pinScroll, 60);
-    setTimeout(pinScroll, 200);
-    setTimeout(pinScroll, 400);
-  }, true);
+  function pinAfterBlur() {
+    syncViewport();
+    setTimeout(syncViewport, 60);
+    setTimeout(syncViewport, 200);
+    setTimeout(syncViewport, 450);
+    setTimeout(syncViewport, 800);
+  }
+  document.addEventListener("focusout", pinAfterBlur, true);
+  window.addEventListener("resize", syncViewport);
+  window.addEventListener("orientationchange", syncViewport);
+  window.addEventListener("pageshow", syncViewport);
+  if (window.visualViewport) window.visualViewport.addEventListener("resize", syncViewport);
+  syncViewport();
   form.addEventListener("submit", function (ev) {
     ev.preventDefault();
     if (!age.checked) {
@@ -153,11 +167,16 @@
         err.textContent = "That password is not right.";
         return;
       }
-      try { localStorage.setItem(KEY, "1"); } catch (e) {}
-      try { sessionStorage.setItem(KEY, "1"); } catch (e2) {}
-      err.hidden = true;
-      pw.value = "";
-      open();
+      pw.blur();
+      [100, 300, 600, 900].forEach(function (ms) { setTimeout(syncViewport, ms); });
+      setTimeout(function () {
+        try { localStorage.setItem(KEY, "1"); } catch (e) {}
+        try { sessionStorage.setItem(KEY, "1"); } catch (e2) {}
+        err.hidden = true;
+        pw.value = "";
+        open();
+        syncViewport();
+      }, 80);
     }).catch(function () {
       err.hidden = false;
       err.textContent = "This browser could not check the password.";
