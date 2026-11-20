@@ -24,7 +24,6 @@
   [hidden]{display:none !important}
   #stage{position:fixed;top:0;right:0;bottom:0;left:0;width:auto;height:auto;overflow:hidden;background:#07040e}
   #media{position:absolute;top:0;left:0;right:0;bottom:var(--band,96px);overflow:hidden}
-  #fit{position:absolute;inset:0}
   #poster,#layerA,#layerB,#still{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center var(--fy, 18%);background:#07040e}
   #veil{position:absolute;left:0;right:0;bottom:0;height:16%;z-index:5;pointer-events:none;background:linear-gradient(transparent, rgba(7,4,14,.5))}
   #layerA,#layerB,#still{opacity:0;transition:opacity .3s ease}
@@ -33,6 +32,15 @@
   @keyframes breath{0%,100%{transform:none}50%{transform:scale(1.02) translateY(-0.6%)}}
   @media (prefers-reduced-motion:reduce){#still.breath{animation:none}#layerA,#layerB,#still{transition:none}}
   #spark{position:absolute;z-index:8;top:calc(var(--st) + 8px);right:calc(8px + var(--sr));width:42px;height:42px;min-height:42px;padding:0;border-radius:50%;border:1px solid var(--line);background:rgba(10,6,16,.72);color:var(--gold);font:700 18px/1 Georgia,serif}
+  #btnFull{display:none;position:absolute;z-index:9;top:calc(var(--st) + 8px);right:calc(58px + var(--sr));width:42px;height:42px;min-width:42px;min-height:42px;padding:0;border-radius:50%;border:1px solid var(--line);background:rgba(10,6,16,.45);color:var(--gold);align-items:center;justify-content:center}
+  #btnFull svg{display:block}
+  body.playing #btnFull{display:flex}
+  body:not(.fullscreen) #btnFull .ic-close,body.fullscreen #btnFull .ic-open{display:none}
+  body.fullscreen{--band:0px}
+  body.fullscreen #hud,body.fullscreen #drawer,body.fullscreen #spark,body.fullscreen #veil{display:none !important}
+  #fit{position:absolute;left:0;top:0;width:100%;height:100%}
+  #media.tight #fit{left:50%;top:var(--ty,0px);width:var(--fw,100%);height:var(--fh,100%);transform:translateX(-50%)}
+  #media.tight #poster,#media.tight #layerA,#media.tight #layerB,#media.tight #still{object-fit:fill;object-position:center center}
   #drawer{position:fixed;z-index:29;top:calc(var(--st) + 58px);right:calc(8px + var(--sr));width:min(232px,78vw);max-height:46%;overflow:auto;padding:8px;border-radius:16px;background:rgba(10,6,16,.94);border:1px solid var(--line);display:flex;flex-direction:column;gap:6px}
   #drawer button,#drawer a{min-height:36px;text-align:left;padding:6px 10px;border-radius:10px;border:1px solid rgba(231,176,255,.28);background:rgba(255,255,255,.04);font-size:13px;text-decoration:none;color:inherit}
   #drawer button.on{box-shadow:inset 0 0 0 1px var(--gold);color:var(--gold)}
@@ -103,6 +111,10 @@
     <div id="veil"></div>
   </div>
 <button type="button" id="spark" aria-label="Suites" hidden>✦</button>
+<button type="button" id="btnFull" aria-label="Full screen" aria-pressed="false">
+  <svg class="ic-open" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M4 9V4h5M15 4h5v5M20 15v5h-5M9 20H4v-5"/></svg>
+  <svg class="ic-close" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M9 4v5H4M15 4v5h5M20 15h-5v5M4 15h5v5"/></svg>
+</button>
 <section id="title">
   <form id="titleForm" class="panel" autocomplete="off">
     <p class="sub">HOLLOW SPIRE</p>
@@ -304,9 +316,26 @@
   function syncBand() {
     var hud = $("hud");
     if (!hud) return;
-    document.documentElement.style.setProperty("--band", hud.offsetHeight + "px");
+    var h = document.body.classList.contains("fullscreen") ? 0 : hud.offsetHeight;
+    document.documentElement.style.setProperty("--band", h + "px");
     if (window.requestAnimationFrame) requestAnimationFrame(function () { layoutMedia($("media")); });
   }
+  var FS_KEY = "sirens-fs";
+  function setFull(on) {
+    document.body.classList.toggle("fullscreen", !!on);
+    var b = $("btnFull");
+    if (b) {
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      b.setAttribute("aria-label", on ? "Exit full screen" : "Full screen");
+    }
+    if (on && $("drawer")) $("drawer").hidden = true;
+    try {
+      if (on) sessionStorage.setItem(FS_KEY, "1");
+      else sessionStorage.removeItem(FS_KEY);
+    } catch (e) {}
+    syncBand();
+  }
+  try { if (sessionStorage.getItem(FS_KEY) === "1") setFull(true); } catch (eFs) {}
   if (window.ResizeObserver && $("hud")) new ResizeObserver(syncBand).observe($("hud"));
   syncBand();
   function toast(text) {
@@ -409,7 +438,7 @@
     "lyra:a_sway": { h: 0.105 },
     "lyra:b_lean": { h: 0.09 },
     "lyra:c_sway": { h: 0.02 },
-    "sera:a_bounce": { h: 0.0 },
+    "sera:a_bounce": { h: 0.25, tight: 1 },
     "sera:b_shimmy": { h: 0.07 },
     "sera:c_wink": { h: 0.075 },
     "vesper:a_sway": { h: 0.22 },
@@ -432,6 +461,21 @@
     if (headY < 0.03 * bh) p = 0;
     return p;
   }
+  function layoutTight(media, bw, bh, iw, ih, head) {
+    media.classList.add("tight");
+    var margin = 0.04;
+    var span = 1 - head;
+    if (span < 0.2) span = 0.2;
+    var s = Math.max(bw / iw, bh / ih, (bh * (1 - margin)) / (ih * span));
+    var srcTop = head * ih - (margin * bh) / s;
+    var maxTop = ih - bh / s;
+    if (maxTop < 0) maxTop = 0;
+    if (srcTop < 0) srcTop = 0;
+    if (srcTop > maxTop) srcTop = maxTop;
+    media.style.setProperty("--fw", (iw * s).toFixed(2) + "px");
+    media.style.setProperty("--fh", (ih * s).toFixed(2) + "px");
+    media.style.setProperty("--ty", ((-srcTop) * s).toFixed(2) + "px");
+  }
   function layoutMedia(media) {
     if (!media) return;
     var head = parseFloat(media.dataset.head || "0.1");
@@ -439,6 +483,11 @@
     var ih = parseFloat(media.dataset.ih || "1280");
     var r = media.getBoundingClientRect();
     if (r.height < 40 || r.width < 40) return;
+    if (media.dataset.tight === "1") {
+      layoutTight(media, r.width, r.height, iw, ih, head);
+      return;
+    }
+    media.classList.remove("tight");
     var p = focusFrac(r.width, r.height, iw, ih, head);
     media.style.setProperty("--fy", (p * 100).toFixed(2) + "%");
   }
@@ -450,6 +499,8 @@
     media.dataset.head = s.h;
     media.dataset.iw = "720";
     media.dataset.ih = "1280";
+    if (s.tight) media.dataset.tight = "1";
+    else delete media.dataset.tight;
     layoutMedia(media);
   }
   function showVisual(girl) {
@@ -570,6 +621,7 @@
     go(c.to);
   }
   function advance() {
+    if (document.body.classList.contains("fullscreen")) return;
     var n = NODES[state.node];
     if (!n || (n.choices && n.choices.length) || n.end) return;
     if (n.next) go(n.next);
@@ -702,6 +754,7 @@
       shown = "";
       go(state.node || "kael_a");
       syncViewport();
+      syncBand();
       [100, 300, 600, 900].forEach(function (ms) { setTimeout(syncViewport, ms); });
     }, 80);
   }
@@ -752,13 +805,23 @@
       if (clip) whisper(clip.line);
     });
     $("box").addEventListener("pointerup", function (e) {
-      if (e.target.closest && (e.target.closest(".choice") || e.target.closest("#wear"))) return;
+      if (document.body.classList.contains("fullscreen")) return;
+      if (e.target.closest && (e.target.closest(".choice") || e.target.closest("#wear") || e.target.closest("#btnFull"))) return;
       var now = Date.now();
       if (now - lastAdv < 250) return;
       lastAdv = now;
       if (document.body.classList.contains("choosing")) return;
       if (e.cancelable) e.preventDefault();
       advance();
+    });
+    var lastFull = 0;
+    $("btnFull").addEventListener("pointerup", function (e) {
+      var now = Date.now();
+      if (now - lastFull < 250) return;
+      lastFull = now;
+      if (e.stopPropagation) e.stopPropagation();
+      if (e.cancelable) e.preventDefault();
+      setFull(!document.body.classList.contains("fullscreen"));
     });
     var lastSpark = 0;
     $("spark").addEventListener("pointerup", function (e) {
