@@ -23,8 +23,11 @@
   #layerA,#layerB{opacity:0;z-index:1;transform-origin:center 28%;will-change:opacity,transform}
   #poster{z-index:0}
   #veil{position:absolute;top:0;left:0;right:0;height:90px;z-index:5;pointer-events:none;background:linear-gradient(#100e0c, transparent)}
-  #dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 78px);z-index:30;display:flex;flex-direction:column;gap:6px;align-items:center;width:max-content;max-width:calc(100vw - 12px)}
+  #dock{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(env(safe-area-inset-bottom, 0px) + 78px);z-index:30;display:flex;flex-direction:column;gap:6px;align-items:center;width:calc(100vw - 12px);max-width:calc(100vw - 12px)}
   #dock .row{display:flex;gap:5px;align-items:center;justify-content:center;flex-wrap:nowrap}
+  #rowDo{width:100%;max-width:100%;justify-content:flex-start;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;scrollbar-width:none;touch-action:pan-x}
+  #rowDo::-webkit-scrollbar{display:none}
+  #rowDo button{flex:0 0 auto}
   #dock button,#dock a{min-height:32px;padding:0 10px;border-radius:999px;border:1px solid var(--line);background:rgba(16,12,10,.55);color:var(--gold);font:700 12px/1 system-ui;text-decoration:none;white-space:nowrap;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
   #dock button.on{background:linear-gradient(180deg,#f3ddb0,#c9964a);color:#24180c;border-color:transparent}
   #dock button:disabled{opacity:.4}
@@ -95,12 +98,17 @@
       hello: "Emerald and gold, and the room is ours.",
       poses: ["stand", "sit", "recline"],
       actions: ["smile", "beckon"],
+      loops: ["lean", "kneel", "sway", "wink"],
       clips: {
         stand: clip("", "idle_stand", true, "stand", "The night is still young. Come stand with me."),
         sit: clip("", "idle_sit", true, "sit", "Sit. The bed remembers you."),
         recline: clip("", "idle_recline", true, "recline", "Stay a little longer—the candles are still warm."),
         smile: clip("", "action_smile", false, "smile", "There. That smile was only for you."),
-        beckon: clip("", "action_beckon", false, "beckon", "Closer... I wasn't finished looking at you.")
+        beckon: clip("", "action_beckon", false, "beckon", "Closer... I wasn't finished looking at you."),
+        lean: clip("aelith", "pose_lean", true, "lean", "Come lean with me", "1"),
+        kneel: clip("aelith", "pose_kneel", true, "kneel", "Waiting here for you", "1"),
+        sway: clip("aelith", "action_sway", true, "sway", "Slow, just for you", "1"),
+        wink: clip("aelith", "action_wink", true, "wink", "A warmer smile for you", "1")
       }
     },
     nyssa: {
@@ -124,7 +132,7 @@
       }
     }
   };
-  var LABELS = { stand: "Stand", sit: "Sit", recline: "Recline", smile: "Flirty smile", beckon: "Come closer" };
+  var LABELS = { stand: "Stand", sit: "Sit", recline: "Recline", smile: "Flirty smile", beckon: "Come closer", lean: "Lean", kneel: "Kneel", sway: "Sway", wink: "Wink" };
   var who = "aelith";
   var pose = "stand";
   var liveAction = "";
@@ -203,6 +211,7 @@
     }
     hero.poses.forEach(function (key) { make(key, "pose"); });
     hero.actions.forEach(function (key) { make(key, "action"); });
+    (hero.loops || []).forEach(function (key) { make(key, "pose"); });
   }
   function arm(el, clip) {
     el.muted = true;
@@ -288,7 +297,7 @@
     var ease = seam ? "ease-out" : "cubic-bezier(0.22, 1, 0.36, 1)";
     var glide = 0;
     if (kind === "glide") {
-      var order = { stand: 0, sit: 1, recline: 2 };
+      var order = { stand: 0, lean: 0, sway: 0, wink: 0, sit: 1, kneel: 2, recline: 2 };
       var nextRank = order[clip.key] || 0;
       var curRank = order[pose] || 0;
       glide = nextRank >= curRank ? 1 : -1;
@@ -400,7 +409,10 @@
     window.addEventListener("orientationchange", syncViewport);
     window.addEventListener("pageshow", syncViewport);
     if (window.visualViewport) window.visualViewport.addEventListener("resize", syncViewport);
+    var pressX = 0;
+    $("dock").addEventListener("pointerdown", function (e) { pressX = e.clientX || 0; });
     $("dock").addEventListener("pointerup", function (e) {
+      if (Math.abs((e.clientX || 0) - pressX) > 10) return;
       var btn = e.target.closest ? e.target.closest("button") : null;
       if (!btn || btn.disabled) return;
       if (e.cancelable) e.preventDefault();
