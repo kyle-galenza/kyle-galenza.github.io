@@ -389,6 +389,7 @@
     var key = girl + ":" + (clip ? clip.id : (useVideo ? "loop" : "still"));
     if (key === shown) return;
     shown = key;
+    if (clip) whisper(clip.line);
     var token = ++visToken;
     if (!useVideo) { showStill(g.still, token); return; }
     var next = layer(1 - front);
