@@ -218,39 +218,6 @@ const GAMES = [
     accent: '#ff9a4a',
     tag: 'WEIRD WEST ROGUELITE',
     art: 'sorrow'
-  },
-  {
-    id: 'coral-key',
-    name: 'CORAL KEY',
-    subtitle: 'A Summer Weekend',
-    blurb: 'A flirty weekend at an island resort. Four women, one ferry, and a Sunday that does not want to end.',
-    href: './beach/',
-    accent: '#ffd27a',
-    tag: 'VISUAL NOVEL',
-    password: true,
-    thumb: 'img/coral-key.webp'
-  },
-  {
-    id: 'lanternveil',
-    name: 'LANTERNVEIL',
-    subtitle: 'Festival of Lights',
-    blurb: 'Twenty-one days in Moonpetal. Three elf women, lanterns, and a road home that can wait.',
-    href: './elves/',
-    accent: '#9dce8a',
-    tag: 'VISUAL NOVEL',
-    password: true,
-    thumb: 'img/lanternveil.webp'
-  },
-  {
-    id: 'lounge',
-    name: 'THE LOUNGE',
-    subtitle: 'Private Door',
-    blurb: 'The door between Coral Key and Lanternveil. The same password opens all three.',
-    href: './lounge/',
-    accent: '#e7c98a',
-    tag: 'STORY HUB',
-    password: true,
-    thumb: 'img/lounge.webp'
   }
 ];
 
@@ -311,9 +278,6 @@ if (lastId) {
       :last.id==='lumenspire'?(spireBest?'Best floor  '+spireBest:'Climb the tower')
       :last.id==='starfall-vale'?(valeLv?(valeBoss?'Barrow King slain  ·  Lv '+valeLv:'Level '+valeLv):'Cross the moor')
       :last.id==='six-for-sorrow'?'Ride the Dry Mile'
-      :last.id==='coral-key'?'A weekend at the resort'
-      :last.id==='lanternveil'?'Twenty-one festival days'
-      :last.id==='lounge'?'The private door'
       :(siegeBest?'Furthest level  '+siegeBest:'Storm the keep');
     html+=`<a class="continue" href="${last.href}" data-id="${last.id}" style="--accent:${last.accent}">
       <div class="meta"><div class="k">CONTINUE</div><div class="n" style="color:${last.accent}">${last.name}</div><div class="s">${score}</div></div>
