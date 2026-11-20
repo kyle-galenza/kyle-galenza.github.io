@@ -55,6 +55,15 @@
   }
   function saveMeta() { saveJSON(META_KEY, meta); }
   function saveSettings() { saveJSON(SET_KEY, settings); }
+  function settleViewport() {
+    const vv = window.visualViewport;
+    const h = Math.max(1, Math.round((vv && vv.height) || window.innerHeight || 0));
+    const root = document.documentElement;
+    root.style.setProperty('--app-h', h + 'px');
+    root.style.setProperty('--dock', Math.max(72, Math.round(h * 0.15)) + 'px');
+    root.style.setProperty('--vidband', Math.max(88, Math.round(h * 0.2)) + 'px');
+    if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+  }
 
   function spriteChain(key) {
     if (!key) return [];
@@ -246,10 +255,9 @@
     });
     if (state) state.screen = name;
     document.body.dataset.screen = name;
-    if (name !== 'scene') {
-      document.body.classList.remove('fade-out');
-      document.body.classList.remove('choosing');
-    }
+    document.body.classList.remove('fade-out');
+    document.body.classList.remove('choosing');
+    settleViewport();
   }
   function overlayName() { return document.body.dataset.overlay || ''; }
   function showOverlay(name) {
@@ -332,8 +340,7 @@
     $('btnAdvance').hidden = choiceOpen;
     if (choiceOpen) return;
     clearTimeout(autoTimer);
-    if (!fromClick && settings.skip && lineWasKnown) autoTimer = setTimeout(advance, 40);
-    else if (settings.auto) autoTimer = setTimeout(advance, autoDelay());
+    if (!fromClick && settings.auto) autoTimer = setTimeout(function () { advance(false); }, autoDelay());
   }
   function typePage() {
     const page = pages[pageIndex] || '';
@@ -419,8 +426,6 @@
       b.textContent = fmt(opt.text);
       function arm(e) { takeChoice(menu, i, e); }
       b.addEventListener('pointerup', arm);
-      b.addEventListener('touchend', arm);
-      b.addEventListener('click', arm);
       box.appendChild(b);
     });
     if (state && state.play) state.play.step = stepIndex;
@@ -463,7 +468,13 @@
     present();
   }
 
-  function advance() {
+  let lastAdvance = 0;
+  function advance(fromUser) {
+    if (fromUser) {
+      const now = Date.now();
+      if (now - lastAdvance < 250) return;
+      lastAdvance = now;
+    }
     if (overlayName() === 'video' || overlayName() === 'mini') return;
     if (overlayName()) return;
     if (!state || state.screen !== 'scene') return;
@@ -1484,7 +1495,7 @@
     settings.skip = !settings.skip;
     saveSettings();
     syncSetButtons();
-    toast(settings.skip ? 'Skip reads lines you have already seen' : 'Skip off');
+    toast(settings.skip ? 'Read lines appear at once. One tap still moves one line.' : 'Skip off');
   }
   let theme = null;
   function ensureTheme() {
@@ -1565,6 +1576,8 @@
   }
   function submitName() {
     const input = $('nameInput');
+    if (input && input.blur) input.blur();
+    settleViewport();
     newGame(input ? input.value : 'Cael');
   }
   function onEsc() {
@@ -1611,7 +1624,10 @@
     return problems;
   }
 
+  let bound = false;
   function bind() {
+    if (bound) return;
+    bound = true;
     $('btnNew').addEventListener('click', function () { showBase('name'); $('nameInput').focus(); });
     $('btnNameOk').addEventListener('click', submitName);
     $('btnCont').addEventListener('click', function () { loadSlot(0); });
@@ -1628,7 +1644,12 @@
     $('mapLoad').addEventListener('click', function () { openSaves('load'); });
     $('mapSettings').addEventListener('click', openSettings);
     $('mapTitle').addEventListener('click', function () { autosave(); showTitle(); });
-    $('btnAdvance').addEventListener('click', function (e) { e.stopPropagation(); advance(); });
+    $('btnAdvance').addEventListener('pointerup', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.preventDefault) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+      advance(true);
+    });
     let holdTimer = 0;
     let heldMenu = false;
     $('scene').addEventListener('pointerdown', function (e) {
@@ -1649,7 +1670,7 @@
       if (choiceOpen) return;
       if (e.preventDefault) e.preventDefault();
       blockPlacesUntil = Date.now() + 450;
-      advance();
+      advance(true);
     });
     $('scene').addEventListener('pointercancel', function () { clearTimeout(holdTimer); });
     document.addEventListener('pointerup', function () { ensureTheme(); });
@@ -1752,7 +1773,7 @@
       if (e.key === ' ' || e.key === 'Enter') {
         e.preventDefault();
         if (e.repeat && !textDone) { completeText(); return; }
-        advance();
+        advance(true);
       }
     });
     window.addEventListener('error', function (e) {
@@ -1772,6 +1793,13 @@
     const q = new URLSearchParams(location.search).get('speed');
     if (q != null && q !== '') settings.speed = Math.max(0, Math.min(3, +q || 0));
     bind();
+    settleViewport();
+    window.addEventListener('resize', settleViewport);
+    window.addEventListener('orientationchange', settleViewport);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', settleViewport);
+      window.visualViewport.addEventListener('scroll', settleViewport);
+    }
     syncSetButtons();
     const problems = selfCheck();
     if (problems.length) showCrash(problems.join('\n'));

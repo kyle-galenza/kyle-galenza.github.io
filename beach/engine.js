@@ -59,6 +59,15 @@
   }
   function saveMeta() { saveJSON(META_KEY, meta); }
   function saveSettings() { saveJSON(SET_KEY, settings); }
+  function settleViewport() {
+    const vv = window.visualViewport;
+    const h = Math.max(1, Math.round((vv && vv.height) || window.innerHeight || 0));
+    const root = document.documentElement;
+    root.style.setProperty('--app-h', h + 'px');
+    root.style.setProperty('--dock', Math.max(72, Math.round(h * 0.15)) + 'px');
+    root.style.setProperty('--vidband', Math.max(88, Math.round(h * 0.2)) + 'px');
+    if (window.scrollX || window.scrollY) window.scrollTo(0, 0);
+  }
   function withV(src) {
     if (!src) return '';
     return src + (src.indexOf('?') >= 0 ? '' : ART_V);
@@ -229,10 +238,9 @@
     });
     if (state) state.screen = name;
     document.body.dataset.screen = name;
-    if (name !== 'scene') {
-      document.body.classList.remove('fade-out');
-      document.body.classList.remove('choosing');
-    }
+    document.body.classList.remove('fade-out');
+    document.body.classList.remove('choosing');
+    settleViewport();
   }
   function overlayName() { return document.body.dataset.overlay || ''; }
   function showOverlay(name) {
@@ -303,8 +311,7 @@
     if (btn) btn.hidden = choiceOpen;
     if (choiceOpen) return;
     clearTimeout(autoTimer);
-    if (!fromClick && settings.skip && lineWasKnown) autoTimer = setTimeout(advance, 40);
-    else if (settings.auto) autoTimer = setTimeout(advance, autoDelay());
+    if (!fromClick && settings.auto) autoTimer = setTimeout(function () { advance(false); }, autoDelay());
   }
   function typePage() {
     const page = pages[pageIndex] || '';
@@ -392,7 +399,6 @@
       b.textContent = fmt(opt.text);
       function arm(e) { takeChoice(menu, i, e); }
       b.addEventListener('pointerup', arm);
-      b.addEventListener('click', arm);
       box.appendChild(b);
     });
     if (state && state.play) state.play.step = stepIndex;
@@ -457,11 +463,16 @@
     document.addEventListener('click', eat, true);
     setTimeout(cleanup, 0);
   }
-  function advance() {
+  let lastAdvance = 0;
+  function advance(fromUser) {
+    if (fromUser) {
+      const now = Date.now();
+      if (now - lastAdvance < 250) return;
+      lastAdvance = now;
+    }
     if (overlayName()) return;
     if (!state || state.screen !== 'scene' || !state.play || finishing) return;
     if (choiceOpen) return;
-    swallowNextClick();
     if (!textDone) { completeText(); return; }
     if (pageIndex < pages.length - 1) { pageIndex += 1; typePage(); return; }
     stepIndex += 1;
@@ -841,11 +852,18 @@
     v.setAttribute('muted', '');
     v.preload = 'auto';
     v.controls = false;
+    v.loop = false;
+    v.playbackRate = 1;
     v.disablePictureInPicture = true;
+    v.setAttribute('disablepictureinpicture', '');
     const pos = (vmeta && vmeta.pos) || 'center 22%';
+    v.style.objectFit = 'cover';
     v.style.objectPosition = pos;
     const posterEl = $('vidPoster');
-    if (posterEl) posterEl.style.objectPosition = pos;
+    if (posterEl) {
+      posterEl.style.objectFit = 'cover';
+      posterEl.style.objectPosition = pos;
+    }
     const poster = posterOf(vmeta);
     if (poster) {
       v.poster = withV(poster);
@@ -868,13 +886,16 @@
     };
     v.onerror = function () { finishVideo(); };
     v.src = withV(src);
+    let started = false;
     const start = function () {
-      try { if (v.currentTime > 0.05) v.currentTime = 0; } catch (e) {}
+      if (started || v.readyState < 2) return;
+      started = true;
+      v.playbackRate = 1;
       const p = v.play();
-      if (p && p.catch) p.catch(function () {});
+      if (p && p.catch) p.catch(function () { started = false; });
     };
     v.onloadeddata = start;
-    start();
+    v.oncanplay = start;
   }
   function unmuteVid() {
     const v = $('vid');
@@ -1168,7 +1189,7 @@
     settings.skip = !settings.skip;
     saveSettings();
     syncSetButtons();
-    toast(settings.skip ? 'Skip reads lines you have already seen' : 'Skip off');
+    toast(settings.skip ? 'Read lines appear at once. One tap still moves one line.' : 'Skip off');
   }
   let theme = null;
   let themeArmed = false;
@@ -1256,6 +1277,8 @@
   }
   function submitName() {
     const input = $('nameInput');
+    if (input && input.blur) input.blur();
+    settleViewport();
     newGame(input ? input.value : 'Kai');
   }
   function onEsc() {
@@ -1314,7 +1337,10 @@
     return problems;
   }
 
+  let bound = false;
   function bind() {
+    if (bound) return;
+    bound = true;
     if ($('gateYes')) $('gateYes').addEventListener('click', function () {
       try { localStorage.setItem(GATE_KEY, '1'); } catch (e) {}
       showTitle();
@@ -1345,7 +1371,12 @@
     $('mapLoad').addEventListener('click', function () { openSaves('load'); });
     $('mapSettings').addEventListener('click', openSettings);
     $('mapToTitle').addEventListener('click', function () { autosave(); showTitle(); });
-    $('btnAdvance').addEventListener('click', function (e) { e.stopPropagation(); advance(); });
+    $('btnAdvance').addEventListener('pointerup', function (e) {
+      if (e.pointerType === 'mouse' && e.button !== 0) return;
+      if (e.preventDefault) e.preventDefault();
+      if (e.stopPropagation) e.stopPropagation();
+      advance(true);
+    });
     let holdTimer = 0;
     let heldMenu = false;
     $('scene').addEventListener('pointerdown', function (e) {
@@ -1362,7 +1393,8 @@
       const el = eventEl(e.target);
       if (el && el.closest && el.closest('button, a, input, textarea, .choice')) return;
       if (overlayName()) return;
-      advance();
+      if (e.preventDefault) e.preventDefault();
+      advance(true);
     });
     $('scene').addEventListener('pointercancel', function () { clearTimeout(holdTimer); });
     document.addEventListener('pointerup', function () { ensureTheme(); });
@@ -1453,7 +1485,7 @@
         if (document.body.dataset.screen !== 'scene') return;
         e.preventDefault();
         if (e.repeat && !textDone) { completeText(); return; }
-        advance();
+        advance(true);
       }
     });
     window.addEventListener('pagehide', autosave);
@@ -1482,6 +1514,13 @@
     const q = new URLSearchParams(location.search).get('speed');
     if (q != null && q !== '') settings.speed = Math.max(0, Math.min(3, +q || 0));
     bind();
+    settleViewport();
+    window.addEventListener('resize', settleViewport);
+    window.addEventListener('orientationchange', settleViewport);
+    if (window.visualViewport) {
+      window.visualViewport.addEventListener('resize', settleViewport);
+      window.visualViewport.addEventListener('scroll', settleViewport);
+    }
     syncSetButtons();
     const problems = selfCheck();
     if (problems.length) showCrash(problems.join('\n'));

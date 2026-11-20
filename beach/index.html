@@ -150,7 +150,9 @@
     #fade,#toast{transition:none}
     .btn:active,.choice:active,.place:active{transform:none}
   }
-  :root{--topbar:0px;--dock:15dvh;--side:42vw}
+  :root{--topbar:0px;--app-h:100svh;--dock:15svh;--vidband:20svh;--side:42vw}
+  html,body{height:var(--app-h);min-height:var(--app-h);max-height:var(--app-h)}
+  #scene{top:0;right:0;bottom:auto;left:0;height:var(--app-h)}
   .meters,#mapActions,#hud{display:none !important}
   #toast,body[data-screen="scene"] #toast,body[data-screen="map"] #toast,body[data-screen="ending"] #toast,body[data-screen="title"] #toast{top:auto;bottom:calc(var(--dock) + 8px);max-width:min(280px,70vw)}
   body.choosing #toast{bottom:auto;top:calc(8px + env(safe-area-inset-top));max-width:min(240px,68vw)}
@@ -161,25 +163,26 @@
   #speaker{font-size:12px;line-height:1.05}
   #role{font-size:10px}
   #line{font-size:13px;line-height:1.2}
-  #lineWrap{flex:1 1 auto;min-height:0;padding-right:78px}
+  #lineWrap{flex:1 1 auto;min-height:0;max-height:100%;padding-right:78px}
+  #line{min-height:0}
   #btnAdvance{min-height:22px;min-width:0;height:22px;padding:0 8px;font-size:11px;bottom:2px;right:28px}
   .choice{min-height:32px;font-size:13px;line-height:1.15;padding:3px 10px;width:100%;max-width:none;flex:0 0 auto;text-align:left;border-radius:8px}
   #choices{flex-direction:column;flex-wrap:nowrap;align-items:stretch;overflow-x:hidden;overflow-y:auto;gap:4px}
-  .dlg{gap:1px;padding:3px 8px 3px}
+  .dlg{gap:1px;padding:3px 8px 3px;min-height:0;max-height:100%}
   #box,.dlg{background:#071820}
   .dlg{backdrop-filter:none;-webkit-backdrop-filter:none}
   body:not([data-screen="scene"]):not([data-screen="map"]) #btnPeek{visibility:hidden;pointer-events:none}
-  #bgImg,#cgImg{left:0;right:auto;top:0;bottom:0;width:100%;height:100dvh;object-fit:cover;object-position:center 22%}
-  #box{min-height:0;height:auto;max-height:var(--dock);padding:0 0 env(safe-area-inset-bottom);overflow:hidden}
+  #bgImg,#cgImg{left:0;right:auto;top:0;bottom:auto;width:100%;height:var(--app-h);object-fit:cover;object-position:center 22%}
+  #box{min-height:0;height:auto;max-height:calc(var(--dock) + env(safe-area-inset-bottom));padding:0 0 env(safe-area-inset-bottom);overflow:hidden}
   body.choosing #box{height:auto;min-height:0;max-height:34dvh;overflow:hidden;background:rgba(7,24,32,.88)}
-  .dlg{height:auto;max-height:var(--dock);overflow:hidden}
+  .dlg{height:auto;max-height:100%;overflow:hidden}
   body.choosing .dlg{height:auto;max-height:34dvh;overflow:hidden;background:transparent}
   body.choosing #choices{display:flex;flex-direction:column;gap:4px;max-height:144px;overflow-x:hidden;overflow-y:auto}
   body.choosing #btnPeek{visibility:hidden}
   #menu.overlay,#log.overlay,#saves.overlay,#settings.overlay{top:auto;bottom:0;left:0;right:0;height:20dvh;max-height:20dvh;background:transparent;padding:6px 8px calc(6px + env(safe-area-inset-bottom));align-items:stretch}
   #menu .sheet,#log .sheet,#saves .sheet,#settings .sheet{width:100%;max-height:100%;border-radius:16px 16px 0 0}
-  #video video,#vidPoster{inset:auto;left:0;right:auto;top:var(--topbar);bottom:auto;width:100%;height:calc(100dvh - var(--topbar) - 20dvh);object-fit:cover;object-position:center 22%;background:#041016}
-  .vid-ui{height:20dvh;align-items:center;background:#041016;border-top:1px solid var(--line)}
+  #video video,#vidPoster{inset:auto;left:0;right:auto;top:0;bottom:auto;width:100%;height:calc(var(--app-h) - var(--vidband));object-fit:cover;object-position:center 22%;background:#041016}
+  .vid-ui{height:var(--vidband);align-items:center;background:#041016;border-top:1px solid var(--line)}
   #vidTitle{position:static;flex:1.1;margin:0;text-shadow:none;color:var(--gold);letter-spacing:.08em;font:800 12px/1.3 system-ui}
   .cast img{object-fit:cover;object-position:center 22%;height:22vh;max-height:180px;background:#041820}
   #wardImg{object-fit:cover;object-position:center 22%;height:160px;background:#041820}
@@ -477,10 +480,10 @@ window.addEventListener('error', function (e) {
   function start() {
     document.documentElement.dataset.unlocked = "1";
     var s = document.createElement("script");
-    s.src = "story.js?v=11";
+    s.src = "story.js?v=12";
     s.onload = function () {
       var e = document.createElement("script");
-      e.src = "engine.js?v=10";
+      e.src = "engine.js?v=11";
       document.body.appendChild(e);
     };
     s.onerror = function () {
