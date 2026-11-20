@@ -284,7 +284,7 @@
   </form>
 </section>
 <button type="button" id="btnPeek" aria-label="Menu">···</button>
-<a id="dirLink" href="director.html" aria-label="Director">✦</a>
+<a id="dirLink" href="director.html?v=3" aria-label="Director">✦</a>
 <div id="bg" class="bg gate"></div>
 <div id="fade"></div>
 <div id="toast" role="status"></div>
@@ -545,10 +545,10 @@ window.addEventListener('unhandledrejection', function (e) {
   function start() {
     document.documentElement.dataset.unlocked = "1";
     var s = document.createElement("script");
-    s.src = "story.js?v=20";
+    s.src = "story.js?v=21";
     s.onload = function () {
       var e = document.createElement("script");
-      e.src = "engine.js?v=20";
+      e.src = "engine.js?v=21";
       document.body.appendChild(e);
     };
     s.onerror = function () {
