@@ -954,7 +954,7 @@ body.rt-on .fnum{animation-name:fnumB}
 <script>
 (() => {
 'use strict';
-const KA_GAME='lumenspire', KA_VERSION='2.0.0';
+const KA_GAME='lumenspire', KA_VERSION='2.0.3';
 /* KA_TELEMETRY_START */
 // Shared anonymous play-log module. No personal data.
 // TELEMETRY_URL is the ntfy.sh topic. Messages over 4096 bytes become attachments,
@@ -6854,8 +6854,10 @@ function memReplay(k){if(!S.mem||!S.mem[k])return;const [kind,id,a]=k.split(':')
   if(kind==='moment'&&id==='spill'){playSpill({onEnd:back});}}
 /* ===================== v2.0 Emberfall: preferences, settings hierarchy, Performance toggle, choices ===================== */
 const PREF_KEY='kylearcade_lumenspire_prefs';
-const PREF=Object.assign({perf:0,dmgnum:1,autoaim:1,shake:1,lite:0},(()=>{try{return JSON.parse(localStorage.getItem(PREF_KEY)||'{}')||{};}catch(e){return {};}})());
+const PREF=Object.assign({perf:1,dmgnum:1,autoaim:1,shake:1,lite:0},(()=>{try{return JSON.parse(localStorage.getItem(PREF_KEY)||'{}')||{};}catch(e){return {};}})());
 function prefSave(){try{localStorage.setItem(PREF_KEY,JSON.stringify(PREF));}catch(e){}}
+/* v2.0.3: Performance always boots On. Off lasts only for this session and is not restored on launch or reload. */
+PREF.perf=1;prefSave();
 function girlsOff(){return !!PREF.perf;}
 function prefApply(){document.body.classList.toggle('no-dmg',!PREF.dmgnum);document.body.classList.toggle('perf-on',!!PREF.perf);if(S)S.sceneLite=PREF.lite?1:S.sceneLite;}
 /* ---- Performance: the six are not spawned, cannot be talked to, and Memories leaves the menu ---- */
@@ -6873,7 +6875,7 @@ const _v2playScene=playScene;playScene=function(sc){if(girlsOff()&&sc&&isGirl(sc
 const _v2openMemories=openMemories;openMemories=function(){if(girlsOff())return;return _v2openMemories();};
 const _v2memReplay=memReplay;memReplay=function(k){if(girlsOff())return;return _v2memReplay(k);};
 const _v2playShared=playShared;playShared=function(id){if(girlsOff())return;return _v2playShared(id);};
-function perfToggle(){PREF.perf=PREF.perf?0:1;prefSave();prefApply();
+function perfToggle(on){PREF.perf=(on===true||on===1)?1:(on===false||on===0)?0:(PREF.perf?0:1);prefSave();prefApply();
   if(AREA&&AREA.ents){perfFilter(AREA);}
   if(girlsOff()){if(NSC)closeNpcScene(true);if(DLG&&DLG.sc&&isGirl(DLG.sc.npc))endScene();}
   try{KATel.pick&&KATel.pick('pref','perf',{on:PREF.perf});}catch(e){}}
